@@ -1,63 +1,53 @@
 #include "testutils.h"
-#include "gtesthelper.h"
+#include "rapidassist/testing.h"
+#include "rapidassist/environment.h"
+#include "rapidassist/filesystem.h"
+#include "rapidassist/process.h"
 #include "protobuf_locator.h"
 #include <algorithm>
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
-#endif
-#include <windows.h> // For GetModuleFilename, GetVersionEx
-
-
-
-static const char * PROTOBUF_DCOM_PLUGIN_NAME = "protobuf-dcom-plugin";
-
-
+static const char * PROTOBUF_PIPE_PLUGIN_NAME = "protobuf-pipe-plugin";
 
 std::string getPluginName()
 {
-  return PROTOBUF_DCOM_PLUGIN_NAME;
+  return PROTOBUF_PIPE_PLUGIN_NAME;
 }
 
 std::string getPluginFileName()
 {
   std::string path = getPluginFilePath();
-  std::string filename = getFilenameFromPath(path);
+  std::string filename = ra::filesystem::GetFilename(path.c_str());
   return filename;
 }
 
 std::string getPluginFilePath()
 {
-  std::string path = getExecutableFilePath();
+  std::string path = ra::process::GetCurrentProcessPath();
 
   //replace test executable name by plugin executable name
-  static const std::string plugin_name = PROTOBUF_DCOM_PLUGIN_NAME;
-  static const std::string   test_name = "protobuf-dcom-plugin_unittest";
-  replaceString(path, test_name, plugin_name);
+  static const std::string plugin_name = PROTOBUF_PIPE_PLUGIN_NAME;
+  static const std::string   test_name = "protobuf-pipe-plugin_unittest";
+  ra::strings::Replace(path, test_name, plugin_name);
 
   return path;
 }
 
 std::string getTestOutDir()
 {
-  gTestHelper & hlp = gTestHelper::getInstance();
-
   std::string outdir;
-  outdir.append(getExecutableDir());
+  outdir.append(ra::process::GetCurrentProcessDir());
   outdir.append("\\");
-  outdir.append(hlp.getTestSuiteName());
+  outdir.append(ra::testing::GetTestSuiteName());
   outdir.append("Out");
   return outdir;
 }
 
 std::string getTestProtoFilePath()
 {
-  gTestHelper & hlp = gTestHelper::getInstance();
-
   std::string outdir;
-  outdir.append(getExecutableDir());
+  outdir.append(ra::process::GetCurrentProcessDir());
   outdir.append("\\");
-  outdir.append(hlp.getTestSuiteName());
+  outdir.append(ra::testing::GetTestSuiteName());
   outdir.append(".proto");
   return outdir;
 }
@@ -67,64 +57,22 @@ std::string getTestProtoPath()
   std::string outdir;
   outdir.append(getProtobufIncludeDirectory());
   outdir.append(";");
-  outdir.append(getExecutableDir());
+  outdir.append(ra::process::GetCurrentProcessDir());
   outdir.append(";");
   outdir.append(getTestOutDir());
   return outdir;
 }
 
-std::string getEnvironementVariable(const char * iName)
-{
-  const char * value = getenv(iName);
-  if (value != NULL)
-  {
-    return std::string(value);
-  }
-  return std::string();
-}
-
 void addApplicationPath(const char * iPath)
 {
-  std::string oldPath = getEnvironementVariable("PATH");
+  std::string old_path = ra::environment::GetEnvironmentVariable("PATH");
 
-  std::string newPath;
-  newPath.append("PATH=");
-  newPath.append(iPath);
-  newPath.append(";");
-  newPath.append(oldPath);
+  std::string new_path;
+  new_path.append(iPath);
+  new_path.append(";");
+  new_path.append(old_path);
 
-  _putenv(newPath.c_str());
-}
-
-void setApplicationPath(const char * iFullPath)
-{
-  std::string newPath;
-  newPath.append("PATH=");
-  newPath.append(iFullPath);
-
-  _putenv(newPath.c_str());
-}
-
-std::string getExecutableFilePath()                           
-{                                                                 
-  std::string path;                                               
-  char buffer[MAX_PATH] = {0};                                    
-  HMODULE hModule = NULL;                                         
-  if (!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | 
-          GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,           
-          (LPCSTR) __FUNCTION__,   
-          &hModule))                                              
-  {                                                               
-      int ret = GetLastError();                                   
-      return std::string();                                       
-  }                                                               
-  /*get the path of this EXE*/                                    
-  GetModuleFileName(hModule, buffer, sizeof(buffer));             
-  if (buffer[0] != '\0')                                          
-  {                                                               
-    path = buffer;                                                
-  }                                                               
-  return path;                                                    
+  ra::environment::SetEnvironmentVariable("PATH", new_path.c_str());
 }
 
 void eraseToken(std::string & iString, const std::string & iToken)
@@ -137,81 +85,9 @@ void eraseToken(std::string & iString, const std::string & iToken)
   }
 }
 
-std::string getExecutableDir()
-{
-  std::string exec = getExecutableFilePath();
-
-  std::string dir = getDirectoryFromPath(exec);
-  return dir;
-}
-
-std::string getFilenameFromPath(const std::string & iPath)
-{
-  //search for the last path_separator location
-#ifdef _WIN32
-  const char path_separator = '\\';
-#else
-  const char path_separator = '/';
-#endif
-
-  std::string filename;
-
-  size_t pos = iPath.find_last_of(path_separator);
-  if (pos != std::string::npos)
-  {
-    //remove directory from path
-    filename = iPath.substr(pos+1);
-  }
-  else
-  {
-    filename = iPath;
-  }
-
-  return filename;
-}
-
-std::string getDirectoryFromPath(const std::string & iPath)
-{
-  //search for the last path_separator location
-#ifdef _WIN32
-  const char path_separator = '\\';
-#else
-  const char path_separator = '/';
-#endif
-
-  std::string dir;
-
-  size_t pos = iPath.find_last_of(path_separator);
-  if (pos != std::string::npos)
-  {
-    //remove directory from path
-    dir = iPath.substr(0, pos);
-  }
-  else
-  {
-    dir = iPath;
-  }
-
-  return dir;
-}
-
-std::string getFileExtensionFromPath(const std::string & iPath)
-{
-  std::string ext;
-
-  size_t pos = iPath.find_last_of('.');
-  if (pos != std::string::npos)
-  {
-    ext = iPath.substr(pos);
-  }
-
-  return ext;
-}
-
 bool hasMacroInFile(const char * iFilePath, std::string & oError)
 {
-  gTestHelper & hlp = gTestHelper::getInstance();
-  size_t fileSize = hlp.getFileSize(iFilePath);
+  size_t fileSize = ra::filesystem::GetFileSize(iFilePath);
 
   FILE * f = fopen(iFilePath, "rb");
   if (!f)
@@ -362,30 +238,12 @@ std::string findWordName(const std::string & iBuffer)
   return word;
 }
 
-//https://stackoverflow.com/questions/612097/how-can-i-get-the-list-of-files-in-a-directory-using-c-or-c
-std::vector<std::string> get_all_files_names_within_folder(const std::string & folder)
-{
-  std::vector<std::string> names;
-  std::string search_path = folder + "/*.*";
-  WIN32_FIND_DATA fd; 
-  HANDLE hFind = ::FindFirstFile(search_path.c_str(), &fd); 
-  if(hFind != INVALID_HANDLE_VALUE) { 
-    do { 
-      // read all (real) files in current folder
-      // , delete '!' read other 2 default folder . and ..
-      if(! (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ) {
-        names.push_back(folder + "\\" + fd.cFileName);
-      }
-    }while(::FindNextFile(hFind, &fd)); 
-    ::FindClose(hFind); 
-  } 
-  return names;
-}
-
 bool isFolderEquals(const std::string & folderA, const std::string & folderB)
 {
-  std::vector<std::string> filesA = get_all_files_names_within_folder(folderA);
-  std::vector<std::string> filesB = get_all_files_names_within_folder(folderB);
+  ra::strings::StringVector filesA;
+  ra::strings::StringVector filesB;
+  ra::filesystem::FindFiles(filesA, folderA.c_str());
+  ra::filesystem::FindFiles(filesB, folderB.c_str());
   if (filesA.size() != filesB.size())
     return false;
 
@@ -393,10 +251,10 @@ bool isFolderEquals(const std::string & folderA, const std::string & folderB)
   for(size_t i=0; i<filesA.size(); i++)
   {
     std::string & filePathA = filesA[i];
-    replaceString(filePathA, folderA + "\\", "");
+    ra::strings::Replace(filePathA, folderA + "\\", "");
     
     std::string & filePathB = filesB[i];
-    replaceString(filePathB, folderB + "\\", "");
+    ra::strings::Replace(filePathB, folderB + "\\", "");
   }
 
   //sort both folders
@@ -413,24 +271,13 @@ bool isFolderEquals(const std::string & folderA, const std::string & folderB)
   }
 
   //content must be equals
-  gTestHelper & hlp = gTestHelper::getInstance();
   for(size_t i=0; i<filesA.size(); i++)
   {
     std::string filePathA = (folderA + "\\") + filesA[i];
     std::string filePathB = (folderB + "\\") + filesB[i];
-    if (!hlp.isFileEquals(filePathA.c_str(), filePathB.c_str()))
+    if (!ra::testing::IsFileEquals(filePathA.c_str(), filePathB.c_str()))
       return false;
   }
 
   return true;
-}
-
-//https://stackoverflow.com/questions/3418231/replace-part-of-a-string-with-another-string
-void replaceString(std::string& subject, const std::string& search, const std::string& replace)
-{
-  size_t pos = 0;
-  while ((pos = subject.find(search, pos)) != std::string::npos) {
-    subject.replace(pos, search.length(), replace);
-    pos += replace.length();
-  }
 }

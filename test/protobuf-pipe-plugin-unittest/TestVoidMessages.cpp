@@ -1,5 +1,6 @@
 #include "TestVoidMessages.h"
 #include "testutils.h"
+#include "rapidassist/filesystem.h"
 
 void TestVoidMessages::SetUp()
 {
@@ -13,10 +14,11 @@ TEST_F(TestVoidMessages, DISABLED_testRun) //requires protobuf version 3 (proto3
 {
   //create output dir
   std::string outdir = getTestOutDir();
-  mkdir(outdir.c_str());
+  ra::filesystem::CreateDirectory(outdir.c_str());
 
   //delete all files in output dir
-  std::vector<std::string> outdir_files = get_all_files_names_within_folder(outdir);
+  std::vector<std::string> outdir_files;
+  ra::filesystem::FindFiles(outdir_files, outdir.c_str());
   for(size_t i=0; i<outdir_files.size(); i++)
   {
     const std::string & filePath = outdir_files[i];

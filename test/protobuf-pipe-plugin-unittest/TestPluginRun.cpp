@@ -1,11 +1,8 @@
 #include "TestPluginRun.h"
 #include "testutils.h"
 #include "protobuf_locator.h"
-
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
-#endif
-#include <Windows.h>
+#include "rapidassist/filesystem.h"
+#include "rapidassist/process.h"
 
 void TestPluginRun::SetUp()
 {
@@ -27,10 +24,11 @@ TEST_F(TestPluginRun, testRunPluginAbsolutePath)
 {
   //create output dir
   std::string outdir = getTestOutDir();
-  mkdir(outdir.c_str());
+  ra::filesystem::CreateDirectory(outdir.c_str());
 
   //delete all files in output dir
-  std::vector<std::string> outdir_files = get_all_files_names_within_folder(outdir);
+  std::vector<std::string> outdir_files;
+  ra::filesystem::FindFiles(outdir_files, outdir.c_str());
   for(size_t i=0; i<outdir_files.size(); i++)
   {
     const std::string & filePath = outdir_files[i];
@@ -38,7 +36,7 @@ TEST_F(TestPluginRun, testRunPluginAbsolutePath)
   }
 
   //protoc --plugin=protoc-gen-NAME=path/to/mybinary.exe --NAME_out=OUT_DIR
-  //protoc --plugin=protoc-gen-foobar=[...]\src\Debug\protobuf-dcom-plugin.exe --foobar_out=[...]\src\Debug\output --proto_path=[...]\src\Debug\proto_files [...]\src\Debug\proto_files\addressbookservice.proto
+  //protoc --plugin=protoc-gen-foobar=[...]\src\Debug\protobuf-pipe-plugin.exe --foobar_out=[...]\src\Debug\output --proto_path=[...]\src\Debug\proto_files [...]\src\Debug\proto_files\addressbookservice.proto
 
   //build
   std::string cmdline;
@@ -59,7 +57,8 @@ TEST_F(TestPluginRun, testRunPluginAbsolutePath)
   ASSERT_EXEC(cmdline.c_str());
 
   //validate no macros in output
-  std::vector<std::string> generatedFiles = get_all_files_names_within_folder( getTestOutDir() );
+  std::vector<std::string> generatedFiles;
+  ra::filesystem::FindFiles(generatedFiles, outdir.c_str());
   ASSERT_TRUE( generatedFiles.size() > 0 );
   std::string errorDescription;
   bool hasMacros = hasMacroInFiles(generatedFiles, errorDescription);
@@ -70,10 +69,11 @@ TEST_F(TestPluginRun, testRunPluginAutoDetect)
 {
   //create output dir
   std::string outdir = getTestOutDir();
-  mkdir(outdir.c_str());
+  ra::filesystem::CreateDirectory(outdir.c_str());
 
   //delete all files in output dir
-  std::vector<std::string> outdir_files = get_all_files_names_within_folder(outdir);
+  std::vector<std::string> outdir_files;
+  ra::filesystem::FindFiles(outdir_files, outdir.c_str());
   for(size_t i=0; i<outdir_files.size(); i++)
   {
     const std::string & filePath = outdir_files[i];
@@ -85,7 +85,7 @@ TEST_F(TestPluginRun, testRunPluginAutoDetect)
 
 
   //add plugin dir to %PATH%
-  addApplicationPath(getExecutableDir().c_str());
+  addApplicationPath(ra::process::GetCurrentProcessDir().c_str());
 
   //duplicate the plugin file adding the expected "protoc-gen-" prefix to the filename
   std::string cmdline;
@@ -93,7 +93,7 @@ TEST_F(TestPluginRun, testRunPluginAutoDetect)
   cmdline.append("copy \"");
   cmdline.append(getPluginFilePath());
   cmdline.append("\" \"");
-  cmdline.append(getExecutableDir());
+  cmdline.append(ra::process::GetCurrentProcessDir());
   cmdline.append("\\protoc-gen-");
   cmdline.append(getPluginFileName());
   cmdline.append("\" >NUL 2>NUL");
@@ -102,8 +102,8 @@ TEST_F(TestPluginRun, testRunPluginAutoDetect)
   ASSERT_EXEC(cmdline.c_str());
 
   std::string plugin_filename = getPluginFileName();
-  std::string plugin_extension = getFileExtensionFromPath(plugin_filename);
-  std::string plugin_name = plugin_filename; replaceString(plugin_name, plugin_extension, "");
+  std::string plugin_extension = ra::filesystem::GetFileExtention(plugin_filename);
+  std::string plugin_name = plugin_filename; ra::strings::Replace(plugin_name, plugin_extension, "");
 
   //build
   cmdline = "";
@@ -120,7 +120,8 @@ TEST_F(TestPluginRun, testRunPluginAutoDetect)
   ASSERT_EXEC(cmdline.c_str());
 
   //validate no macros in output
-  std::vector<std::string> generatedFiles = get_all_files_names_within_folder( getTestOutDir() );
+  std::vector<std::string> generatedFiles;
+  ra::filesystem::FindFiles(generatedFiles, getTestOutDir().c_str());
   ASSERT_TRUE( generatedFiles.size() > 0 );
   std::string errorDescription;
   bool hasMacros = hasMacroInFiles(generatedFiles, errorDescription);

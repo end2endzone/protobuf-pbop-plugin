@@ -1,5 +1,6 @@
 #include "TestDemo.h"
 #include "testutils.h"
+#include "rapidassist/filesystem.h"
 
 void TestDemo::SetUp()
 {
@@ -13,10 +14,11 @@ TEST_F(TestDemo, testRun)
 {
   //create output dir
   std::string outdir = getTestOutDir();
-  mkdir(outdir.c_str());
+  ra::filesystem::CreateDirectory(outdir.c_str());
 
   //delete all files in output dir
-  std::vector<std::string> outdir_files = get_all_files_names_within_folder(outdir);
+  std::vector<std::string> outdir_files;
+  ra::filesystem::FindFiles(outdir_files, outdir.c_str());
   for(size_t i=0; i<outdir_files.size(); i++)
   {
     const std::string & filePath = outdir_files[i];
@@ -46,13 +48,14 @@ TEST_F(TestDemo, testRunTwice)
 {
   //create second output dir
   std::string outdir2 = getTestOutDir()+"2";
-  mkdir(outdir2.c_str());
+  ra::filesystem::CreateDirectory(outdir2.c_str());
 
   //delete all files in output dir
-  std::vector<std::string> outdir2Files = get_all_files_names_within_folder(outdir2);
-  for(size_t i=0; i<outdir2Files.size(); i++)
+  std::vector<std::string> outdir2_files;
+  ra::filesystem::FindFiles(outdir2_files, outdir2.c_str());
+  for(size_t i=0; i<outdir2_files.size(); i++)
   {
-    const std::string & filePath = outdir2Files[i];
+    const std::string & filePath = outdir2_files[i];
     remove(filePath.c_str());
   }
 

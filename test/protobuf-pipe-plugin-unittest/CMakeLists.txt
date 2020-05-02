@@ -13,8 +13,6 @@ add_executable(protobuf-pipe-plugin_unittest
   ${PROTOBUFPIPEPLUGIN_VERSION_HEADER}
   ${PROTOBUFPIPEPLUGIN_CONFIG_HEADER}
   TestVoidMessages.proto
-  gtesthelper.cpp
-  gtesthelper.h
   main.cpp
   ${PROTOBUF_LOCATOR_SOURCE}
   protobuf_locator.cpp.in

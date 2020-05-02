@@ -4,13 +4,11 @@
 #include "DebugPrinter.h"
 #include "protofunc.h"
 
-#include <windows.h>
-
 PluginCodeGenerator::PluginCodeGenerator()
 {
 #if 0
   static const char * caption = "Debug breakpoint";
-  std::string message = "protobuf-dcom-plugin constructor.";
+  std::string message = "protobuf-pipe-plugin constructor.";
   MessageBox(NULL,message.c_str(), caption, 0);
   int a = 0;
 #endif
@@ -24,7 +22,7 @@ bool PluginCodeGenerator::Generate(const google::protobuf::FileDescriptor * file
 {
 #if 0
   static const char * caption = "Debug breakpoint";
-  std::string message = "protobuf-dcom-plugin" + std::string("\n\nFile: '") + file->name() + "'.";
+  std::string message = "protobuf-pipe-plugin" + std::string("\n\nFile: '") + file->name() + "'.";
   MessageBox(NULL,message.c_str(), caption, 0);
   int a = 0;
 #endif
@@ -32,6 +30,8 @@ bool PluginCodeGenerator::Generate(const google::protobuf::FileDescriptor * file
   //Show content of the file
   DebugPrinter debugger(generator_context);
   debugger.printFile(file, "debug.txt");
+
+
 
   if (error)
   {

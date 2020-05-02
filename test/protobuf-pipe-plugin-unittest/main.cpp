@@ -44,7 +44,8 @@
 #include <stdio.h>
 
 #include <gtest/gtest.h>
-#include "gtesthelper.h"
+
+#include "rapidassist/environment.h"
 
 #include "testutils.h"
 #include "protobuf_locator.h"
@@ -55,23 +56,12 @@ int main(int argc, char* argv[])
   std::string protoc_directory = getProtoCompilerDirectory();
   addApplicationPath(protoc_directory.c_str());
 
-
-  //init google test
-  gTestHelper & hlp = gTestHelper::getInstance();
-  if (hlp.isProcessorX86())
-  {
-    if (hlp.isDebugCode())
-      ::testing::GTEST_FLAG(output) = "xml:protobuf-dcom-plugin-tests.x86.debug.xml";
-    else
-      ::testing::GTEST_FLAG(output) = "xml:protobuf-dcom-plugin-tests.x86.release.xml";
-  }
-  else if (hlp.isProcessorX64())
-  {
-    if (hlp.isDebugCode())
-      ::testing::GTEST_FLAG(output) = "xml:protobuf-dcom-plugin-tests.x64.debug.xml";
-    else
-      ::testing::GTEST_FLAG(output) = "xml:protobuf-dcom-plugin-tests.x64.release.xml";
-  }
+  //define default values for xml output report
+  std::string outputXml = "xml:" "protobuf-pipe-plugin_unittest";
+  outputXml += (ra::environment::IsProcess32Bit() ? ".x86" : ".x64");
+  outputXml += (ra::environment::IsConfigurationDebug() ? ".debug" : ".release");
+  outputXml += ".xml";
+  ::testing::GTEST_FLAG(output) = outputXml;
 
   ::testing::GTEST_FLAG(filter) = "*";
   ::testing::InitGoogleTest(&argc, argv);
