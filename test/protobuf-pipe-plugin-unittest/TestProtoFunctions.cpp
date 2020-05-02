@@ -25,8 +25,22 @@
 #include "TestProtoFunctions.h"
 #include "libpipe.h"
 
+#ifdef _WIN32
+//google/protobuf/io/coded_stream.h(869): warning C4800: 'google::protobuf::internal::Atomic32' : forcing value to bool 'true' or 'false' (performance warning)
+//google/protobuf/wire_format_lite.h(863): warning C4146: unary minus operator applied to unsigned type, result still unsigned
+//google/protobuf/wire_format_lite.h(874): warning C4146: unary minus operator applied to unsigned type, result still unsigned
+//google/protobuf/generated_message_util.h(160): warning C4800: 'const google::protobuf::uint32' : forcing value to bool 'true' or 'false' (performance warning)
+__pragma( warning(push) )
+__pragma( warning(disable: 4800))
+__pragma( warning(disable: 4146))
+#endif //_WIN32
+
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/descriptor.pb.h>
+
+#ifdef _WIN32
+__pragma( warning(pop) )
+#endif //_WIN32
 
 using namespace google::protobuf;
 
@@ -65,19 +79,19 @@ FileDescriptorProto getBookProtoFile()
     fantasy->set_number(categoryenum->value_size());
 
     FieldDescriptorProto* title = book->add_field();
-    title->set_label(FieldDescriptorProto_Label::FieldDescriptorProto_Label_LABEL_OPTIONAL);
-    title->set_type(FieldDescriptorProto_Type::FieldDescriptorProto_Type_TYPE_STRING);
+    title->set_label(/*FieldDescriptorProto_Label::*/FieldDescriptorProto_Label_LABEL_OPTIONAL);
+    title->set_type(/*FieldDescriptorProto_Type::*/FieldDescriptorProto_Type_TYPE_STRING);
     title->set_name("title");
     title->set_number(book->field_size());
 
     FieldDescriptorProto* isbn = book->add_field();
-    isbn->set_label(FieldDescriptorProto_Label::FieldDescriptorProto_Label_LABEL_OPTIONAL);
-    isbn->set_type(FieldDescriptorProto_Type::FieldDescriptorProto_Type_TYPE_STRING);
+    isbn->set_label(/*FieldDescriptorProto_Label::*/FieldDescriptorProto_Label_LABEL_OPTIONAL);
+    isbn->set_type(/*FieldDescriptorProto_Type::*/FieldDescriptorProto_Type_TYPE_STRING);
     isbn->set_name("isbn");
     isbn->set_number(book->field_size());
 
     FieldDescriptorProto* category = book->add_field();
-    category->set_label(FieldDescriptorProto_Label::FieldDescriptorProto_Label_LABEL_OPTIONAL);
+    category->set_label(/*FieldDescriptorProto_Label::*/FieldDescriptorProto_Label_LABEL_OPTIONAL);
     category->set_type_name(categoryenum->name());
     category->set_name("category");
     category->set_number(book->field_size());

@@ -24,8 +24,6 @@
 
 #include "libpipe.h"
 
-#include <google/protobuf/descriptor.pb.h>
-
 #include "rapidassist/strings.h"
 
 std::string ToCppNamespace(const std::string & iPackage)
