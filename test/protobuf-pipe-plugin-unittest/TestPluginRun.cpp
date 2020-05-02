@@ -17,7 +17,12 @@ TEST_F(TestPluginRun, testShowProtocVersion)
   std::string cmdline;
   cmdline.append("protoc.exe --version");
 
-  ASSERT_EXEC(cmdline.c_str());
+  //run the command
+  int returnCode = system(cmdline.c_str());
+#ifdef __linux__
+  returnCode = WEXITSTATUS(returnCode);
+#endif
+  ASSERT_EQ(0, returnCode) << "The command line '" << cmdline.c_str() << "' returned " << returnCode;
 }
 
 TEST_F(TestPluginRun, testRunPluginAbsolutePath)
@@ -53,16 +58,12 @@ TEST_F(TestPluginRun, testRunPluginAbsolutePath)
   cmdline.append(" ");
   cmdline.append(getTestProtoFilePath());
 
-  //run command line
-  ASSERT_EXEC(cmdline.c_str());
-
-  //validate no macros in output
-  std::vector<std::string> generatedFiles;
-  ra::filesystem::FindFiles(generatedFiles, outdir.c_str());
-  ASSERT_TRUE( generatedFiles.size() > 0 );
-  std::string errorDescription;
-  bool hasMacros = hasMacroInFiles(generatedFiles, errorDescription);
-  ASSERT_FALSE(hasMacros) << errorDescription;
+  //run the command
+  int returnCode = system(cmdline.c_str());
+#ifdef __linux__
+  returnCode = WEXITSTATUS(returnCode);
+#endif
+  ASSERT_EQ(0, returnCode) << "The command line '" << cmdline.c_str() << "' returned " << returnCode;
 }
 
 TEST_F(TestPluginRun, testRunPluginAutoDetect)
@@ -98,8 +99,12 @@ TEST_F(TestPluginRun, testRunPluginAutoDetect)
   cmdline.append(getPluginFileName());
   cmdline.append("\" >NUL 2>NUL");
 
-  //run command line
-  ASSERT_EXEC(cmdline.c_str());
+  //run the command
+  int returnCode = system(cmdline.c_str());
+#ifdef __linux__
+  returnCode = WEXITSTATUS(returnCode);
+#endif
+  ASSERT_EQ(0, returnCode) << "The command line '" << cmdline.c_str() << "' returned " << returnCode;
 
   std::string plugin_filename = getPluginFileName();
   std::string plugin_extension = ra::filesystem::GetFileExtention(plugin_filename);
@@ -116,14 +121,10 @@ TEST_F(TestPluginRun, testRunPluginAutoDetect)
   cmdline.append(" ");
   cmdline.append(getTestProtoFilePath());
   
-  //run command line
-  ASSERT_EXEC(cmdline.c_str());
-
-  //validate no macros in output
-  std::vector<std::string> generatedFiles;
-  ra::filesystem::FindFiles(generatedFiles, getTestOutDir().c_str());
-  ASSERT_TRUE( generatedFiles.size() > 0 );
-  std::string errorDescription;
-  bool hasMacros = hasMacroInFiles(generatedFiles, errorDescription);
-  ASSERT_FALSE(hasMacros) << errorDescription;
+  //run the command
+  returnCode = system(cmdline.c_str());
+#ifdef __linux__
+  returnCode = WEXITSTATUS(returnCode);
+#endif
+  ASSERT_EQ(0, returnCode) << "The command line '" << cmdline.c_str() << "' returned " << returnCode;
 }

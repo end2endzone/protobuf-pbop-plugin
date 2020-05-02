@@ -31,8 +31,6 @@ bool PluginCodeGenerator::Generate(const google::protobuf::FileDescriptor * file
   DebugPrinter debugger(generator_context);
   debugger.printFile(file, "debug.txt");
 
-
-
   if (error)
   {
     std::string & e = (*error);

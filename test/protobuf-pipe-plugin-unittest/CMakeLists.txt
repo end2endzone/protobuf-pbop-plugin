@@ -17,18 +17,6 @@ add_executable(protobuf-pipe-plugin_unittest
   ${PROTOBUF_LOCATOR_SOURCE}
   protobuf_locator.cpp.in
   protobuf_locator.h
-  TestBuildFull.cpp
-  TestBuildFull.h
-  TestBuildFull.proto
-  TestBuildQuick.cpp
-  TestBuildQuick.h
-  TestBuildQuick.proto
-  TestCalculator.cpp
-  TestCalculator.h
-  TestCalculator.proto
-  TestDemo.cpp
-  TestDemo.h
-  TestDemo.proto
   TestPluginRun.cpp
   TestPluginRun.h
   TestPluginRun.proto
@@ -36,8 +24,6 @@ add_executable(protobuf-pipe-plugin_unittest
   TestProtoFunctions.h
   testutils.cpp
   testutils.h
-  TestVoidMessages.cpp
-  TestVoidMessages.h
 )
 
 # Unit test projects requires to link with pthread if also linking with gtest
