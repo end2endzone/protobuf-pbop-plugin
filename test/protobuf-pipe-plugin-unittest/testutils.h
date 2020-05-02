@@ -3,11 +3,10 @@
 #include <string>
 #include <vector>
 
-std::string getPluginName();
+std::string getPluginShortName();
 std::string getPluginFileName();
 std::string getPluginFilePath();
 
-std::string getTestOutDir();
 std::string getTestProtoFilePath();
 std::string getTestProtoPath();
 

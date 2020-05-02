@@ -12,7 +12,6 @@ add_executable(protobuf-pipe-plugin_unittest
   ${PROTOBUFPIPEPLUGIN_EXPORT_HEADER}
   ${PROTOBUFPIPEPLUGIN_VERSION_HEADER}
   ${PROTOBUFPIPEPLUGIN_CONFIG_HEADER}
-  TestVoidMessages.proto
   main.cpp
   ${PROTOBUF_LOCATOR_SOURCE}
   protobuf_locator.cpp.in
@@ -47,14 +46,16 @@ target_include_directories(protobuf-pipe-plugin_unittest
 add_dependencies(protobuf-pipe-plugin_unittest protobuf-pipe-plugin libPipe)
 target_link_libraries(protobuf-pipe-plugin_unittest PRIVATE libPipe ${PTHREAD_LIBRARIES} ${GTEST_LIBRARIES} rapidassist)
 
-# Define the proto files to process before building `protobuf-pipe-plugin_unittest`
+#    # Define the proto files to process before building `protobuf-pipe-plugin_unittest`
+#------------------------------------------------
+# Define a prebuild step for target 'protobuf-pipe-plugin_unittest'.
+# Copies unit test *.proto files based on the following criteria:
+#   1) At build time, copies the input file if output does not exists.
+#   2) At build time, copies the input file if input file is modified.
+#   Note: This step does not copy the input file if output file is modified.
+#------------------------------------------------
 set(OUTPUT_PROTO_FILES
-  ${EXECUTABLE_OUTPUT_PATH}/TestBuildFull.proto
-  ${EXECUTABLE_OUTPUT_PATH}/TestVoidMessages.proto
   ${EXECUTABLE_OUTPUT_PATH}/TestPluginRun.proto
-  ${EXECUTABLE_OUTPUT_PATH}/TestDemo.proto
-  ${EXECUTABLE_OUTPUT_PATH}/TestCalculator.proto
-  ${EXECUTABLE_OUTPUT_PATH}/TestBuildQuick.proto
 )
 if (WIN32)
   # On Windows, we need to duplicate the output files for `Debug` and `Release` directories
@@ -70,17 +71,16 @@ if (WIN32)
 endif()
 foreach(output_file ${OUTPUT_PROTO_FILES})
   get_filename_component(filename ${output_file} NAME)
-  #get_filename_component(filename_we ${output_file} NAME_WE)
-  #get_filename_component(output_dir ${output_file} DIRECTORY)
 
-  #Compute the input file's path
+  #Compute the intput file's path
   set(input_file "${CMAKE_CURRENT_SOURCE_DIR}/${filename}")
 
-  # message("Processing proto file: " ${filename})
+  #Output a copy confirmation on console
+  message("Copying '${filename}' to '${output_file}'...")
 
-  # Step 1: copy the file to the output directory
   add_custom_command(
     OUTPUT ${output_file}
+    DEPENDS ${input_file}
     COMMAND ${CMAKE_COMMAND} -E copy
             ${input_file}
             ${output_file}
@@ -88,7 +88,6 @@ foreach(output_file ${OUTPUT_PROTO_FILES})
 endforeach()
 add_custom_target(unittest-prebuild DEPENDS ${OUTPUT_PROTO_FILES})
 add_dependencies(protobuf-pipe-plugin_unittest unittest-prebuild)
-
 
 # Force Visual Studio to execute code in $(OutDir) when debugging from the IDE.
 if (WIN32)

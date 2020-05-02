@@ -20,7 +20,7 @@ DebugPrinter::~DebugPrinter()
 {
 }
 
-void DebugPrinter::printFile(const FileDescriptor * file, const char * iFilename)
+void DebugPrinter::PrintFile(const FileDescriptor * file, const char * iFilename)
 {
   google::protobuf::io::ZeroCopyOutputStream * infoStream = mGenerator->Open(iFilename);
   StreamPrinter info(infoStream); //StreamPrinter takes ownership of the Stream

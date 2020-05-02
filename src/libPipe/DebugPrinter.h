@@ -12,7 +12,7 @@ public:
   DebugPrinter(GeneratorContext * generator_context);
   virtual ~DebugPrinter();
 
-  void printFile(const FileDescriptor * file, const char * iFilename);
+  void PrintFile(const FileDescriptor * file, const char * iFilename);
 
 private:
   GeneratorContext * mGenerator;

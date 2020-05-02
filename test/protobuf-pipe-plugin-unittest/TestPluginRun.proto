@@ -1,24 +1,13 @@
+syntax = "proto3";
+
 package testpluginrun;
 
-import "dcomplugin.proto";
-
-option (dcomplugin.component).name                              = "TestPluginRun";
-option (dcomplugin.component).typelib.coclass.name              = "TestPluginRun.object";
-option (dcomplugin.component).typelib.coclass.friendlyname      = "TestPluginRun object";
-option (dcomplugin.component).typelib.coclass.id.guid           = "b5f0b10a-f7bc-48fd-a920-fc0d6498a7b1";
-option (dcomplugin.component).typelib.coclass.id.helpstring     = "coclass helpstring";
-option (dcomplugin.component).typelib.name                      = "TestPluginRunLibrary";
-option (dcomplugin.component).typelib.id.guid                   = "a22bbdb8-e288-45fa-a9ed-36e1ea7777fd";
-option (dcomplugin.component).typelib.id.helpstring             = "library helpstring";
-option (dcomplugin.component).typelib.cointerface.id.guid       = "ccd85003-4110-4491-806d-3f034636feac";
-option (dcomplugin.component).typelib.cointerface.id.helpstring = "interface helpstring";
-
-message VoidMessage {
+message GetSequentialNumberRequest {
 }
-message SequentialNumber {
-  required int32 value = 1;
+message GetSequentialNumberResponse {
+  int32 value = 1;
 }
 
 service CounterService {
-  rpc GetSequentialNumber (VoidMessage) returns (SequentialNumber);
+  rpc GetSequentialNumber (GetSequentialNumberRequest) returns (GetSequentialNumberResponse);
 }

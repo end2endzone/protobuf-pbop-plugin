@@ -8,9 +8,9 @@
 
 static const char * PROTOBUF_PIPE_PLUGIN_NAME = "protobuf-pipe-plugin";
 
-std::string getPluginName()
+std::string getPluginShortName()
 {
-  return PROTOBUF_PIPE_PLUGIN_NAME;
+  return "pipe";
 }
 
 std::string getPluginFileName()
@@ -32,16 +32,6 @@ std::string getPluginFilePath()
   return path;
 }
 
-std::string getTestOutDir()
-{
-  std::string outdir;
-  outdir.append(ra::process::GetCurrentProcessDir());
-  outdir.append("\\");
-  outdir.append(ra::testing::GetTestSuiteName());
-  outdir.append("Out");
-  return outdir;
-}
-
 std::string getTestProtoFilePath()
 {
   std::string outdir;
@@ -59,7 +49,6 @@ std::string getTestProtoPath()
   outdir.append(";");
   outdir.append(ra::process::GetCurrentProcessDir());
   outdir.append(";");
-  outdir.append(getTestOutDir());
   return outdir;
 }
 

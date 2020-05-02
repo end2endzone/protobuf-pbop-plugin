@@ -1,6 +1,8 @@
 #include "StreamPrinter.h"
+
+#include "rapidassist/strings.h"
+
 #include <stdarg.h>
-#include <shlobj.h>
 
 StreamPrinter::StreamPrinter(google::protobuf::io::ZeroCopyOutputStream * iStream) :
   mStream(iStream)
@@ -51,7 +53,33 @@ void StreamPrinter::print(const unsigned char * iValue, size_t iLength)
 
 void StreamPrinter::print(const std::string & iValue)
 {
+#ifdef _WIN32
+  //replace \n by \r\n
+  static const std::string & windows_newline = "\r\n";
+  static const std::string & unix_newline = "\n";
+
+  //is the given buffer already properly formatted ?
+  if (iValue.find(windows_newline) != std::string::npos)
+  {
+    //the given buffer already have \r\n format
+    print( (unsigned char *)iValue.c_str(), iValue.size() );
+  }
+  else if (iValue.find(unix_newline) != std::string::npos)
+  {
+    //must replace \n by \r\n
+    std::string tmp = iValue;
+    ra::strings::Replace(tmp, unix_newline, windows_newline);
+    print( (unsigned char *)tmp.c_str(), tmp.size() );
+  }
+  else
+  {
+    //no newline in given buffer, use as-is
+    print( (unsigned char *)iValue.c_str(), iValue.size() );
+  }
+#else
+  //use directly
   print( (unsigned char *)iValue.c_str(), iValue.size() );
+#endif
 }
 
 void StreamPrinter::print(const char * iFormat, ...)
