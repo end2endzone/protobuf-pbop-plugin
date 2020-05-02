@@ -29,7 +29,7 @@
 #include "rapidassist/environment.h"
 #include "rapidassist/testing.h"
 
-#include "testutils.h"
+#include "TestUtils.h"
 #include "protobuf_locator.h"
 
 void TestPluginRun::SetUp()

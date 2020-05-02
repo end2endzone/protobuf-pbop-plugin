@@ -22,7 +22,7 @@
  * SOFTWARE.
  *********************************************************************************/
 
-#include "protofunc.h"
+#include "libpipe.h"
 
 #include <google/protobuf/descriptor.pb.h>
 

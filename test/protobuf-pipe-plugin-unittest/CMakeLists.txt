@@ -21,8 +21,8 @@ add_executable(protobuf-pipe-plugin_unittest
   TestPluginRun.proto
   TestProtoFunctions.cpp
   TestProtoFunctions.h
-  testutils.cpp
-  testutils.h
+  TestUtils.cpp
+  TestUtils.h
 )
 
 # Unit test projects requires to link with pthread if also linking with gtest

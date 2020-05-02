@@ -22,7 +22,7 @@
  * SOFTWARE.
  *********************************************************************************/
 
-#include "testutils.h"
+#include "TestUtils.h"
 #include "protobuf_locator.h"
 
 #include "rapidassist/testing.h"

@@ -23,7 +23,7 @@
  *********************************************************************************/
 
 #include "TestProtoFunctions.h"
-#include "protofunc.h"
+#include "libpipe.h"
 
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/descriptor.pb.h>

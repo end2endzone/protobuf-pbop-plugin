@@ -32,7 +32,7 @@
 
 #include "StreamPrinter.h"
 #include "DebugPrinter.h"
-#include "protofunc.h"
+#include "libpipe.h"
 
 //for debugging
 #include <Windows.h>

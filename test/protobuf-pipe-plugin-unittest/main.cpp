@@ -30,7 +30,7 @@
 
 #include "rapidassist/environment.h"
 
-#include "testutils.h"
+#include "TestUtils.h"
 #include "protobuf_locator.h"
 
 int main(int argc, char* argv[])

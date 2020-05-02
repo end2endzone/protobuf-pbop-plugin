@@ -4,8 +4,8 @@ add_library(libPipe
   ${PROTOBUFPIPEPLUGIN_CONFIG_HEADER}
   DebugPrinter.cpp
   DebugPrinter.h
-  protofunc.cpp
-  protofunc.h
+  libpipe.cpp
+  libpipe.h
   StreamPrinter.cpp
   StreamPrinter.h
 )
