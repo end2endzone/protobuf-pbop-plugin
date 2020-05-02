@@ -1,3 +1,27 @@
+/**********************************************************************************
+ * MIT License
+ * 
+ * Copyright (c) 2018 Antoine Beauchamp
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *********************************************************************************/
+
 #include "DebugPrinter.h"
 #include "StreamPrinter.h"
 
@@ -27,7 +51,7 @@ void DebugPrinter::PrintFile(const FileDescriptor * file, const char * iFilename
 
   //package
   const std::string & package = file->package();
-  info.print("Found package: %s" NEWLINE, package.c_str());
+  info.Print("Found package: %s" NEWLINE, package.c_str());
 
   //options
   const google::protobuf::FileOptions & options = file->options();
@@ -40,19 +64,19 @@ void DebugPrinter::PrintFile(const FileDescriptor * file, const char * iFilename
     switch(type)
     {
     case google::protobuf::UnknownField::TYPE_FIXED32:
-      info.print("Found UnknownField (FIXED32): %d" NEWLINE, field.fixed32());
+      info.Print("Found UnknownField (FIXED32): %d" NEWLINE, field.fixed32());
       break;
     case google::protobuf::UnknownField::TYPE_FIXED64:
-      info.print("Found UnknownField (FIXED64): %d" NEWLINE, field.fixed64());
+      info.Print("Found UnknownField (FIXED64): %d" NEWLINE, field.fixed64());
       break;
     case google::protobuf::UnknownField::TYPE_GROUP:
-      info.print("Found UnknownField (GROUP): ..." NEWLINE);
+      info.Print("Found UnknownField (GROUP): ..." NEWLINE);
       break;
     case google::protobuf::UnknownField::TYPE_LENGTH_DELIMITED:
-      info.print("Found UnknownField (LENGTH_DELIMITED): %s" NEWLINE, field.length_delimited().c_str());
+      info.Print("Found UnknownField (LENGTH_DELIMITED): %s" NEWLINE, field.length_delimited().c_str());
       break;
     case google::protobuf::UnknownField::TYPE_VARINT:
-      info.print("Found UnknownField (VARINT): %d" NEWLINE, field.varint());
+      info.Print("Found UnknownField (VARINT): %d" NEWLINE, field.varint());
       break;
     //default:
     //  char errorMessage[1024];
@@ -68,7 +92,7 @@ void DebugPrinter::PrintFile(const FileDescriptor * file, const char * iFilename
   {
     const google::protobuf::FileDescriptor * d = file->dependency(i);
     const std::string & name = d->name();
-    info.print("Found dependency: %s" NEWLINE, name.c_str());
+    info.Print("Found dependency: %s" NEWLINE, name.c_str());
   }
 
   //enums
@@ -78,7 +102,7 @@ void DebugPrinter::PrintFile(const FileDescriptor * file, const char * iFilename
     const google::protobuf::EnumDescriptor * d = file->enum_type(i);
     const std::string fullname = d->full_name();
     const std::string & name = d->name();
-    info.print("Found enum: %s (%s)" NEWLINE, name.c_str(), fullname.c_str());
+    info.Print("Found enum: %s (%s)" NEWLINE, name.c_str(), fullname.c_str());
   }
 
   //extensions
@@ -89,7 +113,7 @@ void DebugPrinter::PrintFile(const FileDescriptor * file, const char * iFilename
     const google::protobuf::FieldDescriptor * d = file->extension(i);
     const std::string fullname = d->full_name();
     const std::string & name = d->name();
-    info.print("Found extension: %s (%s) typename=%s" NEWLINE, name.c_str(), fullname.c_str(), d->type_name());
+    info.Print("Found extension: %s (%s) typename=%s" NEWLINE, name.c_str(), fullname.c_str(), d->type_name());
 
     const google::protobuf::Descriptor * desc = d->message_type();
     
@@ -119,7 +143,7 @@ void DebugPrinter::PrintFile(const FileDescriptor * file, const char * iFilename
     const google::protobuf::Descriptor * d = file->message_type(i);
     const std::string fullname = d->full_name();
     const std::string & name = d->name();
-    info.print("Found message: %s (%s)" NEWLINE, name.c_str(), fullname.c_str());
+    info.Print("Found message: %s (%s)" NEWLINE, name.c_str(), fullname.c_str());
   }
 
   //public dependencies
@@ -129,7 +153,7 @@ void DebugPrinter::PrintFile(const FileDescriptor * file, const char * iFilename
     const google::protobuf::Descriptor * d = file->message_type(i);
     const std::string fullname = d->full_name();
     const std::string & name = d->name();
-    info.print("Found public dependency: %s (%s)" NEWLINE, name.c_str(), fullname.c_str());
+    info.Print("Found public dependency: %s (%s)" NEWLINE, name.c_str(), fullname.c_str());
   }
 
   //services
@@ -139,7 +163,7 @@ void DebugPrinter::PrintFile(const FileDescriptor * file, const char * iFilename
     const google::protobuf::ServiceDescriptor * d = file->service(i);
     const std::string fullname = d->full_name();
     const std::string & name = d->name();
-    info.print("Found service: %s (%s)" NEWLINE, name.c_str(), fullname.c_str());
+    info.Print("Found service: %s (%s)" NEWLINE, name.c_str(), fullname.c_str());
     
     int numMethods = d->method_count();
     for(int j=0; j<numMethods; j++)
@@ -148,21 +172,21 @@ void DebugPrinter::PrintFile(const FileDescriptor * file, const char * iFilename
       {
         const std::string fullname = m->full_name();
         const std::string & name = m->name();
-        info.print("  found method: %s (%s)" NEWLINE, name.c_str(), fullname.c_str());
+        info.Print("  found method: %s (%s)" NEWLINE, name.c_str(), fullname.c_str());
       }
 
       const google::protobuf::Descriptor * inputDesc = m->input_type();
       {
         const std::string fullname = inputDesc->full_name();
         const std::string & name = inputDesc->name();
-        info.print("  input:  %s (%s)" NEWLINE, name.c_str(), fullname.c_str());
+        info.Print("  input:  %s (%s)" NEWLINE, name.c_str(), fullname.c_str());
       }
 
       const google::protobuf::Descriptor * outputDesc = m->output_type();
       {
         const std::string fullname = outputDesc->full_name();
         const std::string & name = outputDesc->name();
-        info.print("  output: %s (%s)" NEWLINE, name.c_str(), fullname.c_str());
+        info.Print("  output: %s (%s)" NEWLINE, name.c_str(), fullname.c_str());
       }
     }
   }
@@ -173,7 +197,7 @@ void DebugPrinter::PrintFile(const FileDescriptor * file, const char * iFilename
   {
     const google::protobuf::FileDescriptor * d = file->weak_dependency(i);
     const std::string & name = d->name();
-    info.print("Found weak dependency: %s" NEWLINE, name.c_str());
+    info.Print("Found weak dependency: %s" NEWLINE, name.c_str());
   }
 
 }

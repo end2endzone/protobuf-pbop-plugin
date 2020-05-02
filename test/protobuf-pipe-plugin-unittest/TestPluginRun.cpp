@@ -1,10 +1,36 @@
+/**********************************************************************************
+ * MIT License
+ * 
+ * Copyright (c) 2018 Antoine Beauchamp
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *********************************************************************************/
+
 #include "TestPluginRun.h"
-#include "testutils.h"
-#include "protobuf_locator.h"
+
 #include "rapidassist/filesystem.h"
 #include "rapidassist/process.h"
 #include "rapidassist/environment.h"
 #include "rapidassist/testing.h"
+
+#include "testutils.h"
+#include "protobuf_locator.h"
 
 void TestPluginRun::SetUp()
 {
@@ -42,17 +68,17 @@ TEST_F(TestPluginRun, testRunPluginAbsolutePath)
   //build
   std::string cmdline;
   cmdline.append("protoc.exe --plugin=protoc-gen-");
-  cmdline.append(getPluginShortName());
+  cmdline.append(GetPluginShortName());
   cmdline.append("=");
-  cmdline.append(getPluginFilePath());
+  cmdline.append(GetPluginFilePath());
   cmdline.append(" --");
-  cmdline.append(getPluginShortName());
+  cmdline.append(GetPluginShortName());
   cmdline.append("_out=");
   cmdline.append(outdir);
   cmdline.append(" --proto_path=");
-  cmdline.append(getTestProtoPath());
+  cmdline.append(GetTestProtoPath());
   cmdline.append(" ");
-  cmdline.append(getTestProtoFilePath());
+  cmdline.append(GetTestProtoFilePath());
 
   //run the command
   printf("%s\n", cmdline.c_str());
@@ -76,16 +102,16 @@ TEST_F(TestPluginRun, testRunPluginAutoDetect)
   //protoc.exe looks for protoc-gen-NAME.exe in %PATH%
 
   //add plugin dir to %PATH%
-  addApplicationPath(ra::process::GetCurrentProcessDir().c_str());
+  AddApplicationPath(ra::process::GetCurrentProcessDir().c_str());
 
   //duplicate the plugin file adding the expected "protoc-gen-" prefix to the filename
   static const std::string PREFIX = "protoc-gen-";
-  const std::string exec_path = getPluginFilePath();
+  const std::string exec_path = GetPluginFilePath();
   const std::string exec_dir = ra::process::GetCurrentProcessDir() + separator;
   std::string output_path = exec_path; ra::strings::Replace(output_path, exec_dir, exec_dir + PREFIX);
   ASSERT_TRUE( ra::filesystem::CopyFile(exec_path, output_path) );
 
-  std::string plugin_filename = getPluginFileName();
+  std::string plugin_filename = GetPluginFileName();
   std::string plugin_name_we = ra::filesystem::GetFilenameWithoutExtension(plugin_filename.c_str());
 
   //build
@@ -95,9 +121,9 @@ TEST_F(TestPluginRun, testRunPluginAutoDetect)
   cmdline.append("_out=");
   cmdline.append(outdir);
   cmdline.append(" --proto_path=");
-  cmdline.append(getTestProtoPath());
+  cmdline.append(GetTestProtoPath());
   cmdline.append(" ");
-  cmdline.append(getTestProtoFilePath());
+  cmdline.append(GetTestProtoFilePath());
   
   //run the command
   printf("%s\n", cmdline.c_str());

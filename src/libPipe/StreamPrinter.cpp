@@ -1,3 +1,27 @@
+/**********************************************************************************
+ * MIT License
+ * 
+ * Copyright (c) 2018 Antoine Beauchamp
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *********************************************************************************/
+
 #include "StreamPrinter.h"
 
 #include "rapidassist/strings.h"
@@ -18,7 +42,7 @@ StreamPrinter::~StreamPrinter()
   }
 }
 
-void StreamPrinter::print(const unsigned char * iValue, size_t iLength)
+void StreamPrinter::Print(const unsigned char * iValue, size_t iLength)
 {
   size_t dumpIndex = 0;
 
@@ -51,7 +75,7 @@ void StreamPrinter::print(const unsigned char * iValue, size_t iLength)
   }
 }
 
-void StreamPrinter::print(const std::string & iValue)
+void StreamPrinter::Print(const std::string & iValue)
 {
 #ifdef _WIN32
   //replace \n by \r\n
@@ -62,19 +86,19 @@ void StreamPrinter::print(const std::string & iValue)
   if (iValue.find(windows_newline) != std::string::npos)
   {
     //the given buffer already have \r\n format
-    print( (unsigned char *)iValue.c_str(), iValue.size() );
+    Print( (unsigned char *)iValue.c_str(), iValue.size() );
   }
   else if (iValue.find(unix_newline) != std::string::npos)
   {
     //must replace \n by \r\n
     std::string tmp = iValue;
     ra::strings::Replace(tmp, unix_newline, windows_newline);
-    print( (unsigned char *)tmp.c_str(), tmp.size() );
+    Print( (unsigned char *)tmp.c_str(), tmp.size() );
   }
   else
   {
     //no newline in given buffer, use as-is
-    print( (unsigned char *)iValue.c_str(), iValue.size() );
+    Print( (unsigned char *)iValue.c_str(), iValue.size() );
   }
 #else
   //use directly
@@ -82,7 +106,7 @@ void StreamPrinter::print(const std::string & iValue)
 #endif
 }
 
-void StreamPrinter::print(const char * iFormat, ...)
+void StreamPrinter::Print(const char * iFormat, ...)
 {
   std::string s;
 
@@ -97,5 +121,5 @@ void StreamPrinter::print(const char * iFormat, ...)
 
   va_end (args);
 
-  print(s);
+  Print(s);
 }

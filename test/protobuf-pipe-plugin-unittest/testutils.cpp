@@ -1,26 +1,52 @@
+/**********************************************************************************
+ * MIT License
+ * 
+ * Copyright (c) 2018 Antoine Beauchamp
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *********************************************************************************/
+
 #include "testutils.h"
+#include "protobuf_locator.h"
+
 #include "rapidassist/testing.h"
 #include "rapidassist/environment.h"
 #include "rapidassist/filesystem.h"
 #include "rapidassist/process.h"
-#include "protobuf_locator.h"
+
 #include <algorithm>
 
 static const char * PROTOBUF_PIPE_PLUGIN_NAME = "protobuf-pipe-plugin";
 
-std::string getPluginShortName()
+std::string GetPluginShortName()
 {
   return "pipe";
 }
 
-std::string getPluginFileName()
+std::string GetPluginFileName()
 {
-  std::string path = getPluginFilePath();
+  std::string path = GetPluginFilePath();
   std::string filename = ra::filesystem::GetFilename(path.c_str());
   return filename;
 }
 
-std::string getPluginFilePath()
+std::string GetPluginFilePath()
 {
   std::string path = ra::process::GetCurrentProcessPath();
 
@@ -32,7 +58,7 @@ std::string getPluginFilePath()
   return path;
 }
 
-std::string getTestProtoFilePath()
+std::string GetTestProtoFilePath()
 {
   std::string outdir;
   outdir.append(ra::process::GetCurrentProcessDir());
@@ -42,7 +68,7 @@ std::string getTestProtoFilePath()
   return outdir;
 }
 
-std::string getTestProtoPath()
+std::string GetTestProtoPath()
 {
   std::string outdir;
   outdir.append(getProtobufIncludeDirectory());
@@ -52,7 +78,7 @@ std::string getTestProtoPath()
   return outdir;
 }
 
-void addApplicationPath(const char * iPath)
+void AddApplicationPath(const char * iPath)
 {
   std::string old_path = ra::environment::GetEnvironmentVariable("PATH");
 
@@ -64,7 +90,7 @@ void addApplicationPath(const char * iPath)
   ra::environment::SetEnvironmentVariable("PATH", new_path.c_str());
 }
 
-void eraseToken(std::string & iString, const std::string & iToken)
+void EraseToken(std::string & iString, const std::string & iToken)
 {
   size_t pos = iString.find(iToken);
   if (pos != std::string::npos)
@@ -74,7 +100,7 @@ void eraseToken(std::string & iString, const std::string & iToken)
   }
 }
 
-size_t findFirst(const std::string & iValue, const std::vector<char> & iTokens)
+size_t FindFirst(const std::string & iValue, const std::vector<char> & iTokens)
 {
   size_t firstPos = std::string::npos;
 
@@ -89,7 +115,7 @@ size_t findFirst(const std::string & iValue, const std::vector<char> & iTokens)
   return firstPos;
 }
 
-std::string findWordName(const std::string & iBuffer)
+std::string FindWordName(const std::string & iBuffer)
 {
   //idenfity characters that ends a word
 
@@ -122,7 +148,7 @@ std::string findWordName(const std::string & iBuffer)
     }
   }
 
-  size_t pos = findFirst(iBuffer, tokens);
+  size_t pos = FindFirst(iBuffer, tokens);
   if (pos == std::string::npos)
   {
     //no end of word was found
@@ -133,7 +159,7 @@ std::string findWordName(const std::string & iBuffer)
   return word;
 }
 
-bool isFolderEquals(const std::string & folderA, const std::string & folderB)
+bool IsFolderEquals(const std::string & folderA, const std::string & folderB)
 {
   ra::strings::StringVector filesA;
   ra::strings::StringVector filesB;
