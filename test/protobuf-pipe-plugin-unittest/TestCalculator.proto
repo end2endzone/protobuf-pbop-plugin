@@ -1,0 +1,36 @@
+package testcalculator;
+
+import "dcomplugin.proto";
+
+option (dcomplugin.component).name                              = "Calculator";
+option (dcomplugin.component).typelib.coclass.name              = "Calculator.Application";
+option (dcomplugin.component).typelib.coclass.friendlyname      = "DCOM Calculator";
+option (dcomplugin.component).typelib.coclass.id.guid           = "6D4C57D5-5FF8-46F3-B449-7C3D6043419D";
+option (dcomplugin.component).typelib.coclass.id.helpstring     = "CalculatorServer object";
+option (dcomplugin.component).typelib.name                      = "CalculatorLibrary";
+option (dcomplugin.component).typelib.id.guid                   = "5e627c68-0cd5-4f71-bec8-fc6d848391b5";
+option (dcomplugin.component).typelib.id.helpstring             = "Calculator Library v1.0";
+option (dcomplugin.component).appid.guid                        = "7BB52A25-47C9-4695-A35A-D223AFC03E07";
+option (dcomplugin.component).typelib.cointerface.id.guid       = "ec430d03-e4fc-41c6-83f2-df7472c0fdb7";
+option (dcomplugin.component).typelib.cointerface.id.helpstring = "Calculator interface";
+
+
+
+message InputNumberRequest {
+  required int32 value = 1;
+}
+
+message OutputNumberResponse {
+  required int32 value = 1;
+}
+
+message VoidRequest {
+}
+message VoidResponse {
+}
+
+service CalculatorService {
+  rpc SetFirstNumber (InputNumberRequest) returns (VoidResponse);
+  rpc SetSecondNumber (InputNumberRequest) returns (VoidResponse);
+  rpc GetAdditionResult (VoidRequest) returns (OutputNumberResponse);
+}

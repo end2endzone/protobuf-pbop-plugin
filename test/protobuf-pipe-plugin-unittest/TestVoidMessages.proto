@@ -1,0 +1,23 @@
+package testvoidmessages;
+
+import "dcomplugin.proto";
+import "google/protobuf/empty.proto";
+
+option (dcomplugin.component).name = "Void";
+
+message FooRequest {
+  required int32 value = 1;
+}
+message FooResponse {
+  required int32 value = 1;
+}
+message VoidMessage {
+}
+
+service PhoneBookService {
+  rpc Method1 (FooRequest) returns (FooResponse);
+  rpc Method2 (FooRequest) returns (VoidMessage);
+  rpc Method3 (VoidMessage) returns (FooResponse);
+  rpc Method4 (VoidMessage) returns (VoidMessage);
+  rpc Method5 (google.protobuf.Empty) returns (google.protobuf.Empty);
+}
