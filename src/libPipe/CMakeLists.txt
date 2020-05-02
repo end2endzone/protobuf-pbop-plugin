@@ -4,14 +4,10 @@ add_library(libPipe
   ${PROTOBUFPIPEPLUGIN_CONFIG_HEADER}
   DebugPrinter.cpp
   DebugPrinter.h
-  path.cpp
-  path.h
   protofunc.cpp
   protofunc.h
   StreamPrinter.cpp
   StreamPrinter.h
-  stringfunc.cpp
-  stringfunc.h
 )
 
 # Force CMAKE_DEBUG_POSTFIX for executables

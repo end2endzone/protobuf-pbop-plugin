@@ -1,13 +1,14 @@
 #include "protofunc.h"
-#include "stringfunc.h"
 
 #include <google/protobuf/descriptor.pb.h>
+
+#include "rapidassist/strings.h"
 
 std::string toCppNamespace(const std::string & iPackage)
 {
   std::string output = iPackage;
 
-  stringReplace(output, ".", "::");
+  ra::strings::Replace(output, ".", "::");
 
   return output;
 }

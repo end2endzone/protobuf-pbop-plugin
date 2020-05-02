@@ -2,7 +2,6 @@
 #include <google/protobuf/compiler/cpp/cpp_generator.h>
 #include "StreamPrinter.h"
 #include "DebugPrinter.h"
-#include "stringfunc.h"
 #include "protofunc.h"
 
 #include <windows.h>

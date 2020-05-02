@@ -31,15 +31,11 @@ add_executable(protobuf-pipe-plugin_unittest
   TestDemo.cpp
   TestDemo.h
   TestDemo.proto
-  TestPath.cpp
-  TestPath.h
   TestPluginRun.cpp
   TestPluginRun.h
   TestPluginRun.proto
   TestProtoFunctions.cpp
   TestProtoFunctions.h
-  TestStringFunctions.cpp
-  TestStringFunctions.h
   testutils.cpp
   testutils.h
   TestVoidMessages.cpp
