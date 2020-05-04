@@ -3,6 +3,7 @@
 
 #include "Status.h"
 #include "Service.h"
+#include "Connection.h"
 
 #include <string>
 #include <vector>
@@ -18,8 +19,10 @@ namespace libProtobufPipePlugin
 
     virtual Status Run(const char * pipe_name);
     virtual void RegisterService(Service * service);
+    virtual unsigned long ProcessIncommingMessages(Connection * connection);
+
+  private:
     virtual Status DispatchMessage(const std::string & input, std::string & output);
-  
   private:
     std::vector<Service *> services_;
   };

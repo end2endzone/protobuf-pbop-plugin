@@ -195,32 +195,43 @@ namespace libProtobufPipePlugin
   // of this procedure to run concurrently, depending on the number of incoming
   // client connections.
   DWORD WINAPI InstanceThread(LPVOID lpvParam)
-  { 
+  {
+    // Read the thread's parameters
+    ThreadParams * thread_params = static_cast<ThreadParams*>(lpvParam);
+
+    // Copy ThreadParams locally
+    Server * server = thread_params->server;
+    HANDLE hPipe = thread_params->pipe;
+    delete thread_params;
+
+    // Create a connection for this thread
+    PipeConnection * connection = new PipeConnection();
+    connection->Assign(reinterpret_cast<size_t>(hPipe));
+
+    // Continue with the server for processing messages
+    return server->ProcessIncommingMessages(connection);
+  }
+
+  DWORD Server::ProcessIncommingMessages(Connection * connection)
+  {
     BOOL fSuccess = FALSE;
     HANDLE hPipe = NULL;
 
     // Print verbose messages. In production code, this should be for debugging only.
-    printf("InstanceThread created, receiving and processing messages.\n");
-
-    // Read the thread's parameters
-    ThreadParams * thread_params = static_cast<ThreadParams*>(lpvParam);
-
-    // Create a connection for this pipe
-    PipeConnection connection;
-    connection.Assign(reinterpret_cast<size_t>(thread_params->pipe));
+    printf("InstanceThread: Created, receiving and processing messages.\n");
 
     // Loop until done reading
     while (1) 
     { 
       // Read client requests from the pipe.
       std::string read_buffer;
-      Status status = connection.Read(read_buffer);
+      Status status = connection->Read(read_buffer);
       if (!status.Success())
       {
         DWORD wLastErrorCode = GetLastError();
         if (wLastErrorCode == ERROR_BROKEN_PIPE)
         {
-          printf("InstanceThread: client disconnected.\n");
+          printf("InstanceThread: Client disconnected.\n");
         }
         else
         {
@@ -233,7 +244,7 @@ namespace libProtobufPipePlugin
       // Parse and delegate message to a service
       // This will actually call a method of a service.
       std::string * function_call_result = new std::string();
-      status = thread_params->server->DispatchMessage(read_buffer, *function_call_result);
+      status = this->DispatchMessage(read_buffer, *function_call_result);
       if (!status.Success())
       {
         delete function_call_result;
@@ -261,7 +272,7 @@ namespace libProtobufPipePlugin
       }
 
       // Send response to client through the pipe connection.
-      status = connection.Write(write_buffer);
+      status = connection->Write(write_buffer);
       if (!status.Success())
       {
         printf("InstanceThread: %d, %s\n", status.GetCode(), status.GetMessage().c_str());
@@ -277,9 +288,9 @@ namespace libProtobufPipePlugin
     DisconnectNamedPipe(hPipe); 
     //CloseHandle(hPipe); will be processed by PipeConnection destructor
 
-    delete thread_params;
+    delete connection;
 
-    printf("InstanceThread exiting.\n");
+    printf("InstanceThread: Exiting.\n");
     return 1;
   }
 
