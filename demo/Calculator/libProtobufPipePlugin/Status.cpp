@@ -4,16 +4,19 @@ namespace libProtobufPipePlugin
 {
   const Status & Status::OK = Status(STATUS_CODE_SUCCESS, "");
 
-  Status::Status() : code_(STATUS_CODE_SUCCESS)
+  Status::Status() : code_(STATUS_CODE_UNKNOWN)
   {
   }
 
-  Status::Status(const Status & status)
+  Status::Status(const Status & other) :
+    code_(other.code_),
+    message_(other.message_)
   {
-    (*this) = status;
   }
 
-  Status::Status(const StatusCode & code, const std::string & message) : code_(code), message_(message)
+  Status::Status(const StatusCode & code, const std::string & message) :
+    code_(code),
+    message_(message)
   {
   }
 
@@ -26,7 +29,7 @@ namespace libProtobufPipePlugin
     code_ = c;
   }
 
-  const StatusCode & Status::GetCode()
+  const StatusCode & Status::GetCode() const
   {
     return code_;
   }
@@ -36,7 +39,7 @@ namespace libProtobufPipePlugin
     message_ = m;
   }
 
-  const std::string & Status::GetMessage()
+  const std::string & Status::GetMessage() const
   {
     return message_;
   }
@@ -48,12 +51,18 @@ namespace libProtobufPipePlugin
     return false;
   }
 
-  Status & Status::operator=(const Status & other)
+  void swap(Status & first, Status & second)
   {
-    if (this == &other)
-      return *this;
-    this->code_ = other.code_;
-    this->message_ = other.message_;
+    //https://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom
+    using std::swap; 
+    swap(first.code_, second.code_);
+    swap(first.message_, second.message_);
+  }
+
+  Status & Status::operator=(Status other)
+  {
+    //https://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom
+    swap(*this, other);
     return *this;
   }
 

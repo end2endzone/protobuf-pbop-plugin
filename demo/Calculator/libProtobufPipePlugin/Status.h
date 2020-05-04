@@ -11,6 +11,7 @@ namespace libProtobufPipePlugin
   enum StatusCode
   {
     STATUS_CODE_SUCCESS,
+    STATUS_CODE_UNKNOWN,
     STATUS_CODE_OUT_OF_MEMORY,
     STATUS_CODE_SERIALIZE_ERROR,
     STATUS_CODE_DESERIALIZE_ERROR,
@@ -22,19 +23,20 @@ namespace libProtobufPipePlugin
   {
   public:
     Status();
-    Status(const Status & status);
+    Status(const Status & other);
     Status(const StatusCode & code, const std::string & message);
     ~Status();
 
     void SetCode(const StatusCode & c);
-    const StatusCode & GetCode();
+    const StatusCode & GetCode() const;
 
     void SetMessage(const std::string & m);
-    const std::string & GetMessage();
+    const std::string & GetMessage() const;
 
     bool Success();
 
-    Status & operator=(const Status & other);
+    friend void swap(Status & first, Status & second);
+    Status & operator=(Status other);
     bool operator==(const Status & other);
     bool operator!=(const Status & other);
 

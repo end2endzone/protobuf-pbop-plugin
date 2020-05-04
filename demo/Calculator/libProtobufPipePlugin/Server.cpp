@@ -79,12 +79,16 @@ namespace libProtobufPipePlugin
       { 
         printf("Client connected, creating a processing thread.\n"); 
 
+        ThreadParams * thread_params = new ThreadParams();
+        thread_params->pipe = hPipe;
+        thread_params->server = this;
+
         // Create a thread for this client. 
         hThread = CreateThread( 
           NULL,              // no security attribute 
           0,                 // default stack size 
           InstanceThread,    // thread proc
-          (LPVOID) hPipe,    // thread parameter 
+          thread_params,     // thread parameter 
           0,                 // not suspended 
           &dwThreadId);      // returns thread ID 
 
@@ -194,7 +198,6 @@ namespace libProtobufPipePlugin
   { 
     BOOL fSuccess = FALSE;
     HANDLE hPipe = NULL;
-    Status status;
 
     // Print verbose messages. In production code, this should be for debugging only.
     printf("InstanceThread created, receiving and processing messages.\n");
@@ -211,7 +214,7 @@ namespace libProtobufPipePlugin
     { 
       // Read client requests from the pipe.
       std::string read_buffer;
-      status = connection.Read(read_buffer);
+      Status status = connection.Read(read_buffer);
       if (!status.Success())
       {
         DWORD wLastErrorCode = GetLastError();
@@ -258,7 +261,7 @@ namespace libProtobufPipePlugin
       }
 
       // Send response to client through the pipe connection.
-      Status status = connection.Write(write_buffer);
+      status = connection.Write(write_buffer);
       if (!status.Success())
       {
         printf("InstanceThread: %d, %s\n", status.GetCode(), status.GetMessage().c_str());

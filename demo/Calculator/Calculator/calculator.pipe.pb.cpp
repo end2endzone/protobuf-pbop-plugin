@@ -134,15 +134,6 @@ namespace CalculatorService
 
   libProtobufPipePlugin::Status ServerStub::DispatchMessage(const size_t & index, const std::string & input, std::string & output)
   {
-    if (index >= functions_.size())
-    {
-      //Not implemented
-      std::string error_message = "Function at index " + std::to_string((unsigned long long)index) + " is not implemented.";
-      Status status(STATUS_CODE_NOT_IMPLEMENTED_ERROR, error_message);
-
-      return status;
-    }
-
     bool success = false;
     Status status;
 
@@ -155,10 +146,19 @@ namespace CalculatorService
         success = request.ParseFromString(input);
         if (!success)
           return Status::BuildDeserializationStatus(__FUNCTION__, request);
-
         status = this->Add(request, response);
+        if (!status.Success())
+          return status;
+        bool serialized = response.SerializeToString(&output);
+        if (!serialized)
+          status = Status::BuildDeserializationStatus(__FUNCTION__, response);
       }
       break;
+    default:
+      //Not implemented
+      std::string error_message = "Function at index " + std::to_string((unsigned long long)index) + " is not implemented.";
+      status.SetCode(STATUS_CODE_NOT_IMPLEMENTED_ERROR);
+      status.SetMessage(error_message);
     };
 
     return status;
