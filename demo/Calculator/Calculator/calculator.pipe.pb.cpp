@@ -10,8 +10,8 @@ namespace calculus
 {
 namespace CalculatorService
 {
-    static const std::string kPackage = "calculus";
-    static const std::string kService = "CalculatorService";
+  static const std::string kPackage = "calculus";
+  static const std::string kService = "CalculatorService";
 
   Client::Client(Connection * connection) : connection_(connection)
   {
@@ -23,31 +23,6 @@ namespace CalculatorService
       delete connection_;
     connection_ = NULL;
   }
-
-  //const std::string & Client::GetPackageName() const
-  //{
-  //  static const std::string package = "calculus";
-  //  return package;
-  //}
-
-  //const std::string & Client::GetServiceName() const
-  //{
-  //  static const std::string service = "CalculatorService";
-  //  return service;
-  //}
-
-  //const std::vector<std::string> & Client::GetFunctionIdentifiers() const
-  //{
-  //  // Not supported by client
-  //  static const std::vector<std::string> functions;
-  //  return functions;
-  //}
-
-  //Status Client::DispatchMessage(const size_t & index, const std::string & input, std::string & output)
-  //{
-  //  static const Status status(STATUS_CODE_NOT_IMPLEMENTED_ERROR, "CalculatorService client cannot dispatch messages");
-  //  return status;
-  //}
 
   Status Client::Add(const AddRequest & request, AddResponse & response)
   {
@@ -151,29 +126,25 @@ namespace CalculatorService
         AddResponse response;
         success = request.ParseFromString(input);
         if (!success)
-          return Status::BuildDeserializationStatus(__FUNCTION__, request);
+        {
+          status = Status::BuildDeserializationStatus(__FUNCTION__, request);
+          break;
+        }
         status = this->Add(request, response);
         if (!status.Success())
-          return status;
-        bool serialized = response.SerializeToString(&output);
-        if (!serialized)
-          status = Status::BuildDeserializationStatus(__FUNCTION__, response);
+          break;
+        success = response.SerializeToString(&output);
+        if (!success)
+          status = Status::BuildSerializationStatus(__FUNCTION__, response);
       }
       break;
     default:
       //Not implemented
       std::string error_message = "Function at index " + std::to_string((unsigned long long)index) + " is not implemented.";
-      status.SetCode(STATUS_CODE_NOT_IMPLEMENTED_ERROR);
+      status.SetCode(STATUS_CODE_NOT_IMPLEMENTED);
       status.SetMessage(error_message);
     };
 
-    return status;
-  }
-
-  //CalculatorService service implementation
-  libProtobufPipePlugin::Status ServerStub::Add(const AddRequest & request, AddResponse & response)
-  {
-    static const Status status = Status::BuildNotImplementedStatus(__FUNCTION__);
     return status;
   }
 

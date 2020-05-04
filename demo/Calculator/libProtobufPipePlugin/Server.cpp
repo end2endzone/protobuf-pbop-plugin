@@ -154,7 +154,7 @@ namespace libProtobufPipePlugin
       error_message += "Unable to dispatch message to the following service:";
       error_message += " package=" + package_name;
       error_message += " service=" + service_name;
-      Status status(STATUS_CODE_NOT_IMPLEMENTED_ERROR, error_message);
+      Status status(STATUS_CODE_NOT_IMPLEMENTED, error_message);
 
       return status;
     }
@@ -179,7 +179,7 @@ namespace libProtobufPipePlugin
       error_message += " package=" + package_name;
       error_message += " service=" + service_name;
       error_message += " function=" + function_name;
-      Status status(STATUS_CODE_NOT_IMPLEMENTED_ERROR, error_message);
+      Status status(STATUS_CODE_NOT_IMPLEMENTED, error_message);
 
       return status;
     }

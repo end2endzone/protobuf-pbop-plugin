@@ -12,7 +12,7 @@ class CalculatorServiceImpl : public CalculatorService::ServerStub
 {
 public:
   CalculatorServiceImpl() {}
-  ~CalculatorServiceImpl() {}
+  virtual ~CalculatorServiceImpl() {}
 
   Status Add(const AddRequest & request, AddResponse & response)
   {
@@ -42,9 +42,13 @@ int RunClient()
   AddRequest request;
   AddResponse response;
 
-  request.set_left(15);
-  request.set_right(3);
+  int left = 15;
+  int right = 3;
 
+  request.set_left(left);
+  request.set_right(right);
+
+  printf("Calling Add(%d,%d)\n", left, right);
   status = client.Add(request, response);
   if (!status.Success())
   {

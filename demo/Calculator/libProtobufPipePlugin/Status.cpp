@@ -126,7 +126,7 @@ namespace libProtobufPipePlugin
     error_message += "Error function '";
     error_message += __FUNCTION__;
     error_message += "' is not implemented.";
-    return Status(STATUS_CODE_NOT_IMPLEMENTED_ERROR, error_message);
+    return Status(STATUS_CODE_NOT_IMPLEMENTED, error_message);
   }
 
 }; //namespace libProtobufPipePlugin

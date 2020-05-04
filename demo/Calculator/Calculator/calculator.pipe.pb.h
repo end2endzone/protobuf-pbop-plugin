@@ -17,12 +17,12 @@ namespace calculus
 
   namespace CalculatorService
   {
-    class Service
+    class CalculatorService
     {
       virtual libProtobufPipePlugin::Status Add(const AddRequest & request, AddResponse & response) = 0;
     };
 
-    class Client
+    class Client : public virtual CalculatorService
     {
     public:
       Client(libProtobufPipePlugin::Connection * connection);
@@ -32,7 +32,7 @@ namespace calculus
       libProtobufPipePlugin::Connection * connection_;
     };
 
-    class ServerStub : public virtual CalculatorService::Service, public virtual libProtobufPipePlugin::Service
+    class ServerStub : public virtual CalculatorService, public virtual libProtobufPipePlugin::Service
     {
     public:
       ServerStub();
@@ -44,8 +44,8 @@ namespace calculus
       virtual const std::vector<std::string> & GetFunctionIdentifiers() const;
       virtual libProtobufPipePlugin::Status DispatchMessage(const size_t & index, const std::string & input, std::string & output);
 
-      //CalculatorService service implementation
-      virtual libProtobufPipePlugin::Status Add(const AddRequest & request, AddResponse & response);
+      //CalculatorService implementation
+      inline libProtobufPipePlugin::Status Add(const AddRequest & request, AddResponse & response) { return libProtobufPipePlugin::Status::BuildNotImplementedStatus(__FUNCTION__); }
     private:
       std::vector<std::string> functions_;
     };
