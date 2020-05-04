@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package calculus;
+
+message AddRequest {
+  int32 left = 1;
+  int32 right = 2;
+}
+message AddResponse {
+  int32 value = 1;
+}
+
+service CalculatorService {
+  rpc Add (AddRequest) returns (AddResponse);
+}

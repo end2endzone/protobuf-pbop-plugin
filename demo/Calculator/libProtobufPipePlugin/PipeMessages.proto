@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package libProtobufPipePlugin;
+
+message FunctionIdentifier {
+  string package = 1;
+  string service = 2;
+  string function_name = 3;
+}
+
+message ClientRequest {
+  FunctionIdentifier function_identifier = 1;
+  bytes request_buffer = 2;
+}
+
+message ServerStatus {
+  int32 code = 1;
+  string description = 2;
+}
+
+message ServerResponse {
+  ServerStatus status = 1;
+  bytes response_buffer = 2;
+}

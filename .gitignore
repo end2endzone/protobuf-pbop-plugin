@@ -1,3 +1,10 @@
 /third_parties
 /build
 /install
+*.opensdf
+*.sdf
+*.suo
+*.user
+Debug
+Release
+ipch

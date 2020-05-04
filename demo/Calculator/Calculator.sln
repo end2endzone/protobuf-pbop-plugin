@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Calculator", "Calculator\Calculator.vcxproj", "{C5B02677-30F0-4F6B-8B52-DFA79BFE1B3C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libProtobufPipePlugin", "libProtobufPipePlugin\libProtobufPipePlugin.vcxproj", "{7DAA5E23-D2F3-40FA-8AD3-217C2810D02B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C5B02677-30F0-4F6B-8B52-DFA79BFE1B3C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C5B02677-30F0-4F6B-8B52-DFA79BFE1B3C}.Debug|Win32.Build.0 = Debug|Win32
+		{C5B02677-30F0-4F6B-8B52-DFA79BFE1B3C}.Release|Win32.ActiveCfg = Release|Win32
+		{C5B02677-30F0-4F6B-8B52-DFA79BFE1B3C}.Release|Win32.Build.0 = Release|Win32
+		{7DAA5E23-D2F3-40FA-8AD3-217C2810D02B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7DAA5E23-D2F3-40FA-8AD3-217C2810D02B}.Debug|Win32.Build.0 = Debug|Win32
+		{7DAA5E23-D2F3-40FA-8AD3-217C2810D02B}.Release|Win32.ActiveCfg = Release|Win32
+		{7DAA5E23-D2F3-40FA-8AD3-217C2810D02B}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
