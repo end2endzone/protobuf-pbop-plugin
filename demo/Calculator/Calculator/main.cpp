@@ -14,7 +14,7 @@ public:
   CalculatorServiceImpl() {}
   ~CalculatorServiceImpl() {}
 
-  libProtobufPipePlugin::Status Add(const AddRequest & request, AddResponse & response)
+  Status Add(const AddRequest & request, AddResponse & response)
   {
     const int & left = request.left();
     const int & right = request.right();
@@ -29,7 +29,7 @@ int RunClient()
 {
   printf("Launching client...\n");
 
-  libProtobufPipePlugin::Connection * connection = new libProtobufPipePlugin::PipeConnection();
+  Connection * connection = new PipeConnection();
   Status status = connection->Connect(kPipeName);
   if (!status.Success())
   {

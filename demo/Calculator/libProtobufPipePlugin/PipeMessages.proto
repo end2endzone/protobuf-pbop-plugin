@@ -8,14 +8,14 @@ message FunctionIdentifier {
   string function_name = 3;
 }
 
-message ClientRequest {
-  FunctionIdentifier function_identifier = 1;
-  bytes request_buffer = 2;
-}
-
 message ServerStatus {
   int32 code = 1;
   string description = 2;
+}
+
+message ClientRequest {
+  FunctionIdentifier function_identifier = 1;
+  bytes request_buffer = 2;
 }
 
 message ServerResponse {

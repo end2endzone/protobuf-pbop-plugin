@@ -44,16 +44,16 @@ struct TableStruct {
 void AddDescriptors();
 void InitDefaultsFunctionIdentifierImpl();
 void InitDefaultsFunctionIdentifier();
-void InitDefaultsClientRequestImpl();
-void InitDefaultsClientRequest();
 void InitDefaultsServerStatusImpl();
 void InitDefaultsServerStatus();
+void InitDefaultsClientRequestImpl();
+void InitDefaultsClientRequest();
 void InitDefaultsServerResponseImpl();
 void InitDefaultsServerResponse();
 inline void InitDefaults() {
   InitDefaultsFunctionIdentifier();
-  InitDefaultsClientRequest();
   InitDefaultsServerStatus();
+  InitDefaultsClientRequest();
   InitDefaultsServerResponse();
 }
 }  // namespace protobuf_PipeMessages_2eproto
@@ -212,6 +212,120 @@ class FunctionIdentifier : public ::google::protobuf::Message /* @@protoc_insert
 };
 // -------------------------------------------------------------------
 
+class ServerStatus : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:libProtobufPipePlugin.ServerStatus) */ {
+ public:
+  ServerStatus();
+  virtual ~ServerStatus();
+
+  ServerStatus(const ServerStatus& from);
+
+  inline ServerStatus& operator=(const ServerStatus& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  ServerStatus(ServerStatus&& from) noexcept
+    : ServerStatus() {
+    *this = ::std::move(from);
+  }
+
+  inline ServerStatus& operator=(ServerStatus&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ServerStatus& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const ServerStatus* internal_default_instance() {
+    return reinterpret_cast<const ServerStatus*>(
+               &_ServerStatus_default_instance_);
+  }
+  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
+    1;
+
+  void Swap(ServerStatus* other);
+  friend void swap(ServerStatus& a, ServerStatus& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline ServerStatus* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  ServerStatus* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const ServerStatus& from);
+  void MergeFrom(const ServerStatus& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(ServerStatus* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // string description = 2;
+  void clear_description();
+  static const int kDescriptionFieldNumber = 2;
+  const ::std::string& description() const;
+  void set_description(const ::std::string& value);
+  #if LANG_CXX11
+  void set_description(::std::string&& value);
+  #endif
+  void set_description(const char* value);
+  void set_description(const char* value, size_t size);
+  ::std::string* mutable_description();
+  ::std::string* release_description();
+  void set_allocated_description(::std::string* description);
+
+  // int32 code = 1;
+  void clear_code();
+  static const int kCodeFieldNumber = 1;
+  ::google::protobuf::int32 code() const;
+  void set_code(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:libProtobufPipePlugin.ServerStatus)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr description_;
+  ::google::protobuf::int32 code_;
+  mutable int _cached_size_;
+  friend struct ::protobuf_PipeMessages_2eproto::TableStruct;
+  friend void ::protobuf_PipeMessages_2eproto::InitDefaultsServerStatusImpl();
+};
+// -------------------------------------------------------------------
+
 class ClientRequest : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:libProtobufPipePlugin.ClientRequest) */ {
  public:
   ClientRequest();
@@ -247,7 +361,7 @@ class ClientRequest : public ::google::protobuf::Message /* @@protoc_insertion_p
                &_ClientRequest_default_instance_);
   }
   static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    1;
+    2;
 
   void Swap(ClientRequest* other);
   friend void swap(ClientRequest& a, ClientRequest& b) {
@@ -326,120 +440,6 @@ class ClientRequest : public ::google::protobuf::Message /* @@protoc_insertion_p
   mutable int _cached_size_;
   friend struct ::protobuf_PipeMessages_2eproto::TableStruct;
   friend void ::protobuf_PipeMessages_2eproto::InitDefaultsClientRequestImpl();
-};
-// -------------------------------------------------------------------
-
-class ServerStatus : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:libProtobufPipePlugin.ServerStatus) */ {
- public:
-  ServerStatus();
-  virtual ~ServerStatus();
-
-  ServerStatus(const ServerStatus& from);
-
-  inline ServerStatus& operator=(const ServerStatus& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  #if LANG_CXX11
-  ServerStatus(ServerStatus&& from) noexcept
-    : ServerStatus() {
-    *this = ::std::move(from);
-  }
-
-  inline ServerStatus& operator=(ServerStatus&& from) noexcept {
-    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-  #endif
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const ServerStatus& default_instance();
-
-  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const ServerStatus* internal_default_instance() {
-    return reinterpret_cast<const ServerStatus*>(
-               &_ServerStatus_default_instance_);
-  }
-  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
-    2;
-
-  void Swap(ServerStatus* other);
-  friend void swap(ServerStatus& a, ServerStatus& b) {
-    a.Swap(&b);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline ServerStatus* New() const PROTOBUF_FINAL { return New(NULL); }
-
-  ServerStatus* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
-  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void CopyFrom(const ServerStatus& from);
-  void MergeFrom(const ServerStatus& from);
-  void Clear() PROTOBUF_FINAL;
-  bool IsInitialized() const PROTOBUF_FINAL;
-
-  size_t ByteSizeLong() const PROTOBUF_FINAL;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
-  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
-      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
-  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const PROTOBUF_FINAL;
-  void InternalSwap(ServerStatus* other);
-  private:
-  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
-    return NULL;
-  }
-  inline void* MaybeArenaPtr() const {
-    return NULL;
-  }
-  public:
-
-  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // string description = 2;
-  void clear_description();
-  static const int kDescriptionFieldNumber = 2;
-  const ::std::string& description() const;
-  void set_description(const ::std::string& value);
-  #if LANG_CXX11
-  void set_description(::std::string&& value);
-  #endif
-  void set_description(const char* value);
-  void set_description(const char* value, size_t size);
-  ::std::string* mutable_description();
-  ::std::string* release_description();
-  void set_allocated_description(::std::string* description);
-
-  // int32 code = 1;
-  void clear_code();
-  static const int kCodeFieldNumber = 1;
-  ::google::protobuf::int32 code() const;
-  void set_code(::google::protobuf::int32 value);
-
-  // @@protoc_insertion_point(class_scope:libProtobufPipePlugin.ServerStatus)
- private:
-
-  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::internal::ArenaStringPtr description_;
-  ::google::protobuf::int32 code_;
-  mutable int _cached_size_;
-  friend struct ::protobuf_PipeMessages_2eproto::TableStruct;
-  friend void ::protobuf_PipeMessages_2eproto::InitDefaultsServerStatusImpl();
 };
 // -------------------------------------------------------------------
 
@@ -730,6 +730,77 @@ inline void FunctionIdentifier::set_allocated_function_name(::std::string* funct
 
 // -------------------------------------------------------------------
 
+// ServerStatus
+
+// int32 code = 1;
+inline void ServerStatus::clear_code() {
+  code_ = 0;
+}
+inline ::google::protobuf::int32 ServerStatus::code() const {
+  // @@protoc_insertion_point(field_get:libProtobufPipePlugin.ServerStatus.code)
+  return code_;
+}
+inline void ServerStatus::set_code(::google::protobuf::int32 value) {
+  
+  code_ = value;
+  // @@protoc_insertion_point(field_set:libProtobufPipePlugin.ServerStatus.code)
+}
+
+// string description = 2;
+inline void ServerStatus::clear_description() {
+  description_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& ServerStatus::description() const {
+  // @@protoc_insertion_point(field_get:libProtobufPipePlugin.ServerStatus.description)
+  return description_.GetNoArena();
+}
+inline void ServerStatus::set_description(const ::std::string& value) {
+  
+  description_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:libProtobufPipePlugin.ServerStatus.description)
+}
+#if LANG_CXX11
+inline void ServerStatus::set_description(::std::string&& value) {
+  
+  description_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:libProtobufPipePlugin.ServerStatus.description)
+}
+#endif
+inline void ServerStatus::set_description(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  description_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:libProtobufPipePlugin.ServerStatus.description)
+}
+inline void ServerStatus::set_description(const char* value, size_t size) {
+  
+  description_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:libProtobufPipePlugin.ServerStatus.description)
+}
+inline ::std::string* ServerStatus::mutable_description() {
+  
+  // @@protoc_insertion_point(field_mutable:libProtobufPipePlugin.ServerStatus.description)
+  return description_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* ServerStatus::release_description() {
+  // @@protoc_insertion_point(field_release:libProtobufPipePlugin.ServerStatus.description)
+  
+  return description_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void ServerStatus::set_allocated_description(::std::string* description) {
+  if (description != NULL) {
+    
+  } else {
+    
+  }
+  description_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), description);
+  // @@protoc_insertion_point(field_set_allocated:libProtobufPipePlugin.ServerStatus.description)
+}
+
+// -------------------------------------------------------------------
+
 // ClientRequest
 
 // .libProtobufPipePlugin.FunctionIdentifier function_identifier = 1;
@@ -833,77 +904,6 @@ inline void ClientRequest::set_allocated_request_buffer(::std::string* request_b
   }
   request_buffer_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), request_buffer);
   // @@protoc_insertion_point(field_set_allocated:libProtobufPipePlugin.ClientRequest.request_buffer)
-}
-
-// -------------------------------------------------------------------
-
-// ServerStatus
-
-// int32 code = 1;
-inline void ServerStatus::clear_code() {
-  code_ = 0;
-}
-inline ::google::protobuf::int32 ServerStatus::code() const {
-  // @@protoc_insertion_point(field_get:libProtobufPipePlugin.ServerStatus.code)
-  return code_;
-}
-inline void ServerStatus::set_code(::google::protobuf::int32 value) {
-  
-  code_ = value;
-  // @@protoc_insertion_point(field_set:libProtobufPipePlugin.ServerStatus.code)
-}
-
-// string description = 2;
-inline void ServerStatus::clear_description() {
-  description_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-inline const ::std::string& ServerStatus::description() const {
-  // @@protoc_insertion_point(field_get:libProtobufPipePlugin.ServerStatus.description)
-  return description_.GetNoArena();
-}
-inline void ServerStatus::set_description(const ::std::string& value) {
-  
-  description_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:libProtobufPipePlugin.ServerStatus.description)
-}
-#if LANG_CXX11
-inline void ServerStatus::set_description(::std::string&& value) {
-  
-  description_.SetNoArena(
-    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:libProtobufPipePlugin.ServerStatus.description)
-}
-#endif
-inline void ServerStatus::set_description(const char* value) {
-  GOOGLE_DCHECK(value != NULL);
-  
-  description_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:libProtobufPipePlugin.ServerStatus.description)
-}
-inline void ServerStatus::set_description(const char* value, size_t size) {
-  
-  description_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
-      ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:libProtobufPipePlugin.ServerStatus.description)
-}
-inline ::std::string* ServerStatus::mutable_description() {
-  
-  // @@protoc_insertion_point(field_mutable:libProtobufPipePlugin.ServerStatus.description)
-  return description_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-inline ::std::string* ServerStatus::release_description() {
-  // @@protoc_insertion_point(field_release:libProtobufPipePlugin.ServerStatus.description)
-  
-  return description_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-inline void ServerStatus::set_allocated_description(::std::string* description) {
-  if (description != NULL) {
-    
-  } else {
-    
-  }
-  description_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), description);
-  // @@protoc_insertion_point(field_set_allocated:libProtobufPipePlugin.ServerStatus.description)
 }
 
 // -------------------------------------------------------------------
