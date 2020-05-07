@@ -12,8 +12,8 @@ namespace libProtobufPipePlugin
   class Connection
   {
   public:
-    virtual Status Write(const std::string & message) = 0;
-    virtual Status Read(std::string & message) = 0;
+    virtual Status Write(const std::string & buffer) = 0;
+    virtual Status Read(std::string & buffer) = 0;
   };
 
   class PipeConnection : public Connection
@@ -22,8 +22,8 @@ namespace libProtobufPipePlugin
     PipeConnection();
     virtual ~PipeConnection();
 
-    virtual Status Write(const std::string & message);
-    virtual Status Read(std::string & message);
+    virtual Status Write(const std::string & buffer);
+    virtual Status Read(std::string & buffer);
 
     virtual void Assign(size_t pipe_handle);
     virtual Status Connect(const char * name);

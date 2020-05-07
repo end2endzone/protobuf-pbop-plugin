@@ -115,7 +115,7 @@ namespace libProtobufPipePlugin
     return Status::OK;
   }
 
-  Status PipeConnection::Write(const std::string & message)
+  Status PipeConnection::Write(const std::string & buffer)
   {
     HANDLE hPipe = AsHandle(pipe_handle_);
     if (hPipe == INVALID_HANDLE_VALUE)
@@ -124,12 +124,12 @@ namespace libProtobufPipePlugin
     DWORD wBytesWritten = 0;
     BOOL fSuccess = WriteFile( 
       hPipe,                  // pipe handle 
-      message.data(),         // message 
-      message.size(),         // message length 
+      buffer.data(),          // message 
+      buffer.size(),          // message length 
       &wBytesWritten,         // bytes written 
       NULL);                  // not overlapped 
 
-    if (!fSuccess || wBytesWritten != message.size())
+    if (!fSuccess || wBytesWritten != buffer.size())
     {
       std::string error_description = std::string("WriteFile to pipe failed: ") + GetErrorDesription(GetLastError());
       return Status(STATUS_CODE_PIPE_ERROR, error_description);
@@ -138,9 +138,9 @@ namespace libProtobufPipePlugin
     return Status::OK;
   }
 
-  Status PipeConnection::Read(std::string & message)
+  Status PipeConnection::Read(std::string & buffer)
   {
-    message.clear();
+    buffer.clear();
 
     HANDLE hPipe = AsHandle(pipe_handle_);
     if (hPipe == INVALID_HANDLE_VALUE)
@@ -148,23 +148,23 @@ namespace libProtobufPipePlugin
 
     BOOL fSuccess = FALSE;
     static const size_t BUFFER_SIZE = 10240;
-    char buffer[BUFFER_SIZE];
+    char tmp[BUFFER_SIZE];
     do 
     { 
       // Read from the pipe.
       DWORD wBytesReaded = 0;
       fSuccess = ReadFile( 
           hPipe,        // pipe handle 
-          buffer,       // buffer to receive reply 
+          tmp,          // buffer to receive reply 
           BUFFER_SIZE,  // size of buffer 
           &wBytesReaded,// number of bytes read 
           NULL);        // not overlapped 
 
       if (fSuccess)
-        message.append(buffer, wBytesReaded);
+        buffer.append(tmp, wBytesReaded);
 
       if ( !fSuccess && GetLastError() != ERROR_MORE_DATA )
-        break; //nothing more to read 
+        break; //nothing more to read
  
       //received message is incomplete.
       //loop again
