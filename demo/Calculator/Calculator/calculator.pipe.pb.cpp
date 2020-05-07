@@ -29,9 +29,9 @@ namespace CalculatorService
     FunctionIdentifier * function_identifier = new FunctionIdentifier();
     if (!function_identifier)
       return Status::BuildOutOfMemoryStatus(__FUNCTION__);
-    function_identifier->set_allocated_package(new std::string(kPackage));
-    function_identifier->set_allocated_service(new std::string(kService));
-    function_identifier->set_allocated_function_name(new std::string("Add"));
+    function_identifier->set_package(kPackage.c_str());
+    function_identifier->set_service(kService.c_str());
+    function_identifier->set_function_name("Add");
 
     ClientRequest client_message;
     client_message.set_allocated_function_identifier(function_identifier);
@@ -62,7 +62,7 @@ namespace CalculatorService
     if (!status.Success())
       return status;
 
-    // Derialize the ServerResponse
+    // Deserialize the ServerResponse
     ServerResponse server_response;
     success = server_response.ParseFromString(read_buffer);
     if (!success)

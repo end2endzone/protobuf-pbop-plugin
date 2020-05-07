@@ -114,7 +114,9 @@ namespace libProtobufPipePlugin
     std::string error_message;
     error_message += "Error in function '";
     error_message += __FUNCTION__;
-    error_message += "': missing status field in '";
+    error_message += "': missing field '";
+    error_message += field;
+    error_message += "' in '";
     error_message += message.GetTypeName();
     error_message += "' message.";
     return Status(STATUS_CODE_SERIALIZE_ERROR, error_message);

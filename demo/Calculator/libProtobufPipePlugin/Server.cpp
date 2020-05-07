@@ -138,7 +138,7 @@ namespace libProtobufPipePlugin
 
     // Find the associated service
     Service * service = NULL;
-    for(size_t i=0; i<services_.size(); i++)
+    for(size_t i=0; i<services_.size() && service == NULL; i++)
     {
       Service * tmp = services_[i];
       if (tmp->GetPackageName() == package_name &&
