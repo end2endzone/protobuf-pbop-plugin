@@ -29,6 +29,7 @@ namespace calculus
       virtual ~Client();
       virtual libProtobufPipePlugin::Status Add(const AddRequest & request, AddResponse & response);
     private:
+      libProtobufPipePlugin::Status ProcessMethod(const char * package, const char * service, const char * function_name, const ::google::protobuf::Message & request, ::google::protobuf::Message & response);
       libProtobufPipePlugin::Connection * connection_;
     };
 

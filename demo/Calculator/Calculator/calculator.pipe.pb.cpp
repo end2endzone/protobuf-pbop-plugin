@@ -26,14 +26,20 @@ namespace CalculatorService
 
   Status Client::Add(const AddRequest & request, AddResponse & response)
   {
+    Status status = ProcessMethod(kPackage.c_str(), kService.c_str(), "Add", request, response);
+    return status;
+  }
+
+  Status Client::ProcessMethod(const char * package, const char * service, const char * function_name, const ::google::protobuf::Message & request, ::google::protobuf::Message & response)
+  {
     ClientRequest client_message;
 
     //function_identifier
-    client_message.mutable_function_identifier()->set_package(kPackage.c_str());
-    client_message.mutable_function_identifier()->set_service(kService.c_str());
-    client_message.mutable_function_identifier()->set_function_name("Add");
+    client_message.mutable_function_identifier()->set_package(package);
+    client_message.mutable_function_identifier()->set_service(service);
+    client_message.mutable_function_identifier()->set_function_name(function_name);
 
-    // Serialize the request to a string and add to the client_message
+    // Serialize the request message into ClientRequest
     bool success = request.SerializeToString(client_message.mutable_request_buffer());
     if (!success)
       return Status::BuildSerializationStatus(__FUNCTION__, request);
@@ -55,7 +61,7 @@ namespace CalculatorService
     if (!status.Success())
       return status;
 
-    // Deserialize ServerResponse
+    // Deserialize server's response
     ServerResponse server_response;
     success = server_response.ParseFromString(read_buffer);
     if (!success)
@@ -71,7 +77,7 @@ namespace CalculatorService
     if (!status.Success())
       return status;
 
-    // Deserialize AddResponse
+    // Deserialize response message
     response.ParseFromString(server_response.response_buffer());
     if (!success)
       return Status::BuildDeserializationStatus(__FUNCTION__, response);
