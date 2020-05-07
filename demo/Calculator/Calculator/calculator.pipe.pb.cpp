@@ -62,7 +62,7 @@ namespace CalculatorService
     if (!status.Success())
       return status;
 
-    // Deserialize the ServerResponse
+    // Deserialize ServerResponse
     ServerResponse server_response;
     success = server_response.ParseFromString(read_buffer);
     if (!success)
@@ -78,7 +78,7 @@ namespace CalculatorService
     if (!status.Success())
       return status;
 
-    // Try to deserialize AddResponse
+    // Deserialize AddResponse
     response.ParseFromString(server_response.response_buffer());
     if (!success)
       return Status::BuildDeserializationStatus(__FUNCTION__, response);
@@ -98,14 +98,12 @@ namespace CalculatorService
 
   const std::string & ServerStub::GetPackageName() const
   {
-    static const std::string package = "calculus";
-    return package;
+    return kPackage;
   }
 
   const std::string & ServerStub::GetServiceName() const
   {
-    static const std::string service = "CalculatorService";
-    return service;
+    return kService;
   }
 
   const std::vector<std::string> & ServerStub::GetFunctionIdentifiers() const
