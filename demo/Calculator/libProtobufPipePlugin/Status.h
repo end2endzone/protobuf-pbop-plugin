@@ -42,11 +42,15 @@ namespace libProtobufPipePlugin
 
     static const Status & OK;
 
-    static Status BuildOutOfMemoryStatus(const char * function);
-    static Status BuildSerializationStatus(const char * function, const ::google::protobuf::Message & message);
-    static Status BuildDeserializationStatus(const char * function, const ::google::protobuf::Message & message);
-    static Status BuildMissingFieldStatus(const char * function, const char * field, const ::google::protobuf::Message & message);
-    static Status BuildNotImplementedStatus(const char * function);
+    class Factory
+    {
+    public:
+      static Status OutOfMemory(const char * function);
+      static Status Serialization(const char * function, const ::google::protobuf::Message & message);
+      static Status Deserialization(const char * function, const ::google::protobuf::Message & message);
+      static Status MissingField(const char * function, const char * field, const ::google::protobuf::Message & message);
+      static Status NotImplemented(const char * function);
+    };
 
   private:
     StatusCode code_;

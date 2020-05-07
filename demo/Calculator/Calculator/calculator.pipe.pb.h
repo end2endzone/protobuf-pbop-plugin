@@ -46,7 +46,7 @@ namespace calculus
       virtual libProtobufPipePlugin::Status DispatchMessage(const size_t & index, const std::string & input, std::string & output);
 
       //CalculatorService implementation
-      inline libProtobufPipePlugin::Status Add(const AddRequest & request, AddResponse & response) { return libProtobufPipePlugin::Status::BuildNotImplementedStatus(__FUNCTION__); }
+      inline libProtobufPipePlugin::Status Add(const AddRequest & request, AddResponse & response) { return libProtobufPipePlugin::Status::Factory::NotImplemented(__FUNCTION__); }
     private:
       std::vector<std::string> functions_;
     };

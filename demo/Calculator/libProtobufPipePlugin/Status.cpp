@@ -78,7 +78,7 @@ namespace libProtobufPipePlugin
     return !( (*this) == other );
   }
 
-  Status Status::BuildOutOfMemoryStatus(const char * function)
+  Status Status::Factory::OutOfMemory(const char * function)
   {
     std::string error_message;
     error_message += "Error in function '";
@@ -87,7 +87,7 @@ namespace libProtobufPipePlugin
     return Status(STATUS_CODE_OUT_OF_MEMORY, error_message);
   }
 
-  Status Status::BuildSerializationStatus(const char * function, const ::google::protobuf::Message & message)
+  Status Status::Factory::Serialization(const char * function, const ::google::protobuf::Message & message)
   {
     std::string error_message;
     error_message += "Error in function '";
@@ -98,7 +98,7 @@ namespace libProtobufPipePlugin
     return Status(STATUS_CODE_SERIALIZE_ERROR, error_message);
   }
 
-  Status Status::BuildDeserializationStatus(const char * function, const ::google::protobuf::Message & message)
+  Status Status::Factory::Deserialization(const char * function, const ::google::protobuf::Message & message)
   {
     std::string error_message;
     error_message += "Error in function '";
@@ -109,7 +109,7 @@ namespace libProtobufPipePlugin
     return Status(STATUS_CODE_DESERIALIZE_ERROR, error_message);
   }
 
-  Status Status::BuildMissingFieldStatus(const char * function, const char * field, const ::google::protobuf::Message & message)
+  Status Status::Factory::MissingField(const char * function, const char * field, const ::google::protobuf::Message & message)
   {
     std::string error_message;
     error_message += "Error in function '";
@@ -122,7 +122,7 @@ namespace libProtobufPipePlugin
     return Status(STATUS_CODE_SERIALIZE_ERROR, error_message);
   }
 
-  Status Status::BuildNotImplementedStatus(const char * function)
+  Status Status::Factory::NotImplemented(const char * function)
   {
     std::string error_message;
     error_message += "Error function '";

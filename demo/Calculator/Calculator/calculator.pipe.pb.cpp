@@ -42,13 +42,13 @@ namespace CalculatorService
     // Serialize the request message into ClientRequest
     bool success = request.SerializeToString(client_message.mutable_request_buffer());
     if (!success)
-      return Status::BuildSerializationStatus(__FUNCTION__, request);
+      return Status::Factory::Serialization(__FUNCTION__, request);
 
     // Serialize the client_message ready for sending to the connection
     std::string write_buffer;
     success = client_message.SerializeToString(&write_buffer);
     if (!success)
-      return Status::BuildSerializationStatus(__FUNCTION__, request);
+      return Status::Factory::Serialization(__FUNCTION__, request);
 
     // Send
     Status status = connection_->Write(write_buffer);
@@ -65,11 +65,11 @@ namespace CalculatorService
     ServerResponse server_response;
     success = server_response.ParseFromString(read_buffer);
     if (!success)
-      return Status::BuildDeserializationStatus(__FUNCTION__, server_response);
+      return Status::Factory::Deserialization(__FUNCTION__, server_response);
 
     // Read server status
     if (!server_response.has_status())
-      return Status::BuildMissingFieldStatus(__FUNCTION__, "status", server_response);
+      return Status::Factory::MissingField(__FUNCTION__, "status", server_response);
 
     // Convert ServerStatus to Status
     status.SetCode( static_cast<StatusCode>(server_response.status().code()) );
@@ -80,7 +80,7 @@ namespace CalculatorService
     // Deserialize response message
     response.ParseFromString(server_response.response_buffer());
     if (!success)
-      return Status::BuildDeserializationStatus(__FUNCTION__, response);
+      return Status::Factory::Deserialization(__FUNCTION__, response);
 
     // Success
     return Status::OK;
@@ -124,7 +124,7 @@ namespace CalculatorService
         success = request.ParseFromString(input);
         if (!success)
         {
-          status = Status::BuildDeserializationStatus(__FUNCTION__, request);
+          status = Status::Factory::Deserialization(__FUNCTION__, request);
           break;
         }
         status = this->Add(request, response);
@@ -132,7 +132,7 @@ namespace CalculatorService
           break;
         success = response.SerializeToString(&output);
         if (!success)
-          status = Status::BuildSerializationStatus(__FUNCTION__, response);
+          status = Status::Factory::Serialization(__FUNCTION__, response);
       }
       break;
     default:

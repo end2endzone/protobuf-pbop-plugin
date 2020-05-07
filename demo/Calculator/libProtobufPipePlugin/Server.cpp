@@ -122,14 +122,14 @@ namespace libProtobufPipePlugin
     bool success = client_message.ParseFromString(input);
     if (!success)
     {
-      Status status = Status::BuildDeserializationStatus(__FUNCTION__, client_message);
+      Status status = Status::Factory::Deserialization(__FUNCTION__, client_message);
       return status;
     }
 
     // Look for FunctionIdentifier
     if (!client_message.has_function_identifier())
     {
-      Status status = Status::BuildMissingFieldStatus(__FUNCTION__, "function_identifier", client_message);
+      Status status = Status::Factory::MissingField(__FUNCTION__, "function_identifier", client_message);
       return status;
     }
     const std::string & package_name = client_message.function_identifier().package();
@@ -266,7 +266,7 @@ namespace libProtobufPipePlugin
       bool success = server_response.SerializeToString(&write_buffer);
       if (!success)
       {
-        Status status = Status::BuildSerializationStatus(__FUNCTION__, server_response);
+        Status status = Status::Factory::Serialization(__FUNCTION__, server_response);
         printf("InstanceThread: %d, %s\n", status.GetCode(), status.GetMessage().c_str());
         break;
       }
