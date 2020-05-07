@@ -29,7 +29,7 @@ int RunClient()
 {
   printf("Launching client...\n");
 
-  Connection * connection = new PipeConnection();
+  PipeConnection * connection = new PipeConnection();
   Status status = connection->Connect(kPipeName);
   if (!status.Success())
   {
