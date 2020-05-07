@@ -26,24 +26,17 @@ namespace CalculatorService
 
   Status Client::Add(const AddRequest & request, AddResponse & response)
   {
-    FunctionIdentifier * function_identifier = new FunctionIdentifier();
-    if (!function_identifier)
-      return Status::BuildOutOfMemoryStatus(__FUNCTION__);
-    function_identifier->set_package(kPackage.c_str());
-    function_identifier->set_service(kService.c_str());
-    function_identifier->set_function_name("Add");
-
     ClientRequest client_message;
-    client_message.set_allocated_function_identifier(function_identifier);
-    
+
+    //function_identifier
+    client_message.mutable_function_identifier()->set_package(kPackage.c_str());
+    client_message.mutable_function_identifier()->set_service(kService.c_str());
+    client_message.mutable_function_identifier()->set_function_name("Add");
+
     // Serialize the request to a string and add to the client_message
-    std::string * request_buffer = new std::string();
-    if (!request_buffer)
-      return Status::BuildOutOfMemoryStatus(__FUNCTION__);
-    bool success = request.SerializeToString(request_buffer);
+    bool success = request.SerializeToString(client_message.mutable_request_buffer());
     if (!success)
       return Status::BuildSerializationStatus(__FUNCTION__, request);
-    client_message.set_allocated_request_buffer(request_buffer);
 
     // Serialize the client_message ready for sending to the connection
     std::string write_buffer;
