@@ -26,18 +26,18 @@ namespace CalculatorService
 
   Status Client::Add(const AddRequest & request, AddResponse & response)
   {
-    Status status = ProcessMethod(kPackage.c_str(), kService.c_str(), "Add", request, response);
+    Status status = ProcessCall("Add", request, response);
     return status;
   }
 
-  Status Client::ProcessMethod(const char * package, const char * service, const char * function_name, const ::google::protobuf::Message & request, ::google::protobuf::Message & response)
+  Status Client::ProcessCall(const char * name, const ::google::protobuf::Message & request, ::google::protobuf::Message & response)
   {
     ClientRequest client_message;
 
     //function_identifier
-    client_message.mutable_function_identifier()->set_package(package);
-    client_message.mutable_function_identifier()->set_service(service);
-    client_message.mutable_function_identifier()->set_function_name(function_name);
+    client_message.mutable_function_identifier()->set_package(kPackage.c_str());
+    client_message.mutable_function_identifier()->set_service(kService.c_str());
+    client_message.mutable_function_identifier()->set_function_name(name);
 
     // Serialize the request message into ClientRequest
     bool success = request.SerializeToString(client_message.mutable_request_buffer());
@@ -112,37 +112,29 @@ namespace CalculatorService
 
   libProtobufPipePlugin::Status ServerStub::DispatchMessage(const size_t & index, const std::string & input, std::string & output)
   {
-    bool success = false;
-    Status status;
-
     switch(index)
     {
     case 0:
       {
         AddRequest request;
         AddResponse response;
-        success = request.ParseFromString(input);
+        bool success = request.ParseFromString(input);
         if (!success)
-        {
-          status = Status::Factory::Deserialization(__FUNCTION__, request);
-          break;
-        }
-        status = this->Add(request, response);
+          return Status::Factory::Deserialization(__FUNCTION__, request);
+        Status status = this->Add(request, response);
         if (!status.Success())
-          break;
+          return status;
         success = response.SerializeToString(&output);
         if (!success)
-          status = Status::Factory::Serialization(__FUNCTION__, response);
+          return Status::Factory::Serialization(__FUNCTION__, response);
       }
       break;
     default:
       //Not implemented
-      std::string error_message = "Function at index " + std::to_string((unsigned long long)index) + " is not implemented.";
-      status.SetCode(STATUS_CODE_NOT_IMPLEMENTED);
-      status.SetMessage(error_message);
+      return Status(STATUS_CODE_NOT_IMPLEMENTED, "Function at index " + std::to_string((unsigned long long)index) + " is not implemented.");
     };
 
-    return status;
+    return Status::OK;
   }
 
 }; //namespace CalculatorService
