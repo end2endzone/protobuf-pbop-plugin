@@ -1,4 +1,4 @@
-add_library(libPipe
+add_library(libProtobufPipePlugin
   ${PROTOBUFPIPEPLUGIN_EXPORT_HEADER}
   ${PROTOBUFPIPEPLUGIN_VERSION_HEADER}
   ${PROTOBUFPIPEPLUGIN_CONFIG_HEADER}
@@ -11,19 +11,19 @@ add_library(libPipe
 )
 
 # Force CMAKE_DEBUG_POSTFIX for executables
-set_target_properties(libPipe PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
+set_target_properties(libProtobufPipePlugin PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 
 # Define include directories for exported code.
-target_include_directories(libPipe
+target_include_directories(libProtobufPipePlugin
   PUBLIC
     $<INSTALL_INTERFACE:${PROTOBUFPIPEPLUGIN_INSTALL_INCLUDE_DIR}>  # for clients using the installed library.
   PRIVATE
     ${PROTOBUF_INCLUDE_DIRS}
     rapidassist
 )
-target_link_libraries(libPipe PRIVATE protobuf::libprotobuf rapidassist )
+target_link_libraries(libProtobufPipePlugin PRIVATE protobuf::libprotobuf rapidassist )
 
-install(TARGETS libPipe
+install(TARGETS libProtobufPipePlugin
         EXPORT protobufpipeplugin-targets
         ARCHIVE DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_LIB_DIR}
         LIBRARY DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_LIB_DIR}

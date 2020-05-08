@@ -40,11 +40,11 @@ target_include_directories(protobuf-pipe-plugin_unittest
   PRIVATE 
     ${GTEST_INCLUDE_DIR}
     ${PROTOBUF_INCLUDE_DIRS}
-    ${CMAKE_SOURCE_DIR}/src/libPipe
+    ${CMAKE_SOURCE_DIR}/src/libProtobufPipePlugin
     rapidassist
 )
-add_dependencies(protobuf-pipe-plugin_unittest protobuf-pipe-plugin libPipe)
-target_link_libraries(protobuf-pipe-plugin_unittest PRIVATE libPipe ${PTHREAD_LIBRARIES} ${GTEST_LIBRARIES} rapidassist)
+add_dependencies(protobuf-pipe-plugin_unittest protobuf-pipe-plugin libProtobufPipePlugin)
+target_link_libraries(protobuf-pipe-plugin_unittest PRIVATE libProtobufPipePlugin ${PTHREAD_LIBRARIES} ${GTEST_LIBRARIES} rapidassist)
 
 #    # Define the proto files to process before building `protobuf-pipe-plugin_unittest`
 #------------------------------------------------

@@ -117,7 +117,7 @@ find_package(bin2cpp 2.3.0 REQUIRED)
 # Subprojects
 ##############################################################################################################################################
 
-add_subdirectory(src/libPipe)
+add_subdirectory(src/libProtobufPipePlugin)
 add_subdirectory(src/protobuf-pipe-plugin)
 
 # unit tests
