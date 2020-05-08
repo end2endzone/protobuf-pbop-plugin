@@ -11,20 +11,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Connection.cpp" />
+    <ClCompile Include="..\..\..\src\libProtobufPipePlugin\Connection.cpp" />
+    <ClCompile Include="..\..\..\src\libProtobufPipePlugin\Server.cpp" />
+    <ClCompile Include="..\..\..\src\libProtobufPipePlugin\Status.cpp" />
     <ClCompile Include="PipeMessages.pb.cc" />
-    <ClCompile Include="Server.cpp" />
-    <ClCompile Include="Status.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Connection.h" />
+    <ClInclude Include="..\..\..\src\libProtobufPipePlugin\Connection.h" />
+    <ClInclude Include="..\..\..\src\libProtobufPipePlugin\Server.h" />
+    <ClInclude Include="..\..\..\src\libProtobufPipePlugin\Service.h" />
+    <ClInclude Include="..\..\..\src\libProtobufPipePlugin\Status.h" />
     <ClInclude Include="PipeMessages.pb.h" />
-    <ClInclude Include="Server.h" />
-    <ClInclude Include="Service.h" />
-    <ClInclude Include="Status.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="PipeMessages.proto" />
+    <None Include="..\..\..\src\libProtobufPipePlugin\PipeMessages.proto" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{7DAA5E23-D2F3-40FA-8AD3-217C2810D02B}</ProjectGuid>
@@ -60,14 +60,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>F:\Projets\Programmation\Cpp\protobuf-pipe-plugin\master\third_parties\protobuf\install\include;..\libProtobufPipePlugin</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\third_parties\protobuf\install\include;..\..\..\src\;$(ProjectDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>F:\Projets\Programmation\Cpp\protobuf-pipe-plugin\master\third_parties\protobuf\install\lib\libprotobufd.lib</AdditionalDependencies>
+      <AdditionalDependencies>..\..\..\third_parties\protobuf\install\lib\libprotobufd.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -78,6 +78,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\third_parties\protobuf\install\include;..\..\..\src\;$(ProjectDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
