@@ -1,9 +1,9 @@
 #ifndef LIB_PROTOBUF_PIPE_PLUGIN_SERVER
 #define LIB_PROTOBUF_PIPE_PLUGIN_SERVER
 
-#include "Status.h"
-#include "Service.h"
-#include "Connection.h"
+#include "libProtobufPipePlugin/Status.h"
+#include "libProtobufPipePlugin/Service.h"
+#include "libProtobufPipePlugin/Connection.h"
 
 #include <string>
 #include <vector>

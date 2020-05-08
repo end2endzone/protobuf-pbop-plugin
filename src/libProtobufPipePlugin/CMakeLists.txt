@@ -55,10 +55,21 @@ target_include_directories(libProtobufPipePlugin
     $<INSTALL_INTERFACE:${PROTOBUFPIPEPLUGIN_INSTALL_INCLUDE_DIR}>  # for clients using the installed library.
   PRIVATE
     ${PROTOBUF_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_BINARY_DIR} # For 'PipeMessages.pb.h'
+    ${CMAKE_CURRENT_SOURCE_DIR}/..    # For supporting include od type 'libProtobufPipePlugin/Status.h'
+    ${CMAKE_CURRENT_BINARY_DIR}       # For 'PipeMessages.pb.h'
     rapidassist
 )
 target_link_libraries(libProtobufPipePlugin PRIVATE protobuf::libprotobuf rapidassist )
+
+install(FILES ${PROTOBUFPIPEPLUGIN_EXPORT_HEADER}
+              ${PROTOBUFPIPEPLUGIN_VERSION_HEADER}
+              ${PROTOBUFPIPEPLUGIN_CONFIG_HEADER}
+              Connection.h
+              PipeMessages.proto
+              Server.h
+              Service.h
+              Status.h
+              DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_INCLUDE_DIR}/libProtobufPipePlugin)
 
 install(TARGETS libProtobufPipePlugin
         EXPORT protobufpipeplugin-targets

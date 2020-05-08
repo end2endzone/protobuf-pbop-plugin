@@ -1,7 +1,7 @@
 #ifndef LIB_PROTOBUF_PIPE_PLUGIN_CONNECTION
 #define LIB_PROTOBUF_PIPE_PLUGIN_CONNECTION
 
-#include "Status.h"
+#include "libProtobufPipePlugin/Status.h"
 
 #include <string>
 #include <vector>
