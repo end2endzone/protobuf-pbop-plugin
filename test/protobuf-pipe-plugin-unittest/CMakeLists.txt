@@ -85,6 +85,8 @@ foreach(output_file ${OUTPUT_PROTO_FILES})
             ${input_file}
             ${output_file}
   )
+  install(FILES ${input_file} DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_BIN_DIR})
+
 endforeach()
 add_custom_target(unittest-prebuild DEPENDS ${OUTPUT_PROTO_FILES})
 add_dependencies(protobuf-pipe-plugin_unittest unittest-prebuild)
