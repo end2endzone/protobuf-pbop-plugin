@@ -22,7 +22,7 @@
  * SOFTWARE.
  *********************************************************************************/
 
-#include "Connection.h"
+#include "libProtobufPipePlugin/Connection.h"
 
 //https://docs.microsoft.com/en-us/windows/win32/ipc/named-pipe-client
 

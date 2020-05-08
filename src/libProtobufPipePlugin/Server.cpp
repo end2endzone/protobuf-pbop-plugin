@@ -22,9 +22,9 @@
  * SOFTWARE.
  *********************************************************************************/
 
-#include "Server.h"
-#include "Status.h"
-#include "Connection.h"
+#include "libProtobufPipePlugin/Server.h"
+#include "libProtobufPipePlugin/Status.h"
+#include "libProtobufPipePlugin/Connection.h"
 #include "PipeMessages.pb.h"
 
 //#include <strsafe.h>

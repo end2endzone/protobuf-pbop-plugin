@@ -22,7 +22,7 @@
  * SOFTWARE.
  *********************************************************************************/
 
-#include "Status.h"
+#include "libProtobufPipePlugin/Status.h"
 
 namespace libProtobufPipePlugin
 {

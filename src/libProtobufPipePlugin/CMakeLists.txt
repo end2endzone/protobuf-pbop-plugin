@@ -1,3 +1,6 @@
+# Define include dir for the library
+set(LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
+
 # Manually get the location of include directories for libprotobuf
 get_target_property(PROTOBUF_INCLUDE_DIRS protobuf::libprotobuf INTERFACE_INCLUDE_DIRECTORIES)
 
@@ -6,8 +9,16 @@ get_property(PROTOC_LOCATION TARGET protobuf::protoc PROPERTY LOCATION)
 
 # Define the *.proto files and their outputs
 set(PROTO_FILES
-  ${CMAKE_CURRENT_INPUT_DIR}/PipeMessages.proto
+  ${LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR}/libProtobufPipePlugin/PipeMessages.proto
 )
+set(LIBPROTOBUFPIPEPLUGIN_INCLUDE_FILES
+  ${LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR}/libProtobufPipePlugin/Connection.h
+  ${LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR}/libProtobufPipePlugin/PipeMessages.proto
+  ${LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR}/libProtobufPipePlugin/Server.h
+  ${LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR}/libProtobufPipePlugin/Service.h
+  ${LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR}/libProtobufPipePlugin/Status.h
+)
+
 set(PROTO_GENERATED_FILES
   ${CMAKE_CURRENT_BINARY_DIR}/PipeMessages.pb.cc
   ${CMAKE_CURRENT_BINARY_DIR}/PipeMessages.pb.h
@@ -19,17 +30,14 @@ add_library(libProtobufPipePlugin
   ${PROTOBUFPIPEPLUGIN_CONFIG_HEADER}
   ${PROTO_FILES}
   ${PROTO_GENERATED_FILES}
+  ${LIBPROTOBUFPIPEPLUGIN_INCLUDE_FILES}
   Connection.cpp
-  Connection.h
   DebugPrinter.cpp
   DebugPrinter.h
   libpipe.cpp
   libpipe.h
   Server.cpp
-  Server.h
-  Service.h
   Status.cpp
-  Status.h
   StreamPrinter.cpp
   StreamPrinter.h
 )
@@ -42,8 +50,8 @@ add_custom_command(
   OUTPUT ${PROTO_GENERATED_FILES}
   DEPENDS ${input_file}
   # Warning: CMake treats ; character differently. They must be escaped to prevent issues
-  COMMAND echo $<TARGET_FILE:protobuf::protoc> --cpp_out=${CMAKE_CURRENT_BINARY_DIR} --proto_path=.\;${PROTOBUF_INCLUDE_DIRS}\;${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/${PROTO_FILES}
-  COMMAND      $<TARGET_FILE:protobuf::protoc> --cpp_out=${CMAKE_CURRENT_BINARY_DIR} --proto_path=.\;${PROTOBUF_INCLUDE_DIRS}\;${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/${PROTO_FILES}
+  COMMAND echo $<TARGET_FILE:protobuf::protoc> --cpp_out=${CMAKE_CURRENT_BINARY_DIR} --proto_path=.\;${PROTOBUF_INCLUDE_DIRS}\;${LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR}/libProtobufPipePlugin ${PROTO_FILES}
+  COMMAND      $<TARGET_FILE:protobuf::protoc> --cpp_out=${CMAKE_CURRENT_BINARY_DIR} --proto_path=.\;${PROTOBUF_INCLUDE_DIRS}\;${LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR}/libProtobufPipePlugin ${PROTO_FILES}
   COMMAND echo done.
 )
 
@@ -60,8 +68,8 @@ target_include_directories(libProtobufPipePlugin
     $<INSTALL_INTERFACE:${PROTOBUFPIPEPLUGIN_INSTALL_INCLUDE_DIR}>  # for clients using the installed library.
   PRIVATE
     ${PROTOBUF_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_SOURCE_DIR}/..    # For supporting include od type 'libProtobufPipePlugin/Status.h'
-    ${CMAKE_CURRENT_BINARY_DIR}       # For 'PipeMessages.pb.h'
+    ${LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR}    # For repository's include directory
+    ${CMAKE_CURRENT_BINARY_DIR}             # For 'PipeMessages.pb.h'
     rapidassist
 )
 target_link_libraries(libProtobufPipePlugin PRIVATE protobuf::libprotobuf rapidassist )

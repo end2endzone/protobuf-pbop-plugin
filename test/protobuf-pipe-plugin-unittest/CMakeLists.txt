@@ -79,7 +79,6 @@ foreach(output_file ${OUTPUT_PROTO_FILES})
 
   #Output a copy confirmation on console
   message("Copying '${filename}' to '${output_file}'...")
-
   add_custom_command(
     OUTPUT ${output_file}
     DEPENDS ${input_file}
@@ -88,7 +87,6 @@ foreach(output_file ${OUTPUT_PROTO_FILES})
             ${output_file}
   )
   install(FILES ${input_file} DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_BIN_DIR})
-
 endforeach()
 add_custom_target(protobuf-pipe-plugin_unittest-prebuild DEPENDS ${OUTPUT_PROTO_FILES})
 add_dependencies(protobuf-pipe-plugin_unittest protobuf-pipe-plugin_unittest-prebuild)
