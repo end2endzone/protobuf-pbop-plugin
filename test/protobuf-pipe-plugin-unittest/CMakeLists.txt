@@ -25,6 +25,9 @@ add_executable(protobuf-pipe-plugin_unittest
   TestUtils.h
 )
 
+# Show all proto files in a common folder
+source_group("Proto Files" FILES TestPluginRun.proto)
+
 # Unit test projects requires to link with pthread if also linking with gtest
 if(NOT WIN32)
   set(PTHREAD_LIBRARIES -pthread)
@@ -46,7 +49,6 @@ target_include_directories(protobuf-pipe-plugin_unittest
 add_dependencies(protobuf-pipe-plugin_unittest protobuf-pipe-plugin libProtobufPipePlugin)
 target_link_libraries(protobuf-pipe-plugin_unittest PRIVATE libProtobufPipePlugin ${PTHREAD_LIBRARIES} ${GTEST_LIBRARIES} rapidassist)
 
-#    # Define the proto files to process before building `protobuf-pipe-plugin_unittest`
 #------------------------------------------------
 # Define a prebuild step for target 'protobuf-pipe-plugin_unittest'.
 # Copies unit test *.proto files based on the following criteria:
@@ -88,8 +90,8 @@ foreach(output_file ${OUTPUT_PROTO_FILES})
   install(FILES ${input_file} DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_BIN_DIR})
 
 endforeach()
-add_custom_target(unittest-prebuild DEPENDS ${OUTPUT_PROTO_FILES})
-add_dependencies(protobuf-pipe-plugin_unittest unittest-prebuild)
+add_custom_target(protobuf-pipe-plugin_unittest-prebuild DEPENDS ${OUTPUT_PROTO_FILES})
+add_dependencies(protobuf-pipe-plugin_unittest protobuf-pipe-plugin_unittest-prebuild)
 
 # Force Visual Studio to execute code in $(OutDir) when debugging from the IDE.
 if (WIN32)

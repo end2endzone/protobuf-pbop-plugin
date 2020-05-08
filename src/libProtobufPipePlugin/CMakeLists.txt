@@ -5,7 +5,9 @@ get_target_property(PROTOBUF_INCLUDE_DIRS protobuf::libprotobuf INTERFACE_INCLUD
 get_property(PROTOC_LOCATION TARGET protobuf::protoc PROPERTY LOCATION)
 
 # Define the *.proto files and their outputs
-set(PROTO_FILE ${CMAKE_CURRENT_INPUT_DIR}/PipeMessages.proto)
+set(PROTO_FILES
+  ${CMAKE_CURRENT_INPUT_DIR}/PipeMessages.proto
+)
 set(PROTO_GENERATED_FILES
   ${CMAKE_CURRENT_BINARY_DIR}/PipeMessages.pb.cc
   ${CMAKE_CURRENT_BINARY_DIR}/PipeMessages.pb.h
@@ -15,6 +17,7 @@ add_library(libProtobufPipePlugin
   ${PROTOBUFPIPEPLUGIN_EXPORT_HEADER}
   ${PROTOBUFPIPEPLUGIN_VERSION_HEADER}
   ${PROTOBUFPIPEPLUGIN_CONFIG_HEADER}
+  ${PROTO_FILES}
   ${PROTO_GENERATED_FILES}
   Connection.cpp
   Connection.h
@@ -22,7 +25,6 @@ add_library(libProtobufPipePlugin
   DebugPrinter.h
   libpipe.cpp
   libpipe.h
-  PipeMessages.proto
   Server.cpp
   Server.h
   Service.h
@@ -32,13 +34,16 @@ add_library(libProtobufPipePlugin
   StreamPrinter.h
 )
 
+# Show all proto files in a common folder
+source_group("Proto Files" FILES ${PROTO_FILES})
+
 # Execute 'PipeMessages.proto' and output to CMAKE_CURRENT_BINARY_DIR
 add_custom_command(
   OUTPUT ${PROTO_GENERATED_FILES}
   DEPENDS ${input_file}
   # Warning: CMake treats ; character differently. They must be escaped to prevent issues
-  COMMAND echo $<TARGET_FILE:protobuf::protoc> --cpp_out=${CMAKE_CURRENT_BINARY_DIR} --proto_path=.\;${PROTOBUF_INCLUDE_DIRS}\;${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/${PROTO_FILE}
-  COMMAND      $<TARGET_FILE:protobuf::protoc> --cpp_out=${CMAKE_CURRENT_BINARY_DIR} --proto_path=.\;${PROTOBUF_INCLUDE_DIRS}\;${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/${PROTO_FILE}
+  COMMAND echo $<TARGET_FILE:protobuf::protoc> --cpp_out=${CMAKE_CURRENT_BINARY_DIR} --proto_path=.\;${PROTOBUF_INCLUDE_DIRS}\;${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/${PROTO_FILES}
+  COMMAND      $<TARGET_FILE:protobuf::protoc> --cpp_out=${CMAKE_CURRENT_BINARY_DIR} --proto_path=.\;${PROTOBUF_INCLUDE_DIRS}\;${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/${PROTO_FILES}
   COMMAND echo done.
 )
 
