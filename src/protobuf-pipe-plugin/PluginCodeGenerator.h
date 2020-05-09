@@ -35,4 +35,7 @@ public:
   virtual ~PluginCodeGenerator();
 
   virtual bool Generate(const google::protobuf::FileDescriptor * file, const std::string & parameter, google::protobuf::compiler::GeneratorContext * generator_context, std::string * error) const;
+private:
+  bool GenerateHeader(const google::protobuf::FileDescriptor * file, const std::string & parameter, google::protobuf::compiler::GeneratorContext * generator_context, std::string * error) const;
+  bool GenerateSource(const google::protobuf::FileDescriptor * file, const std::string & parameter, google::protobuf::compiler::GeneratorContext * generator_context, std::string * error) const;
 };

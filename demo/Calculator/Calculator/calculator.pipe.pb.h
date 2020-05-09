@@ -14,45 +14,44 @@
 
 namespace calculus
 {
-
-  namespace CalculatorService
+namespace CalculatorService
+{
+  class CalculatorService
   {
-    class CalculatorService
-    {
-      virtual libProtobufPipePlugin::Status Add(const AddRequest & request, AddResponse & response) = 0;
-    };
+  public:
+    virtual libProtobufPipePlugin::Status Add(const AddRequest & request, AddResponse & response) = 0;
+  };
 
-    class Client : public virtual CalculatorService
-    {
-    public:
-      Client(libProtobufPipePlugin::Connection * connection);
-      virtual ~Client();
-      virtual libProtobufPipePlugin::Status Add(const AddRequest & request, AddResponse & response);
-    private:
-      libProtobufPipePlugin::Status ProcessCall(const char * name, const ::google::protobuf::Message & request, ::google::protobuf::Message & response);
-      libProtobufPipePlugin::Connection * connection_;
-    };
+  class Client : public virtual CalculatorService
+  {
+  public:
+    Client(libProtobufPipePlugin::Connection * connection);
+    virtual ~Client();
+    virtual libProtobufPipePlugin::Status Add(const AddRequest & request, AddResponse & response);
+  private:
+    libProtobufPipePlugin::Status ProcessCall(const char * name, const ::google::protobuf::Message & request, ::google::protobuf::Message & response);
+    libProtobufPipePlugin::Connection * connection_;
+  };
 
-    class ServerStub : public virtual CalculatorService, public virtual libProtobufPipePlugin::Service
-    {
-    public:
-      ServerStub();
-      virtual ~ServerStub();
+  class ServerStub : public virtual CalculatorService, public virtual libProtobufPipePlugin::Service
+  {
+  public:
+    ServerStub();
+    virtual ~ServerStub();
 
-      //libProtobufPipePlugin::Service definition
-      virtual const std::string & GetPackageName() const;
-      virtual const std::string & GetServiceName() const;
-      virtual const std::vector<std::string> & GetFunctionIdentifiers() const;
-      virtual libProtobufPipePlugin::Status DispatchMessage(const size_t & index, const std::string & input, std::string & output);
+    //libProtobufPipePlugin::Service definition
+    virtual const std::string & GetPackageName() const;
+    virtual const std::string & GetServiceName() const;
+    virtual const std::vector<std::string> & GetFunctionIdentifiers() const;
+    virtual libProtobufPipePlugin::Status DispatchMessage(const size_t & index, const std::string & input, std::string & output);
 
-      //CalculatorService implementation
-      inline libProtobufPipePlugin::Status Add(const AddRequest & request, AddResponse & response) { return libProtobufPipePlugin::Status::Factory::NotImplemented(__FUNCTION__); }
-    private:
-      std::vector<std::string> functions_;
-    };
+    //CalculatorService implementation
+    inline libProtobufPipePlugin::Status Add(const AddRequest & request, AddResponse & response) { return libProtobufPipePlugin::Status::Factory::NotImplemented(__FUNCTION__); }
+  private:
+    std::vector<std::string> functions_;
+  };
 
-  }; //namespace CalculatorService
-
+}; //namespace CalculatorService
 }; //namespace calculus
 
 #endif //PROTOBUF_CALCULATOR_PIPE_H

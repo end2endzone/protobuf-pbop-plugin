@@ -60,7 +60,13 @@ TEST_F(TestPluginRun, testRunPluginAbsolutePath)
   std::string outdir = ra::process::GetCurrentProcessDir() + separator + ra::testing::GetTestQualifiedName();
   if (ra::filesystem::DirectoryExists(outdir.c_str()))
     ASSERT_TRUE( ra::filesystem::DeleteDirectory(outdir.c_str()) );
+#if _WIN32
+  //https://stackoverflow.com/questions/32257708/directory-createdirectory-does-not-always-create-the-folder
+  //https://stackoverflow.com/questions/32593552/using-directory-delete-and-directory-createdirectory-to-overwrite-a-folder
+  while(ra::filesystem::DirectoryExists(outdir.c_str())) {}
+#endif
   ASSERT_TRUE( ra::filesystem::CreateDirectory(outdir.c_str()) );
+  ASSERT_TRUE( ra::filesystem::DirectoryExists(outdir.c_str()) );
 
   //protoc --plugin=protoc-gen-NAME=path/to/mybinary.exe --NAME_out=OUT_DIR
   //protoc --plugin=protoc-gen-foobar=[...]\src\Debug\protobuf-pipe-plugin.exe --foobar_out=[...]\src\Debug\output --proto_path=[...]\src\Debug\proto_files [...]\src\Debug\proto_files\addressbookservice.proto
@@ -96,7 +102,13 @@ TEST_F(TestPluginRun, testRunPluginAutoDetect)
   std::string outdir = ra::process::GetCurrentProcessDir() + separator + ra::testing::GetTestQualifiedName();
   if (ra::filesystem::DirectoryExists(outdir.c_str()))
     ASSERT_TRUE( ra::filesystem::DeleteDirectory(outdir.c_str()) );
+#if _WIN32
+  //https://stackoverflow.com/questions/32257708/directory-createdirectory-does-not-always-create-the-folder
+  //https://stackoverflow.com/questions/32593552/using-directory-delete-and-directory-createdirectory-to-overwrite-a-folder
+  while(ra::filesystem::DirectoryExists(outdir.c_str())) {}
+#endif
   ASSERT_TRUE( ra::filesystem::CreateDirectory(outdir.c_str()) );
+  ASSERT_TRUE( ra::filesystem::DirectoryExists(outdir.c_str()) );
 
   //protoc --NAME_out=%TEMP%
   //protoc.exe looks for protoc-gen-NAME.exe in %PATH%
