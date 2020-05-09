@@ -35,20 +35,22 @@
     <ClInclude Include="PipeMessages.pb.h">
       <Filter>Proto Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\libProtobufPipePlugin\Status.h">
+    <ClInclude Include="..\..\..\include\libProtobufPipePlugin\Connection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\libProtobufPipePlugin\Connection.h">
+    <ClInclude Include="..\..\..\include\libProtobufPipePlugin\Server.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\libProtobufPipePlugin\Server.h">
+    <ClInclude Include="..\..\..\include\libProtobufPipePlugin\Service.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\libProtobufPipePlugin\Service.h">
+    <ClInclude Include="..\..\..\include\libProtobufPipePlugin\Status.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\src\libProtobufPipePlugin\PipeMessages.proto" />
+    <None Include="..\..\..\include\libProtobufPipePlugin\PipeMessages.proto">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

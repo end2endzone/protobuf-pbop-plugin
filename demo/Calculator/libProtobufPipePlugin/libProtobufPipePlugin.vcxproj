@@ -17,14 +17,14 @@
     <ClCompile Include="PipeMessages.pb.cc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\libProtobufPipePlugin\Connection.h" />
-    <ClInclude Include="..\..\..\src\libProtobufPipePlugin\Server.h" />
-    <ClInclude Include="..\..\..\src\libProtobufPipePlugin\Service.h" />
-    <ClInclude Include="..\..\..\src\libProtobufPipePlugin\Status.h" />
+    <ClInclude Include="..\..\..\include\libProtobufPipePlugin\Connection.h" />
+    <ClInclude Include="..\..\..\include\libProtobufPipePlugin\Server.h" />
+    <ClInclude Include="..\..\..\include\libProtobufPipePlugin\Service.h" />
+    <ClInclude Include="..\..\..\include\libProtobufPipePlugin\Status.h" />
     <ClInclude Include="PipeMessages.pb.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\src\libProtobufPipePlugin\PipeMessages.proto" />
+    <None Include="..\..\..\include\libProtobufPipePlugin\PipeMessages.proto" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{7DAA5E23-D2F3-40FA-8AD3-217C2810D02B}</ProjectGuid>
