@@ -1,9 +1,13 @@
 add_executable(protobuf-pipe-plugin
   ${PROTOBUFPIPEPLUGIN_VERSION_HEADER}
   ${PROTOBUFPIPEPLUGIN_CONFIG_HEADER}
+  DebugPrinter.cpp
+  DebugPrinter.h
   main.cpp
   PluginCodeGenerator.cpp
   PluginCodeGenerator.h
+  StreamPrinter.cpp
+  StreamPrinter.h
 )
 
 # Force CMAKE_DEBUG_POSTFIX for executables

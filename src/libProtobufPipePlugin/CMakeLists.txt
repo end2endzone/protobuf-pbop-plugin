@@ -32,14 +32,10 @@ add_library(libProtobufPipePlugin
   ${PROTO_GENERATED_FILES}
   ${LIBPROTOBUFPIPEPLUGIN_INCLUDE_FILES}
   Connection.cpp
-  DebugPrinter.cpp
-  DebugPrinter.h
   libpipe.cpp
   libpipe.h
   Server.cpp
   Status.cpp
-  StreamPrinter.cpp
-  StreamPrinter.h
 )
 
 # Show all proto files in a common folder
