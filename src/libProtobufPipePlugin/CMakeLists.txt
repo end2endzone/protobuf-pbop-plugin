@@ -74,16 +74,6 @@ target_include_directories(libProtobufPipePlugin
 )
 target_link_libraries(libProtobufPipePlugin PRIVATE protobuf::libprotobuf rapidassist )
 
-install(FILES ${PROTOBUFPIPEPLUGIN_EXPORT_HEADER}
-              ${PROTOBUFPIPEPLUGIN_VERSION_HEADER}
-              ${PROTOBUFPIPEPLUGIN_CONFIG_HEADER}
-              Connection.h
-              PipeMessages.proto
-              Server.h
-              Service.h
-              Status.h
-              DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_INCLUDE_DIR}/libProtobufPipePlugin)
-
 install(TARGETS libProtobufPipePlugin
         EXPORT protobufpipeplugin-targets
         ARCHIVE DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_LIB_DIR}

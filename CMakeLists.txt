@@ -168,6 +168,13 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/protobufpipeplugin-config-versio
 configure_file(${CMAKE_SOURCE_DIR}/cmake/protobufpipeplugin-config.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/cmake/protobufpipeplugin-config.cmake @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/protobufpipeplugin-config.cmake DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_CMAKE_DIR})
 
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_INCLUDE_DIR})
+
+install(FILES ${PROTOBUFPIPEPLUGIN_EXPORT_HEADER}
+              ${PROTOBUFPIPEPLUGIN_VERSION_HEADER}
+              ${PROTOBUFPIPEPLUGIN_CONFIG_HEADER}
+              DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_INCLUDE_DIR}/libProtobufPipePlugin)
+
 install(EXPORT protobufpipeplugin-targets DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_CMAKE_DIR})
 
 ##############################################################################################################################################
