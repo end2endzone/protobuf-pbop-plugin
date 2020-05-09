@@ -29,15 +29,36 @@
 #include <gtest/gtest.h>
 
 #include "rapidassist/environment.h"
+#include "rapidassist/filesystem.h"
 
 #include "TestUtils.h"
 #include "protobuf_locator.h"
 
 int main(int argc, char* argv[])
 {
-  //add protoc.exe to path
-  std::string protoc_directory = getProtoCompilerDirectory();
-  AddApplicationPath(protoc_directory.c_str());
+  //Search for protoc executable in path
+#ifdef _WIN32
+  static const std::string protoc_filename = "protoc.exe";
+#else
+  static const std::string protoc_filename = "protoc";
+#endif
+  std::string protoc_path = ra::filesystem::FindFileFromPaths(protoc_filename);
+  if (protoc_path.empty())
+  {
+    //Failed to find protoc executable in PATH
+
+    //add protoc.exe to path
+    std::string protoc_directory = getProtoCompilerDirectory();
+    AddApplicationPath(protoc_directory.c_str());
+
+    //search protoc executable again
+    protoc_path = ra::filesystem::FindFileFromPaths(protoc_filename);
+    if (protoc_path.empty())
+    {
+      printf("Failed to find protoc executable in PATH\n");
+      return 1;
+    }
+  }
 
   //define default values for xml output report
   std::string outputXml = "xml:" "protobuf-pipe-plugin_unittest";

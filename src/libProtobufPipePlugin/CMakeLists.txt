@@ -44,6 +44,7 @@ add_library(libProtobufPipePlugin
 
 # Show all proto files in a common folder
 source_group("Proto Files" FILES ${PROTO_FILES})
+source_group("Generated Files" FILES ${PROTO_GENERATED_FILES})
 
 # Execute 'PipeMessages.proto' and output to CMAKE_CURRENT_BINARY_DIR
 add_custom_command(
@@ -73,6 +74,17 @@ target_include_directories(libProtobufPipePlugin
     rapidassist
 )
 target_link_libraries(libProtobufPipePlugin PRIVATE protobuf::libprotobuf rapidassist )
+
+if (WIN32)
+  # On Windows, with protobuf v3.5.1.1, the following warnings are always displayed
+  #  google/protobuf/io/coded_stream.h(869): warning C4800: 'google::protobuf::internal::Atomic32' : forcing value to bool 'true' or 'false' (performance warning)
+  #  google/protobuf/wire_format_lite.h(863): warning C4146: unary minus operator applied to unsigned type, result still unsigned
+  #  google/protobuf/wire_format_lite.h(874): warning C4146: unary minus operator applied to unsigned type, result still unsigned
+  #  google/protobuf/generated_message_util.h(160): warning C4800: 'const google::protobuf::uint32' : forcing value to bool 'true' or 'false' (performance warning)
+
+  message("Disabling warning C4146 and warning C4800 on Windows.")
+  set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/PipeMessages.pb.cc PROPERTIES COMPILE_FLAGS "/wd\"4146\" /wd\"4800\"")
+endif()
 
 install(TARGETS libProtobufPipePlugin
         EXPORT protobufpipeplugin-targets

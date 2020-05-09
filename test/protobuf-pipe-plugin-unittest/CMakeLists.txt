@@ -3,6 +3,7 @@ get_target_property(PROTOBUF_INCLUDE_DIRS protobuf::libprotobuf INTERFACE_INCLUD
 
 # Manually get the location of protoc
 get_property(PROTOC_LOCATION TARGET protobuf::protoc PROPERTY LOCATION)
+get_filename_component(PROTOC_DIRECTORY ${PROTOC_LOCATION} DIRECTORY)
 
 # Configure protobuf locator
 set(PROTOBUF_LOCATOR_SOURCE ${CMAKE_CURRENT_BINARY_DIR}/protobuf_locator.cpp)
@@ -92,26 +93,16 @@ add_custom_target(protobuf-pipe-plugin_unittest-prebuild DEPENDS ${OUTPUT_PROTO_
 add_dependencies(protobuf-pipe-plugin_unittest protobuf-pipe-plugin_unittest-prebuild)
 
 # Force Visual Studio to execute code in $(OutDir) when debugging from the IDE.
+# and add protoc directory to PATH environment variable
 if (WIN32)
   file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/protobuf-pipe-plugin_unittest.vcxproj.user" 
-      "<?xml version=\"1.0\" encoding=\"utf-8\"?>     \
+      "<?xml version=\"1.0\" encoding=\"utf-8\"?>
       <Project ToolsVersion=\"4.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">
-      <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|Win32'\">
+        <PropertyGroup>
           <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
           <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-      </PropertyGroup>
-      <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|Win32'\">
-          <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
-          <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-      </PropertyGroup>
-      <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|x64'\">
-          <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
-          <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-      </PropertyGroup>
-      <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|x64'\">
-          <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
-          <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-      </PropertyGroup>
+          <LocalDebuggerEnvironment>PATH=${PROTOC_DIRECTORY};%PATH%</LocalDebuggerEnvironment>
+        </PropertyGroup>
       </Project>"
   )
 endif()
