@@ -82,6 +82,9 @@ if (WIN32)
   set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/PipeMessages.pb.cc PROPERTIES COMPILE_FLAGS "/wd\"4146\" /wd\"4800\"")
 endif()
 
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/PipeMessages.pb.h
+              DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_INCLUDE_DIR}/libProtobufPipePlugin)
+
 install(TARGETS libProtobufPipePlugin
         EXPORT protobufpipeplugin-targets
         ARCHIVE DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_LIB_DIR}
