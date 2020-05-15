@@ -36,28 +36,12 @@
 
 int main(int argc, char* argv[])
 {
-  //Search for protoc executable in path
-#ifdef _WIN32
-  static const std::string protoc_filename = "protoc.exe";
-#else
-  static const std::string protoc_filename = "protoc";
-#endif
-  std::string protoc_path = ra::filesystem::FindFileFromPaths(protoc_filename);
+  const std::string protoc_path = GetProtoCompilerPath();
   if (protoc_path.empty())
   {
     //Failed to find protoc executable in PATH
-
-    //add protoc.exe to path
-    std::string protoc_directory = getProtoCompilerDirectory();
-    AddApplicationPath(protoc_directory.c_str());
-
-    //search protoc executable again
-    protoc_path = ra::filesystem::FindFileFromPaths(protoc_filename);
-    if (protoc_path.empty())
-    {
-      printf("Failed to find protoc executable in PATH\n");
-      return 1;
-    }
+    printf("Failed to find protoc executable in PATH\n");
+    return 1;
   }
 
   //define default values for xml output report

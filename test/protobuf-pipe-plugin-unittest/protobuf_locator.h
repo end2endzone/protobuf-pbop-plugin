@@ -27,8 +27,6 @@
 
 #include <string>
 
-std::string getProtobufIncludeDirectory();
-std::string getProtoCompilerPath();
-std::string getProtoCompilerDirectory();
+std::string GetProtobufIncludeDirectory();
 
 #endif //PROTOBUF_LOCATOR_H

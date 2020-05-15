@@ -34,6 +34,9 @@ std::string GetPluginFilePath();
 std::string GetTestProtoFilePath();
 std::string GetTestProtoPath();
 
+std::string GetProtoCompilerPath();
+std::string GetProtoCompilerDirectory();
+
 void AddApplicationPath(const char * iPath);
 
 void EraseToken(std::string & iString, const std::string & iToken);

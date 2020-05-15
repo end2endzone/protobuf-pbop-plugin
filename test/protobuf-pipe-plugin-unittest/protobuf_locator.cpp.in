@@ -26,22 +26,8 @@
 #include "rapidassist/strings.h"
 #include "rapidassist/filesystem.h"
 
-std::string getProtobufIncludeDirectory()
+std::string GetProtobufIncludeDirectory()
 {
   static const std::string location = "@PROTOBUF_INCLUDE_DIRS@";
   return location;
-}
-
-std::string getProtoCompilerPath()
-{
-  static const std::string location = "@PROTOC_LOCATION@";
-  return location;
-}
-
-std::string getProtoCompilerDirectory()
-{
-  std::string path = getProtoCompilerPath();
-
-  std::string parent_dir = ra::filesystem::GetParentPath(path);
-  return parent_dir;
 }

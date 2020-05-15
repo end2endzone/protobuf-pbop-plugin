@@ -71,11 +71,30 @@ std::string GetTestProtoFilePath()
 std::string GetTestProtoPath()
 {
   std::string outdir;
-  outdir.append(getProtobufIncludeDirectory());
+  outdir.append(GetProtobufIncludeDirectory());
   outdir.append(";");
   outdir.append(ra::process::GetCurrentProcessDir());
   outdir.append(";");
   return outdir;
+}
+
+std::string GetProtoCompilerDirectory()
+{
+  std::string path = GetProtoCompilerPath();
+  std::string parent_dir = ra::filesystem::GetParentPath(path);
+  return parent_dir;
+}
+
+std::string GetProtoCompilerPath()
+{
+  //Search for protoc executable in path
+#ifdef _WIN32
+  static const std::string protoc_filename = "protoc.exe";
+#else
+  static const std::string protoc_filename = "protoc";
+#endif
+  std::string protoc_path = ra::filesystem::FindFileFromPaths(protoc_filename);
+  return protoc_path;
 }
 
 void AddApplicationPath(const char * iPath)
