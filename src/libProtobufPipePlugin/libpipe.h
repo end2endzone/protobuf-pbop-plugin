@@ -43,6 +43,10 @@ __pragma( warning(pop) )
 
 #include <string>
 
+int Replace(std::string & iString, const std::string & iOldValue, const std::string & iNewValue);
+std::string GetFilenameWithoutExtension(const char * iPath);
+std::string Uppercase(const std::string & iValue);
+
 std::string ToCppNamespace(const std::string & iPackage);
 
 ///<summary>Add the given FileDescriptor (including its dependencies) to the given DescriptorPool.</summary>

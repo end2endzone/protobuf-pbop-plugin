@@ -27,11 +27,6 @@
 
 #include <sstream>  //for std::stringstream
 
-#include "rapidassist/strings.h"
-#include "rapidassist/filesystem.h"
-#include "rapidassist/environment.h"
-#include "rapidassist/process.h"
-
 #include "StreamPrinter.h"
 #include "DebugPrinter.h"
 #include "libpipe.h"
@@ -58,10 +53,10 @@ PluginCodeGenerator::~PluginCodeGenerator()
 bool PluginCodeGenerator::GenerateHeader(const google::protobuf::FileDescriptor * file, const std::string & parameter, google::protobuf::compiler::GeneratorContext * generator_context, std::string * error) const
 {
   const std::string & proto_filename = file->name();
-  const std::string proto_filename_we = ra::filesystem::GetFilenameWithoutExtension(proto_filename.c_str());
+  const std::string proto_filename_we = GetFilenameWithoutExtension(proto_filename.c_str());
   const std::string header_filename = proto_filename_we + ".pipe.pb.h";
   const std::string cpp_filename = proto_filename_we + ".pipe.pb.cpp";
-  const std::string header_guard = "PROTOBUF_" + ra::strings::Uppercase(proto_filename_we) << "_PIPE_H";
+  const std::string header_guard = "PROTOBUF_" + Uppercase(proto_filename_we) + "_PIPE_H";
 
   std::stringstream ss;
 
@@ -202,10 +197,10 @@ bool PluginCodeGenerator::GenerateHeader(const google::protobuf::FileDescriptor 
 bool PluginCodeGenerator::GenerateSource(const google::protobuf::FileDescriptor * file, const std::string & parameter, google::protobuf::compiler::GeneratorContext * generator_context, std::string * error) const
 {
   const std::string & proto_filename = file->name();
-  const std::string proto_filename_we = ra::filesystem::GetFilenameWithoutExtension(proto_filename.c_str());
+  const std::string proto_filename_we = GetFilenameWithoutExtension(proto_filename.c_str());
   const std::string header_filename = proto_filename_we + ".pipe.pb.h";
   const std::string cpp_filename = proto_filename_we + ".pipe.pb.cpp";
-  const std::string header_guard = "PROTOBUF_" + ra::strings::Uppercase(proto_filename_we) << "_PIPE_H";
+  const std::string header_guard = "PROTOBUF_" + Uppercase(proto_filename_we) + "_PIPE_H";
 
   std::stringstream ss;
 

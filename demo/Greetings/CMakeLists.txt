@@ -3,7 +3,6 @@ project(greetings)
 
 find_package(protobufpipeplugin REQUIRED)
 find_package(protobuf 3.5.1 REQUIRED NO_CMAKE_SYSTEM_PATH NO_CMAKE_PATH NO_CMAKE_SYSTEM_PACKAGE_REGISTRY )
-find_package(rapidassist REQUIRED)
 
 # Force a debug postfix if none specified.
 # This allows publishing both release and debug binaries to the same location
@@ -112,8 +111,8 @@ add_custom_command(
 )
 
 # Define a prebuild step of libProtobufPipePlugin
-add_custom_target(proto-prebuild DEPENDS ${PROTO_GENERATED_FILES})
-add_dependencies(greetings_proto proto-prebuild)
+add_custom_target(greetings_proto-prebuild DEPENDS ${PROTO_GENERATED_FILES})
+add_dependencies(greetings_proto greetings_proto-prebuild)
 
 if (WIN32)
   # On Windows, with protobuf v3.5.1.1, the following warnings are always displayed

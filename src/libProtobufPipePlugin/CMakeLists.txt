@@ -67,9 +67,8 @@ target_include_directories(libProtobufPipePlugin
     ${PROTOBUF_INCLUDE_DIRS}
     ${LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR}    # For repository's include directory
     ${CMAKE_CURRENT_BINARY_DIR}             # For 'PipeMessages.pb.h'
-    rapidassist
 )
-target_link_libraries(libProtobufPipePlugin PRIVATE protobuf::libprotobuf rapidassist )
+target_link_libraries(libProtobufPipePlugin PRIVATE protobuf::libprotobuf )
 
 if (WIN32)
   # On Windows, with protobuf v3.5.1.1, the following warnings are always displayed

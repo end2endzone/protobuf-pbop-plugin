@@ -24,7 +24,7 @@
 
 #include "StreamPrinter.h"
 
-#include "rapidassist/strings.h"
+#include "libpipe.h"
 
 #include <stdarg.h>
 
@@ -92,7 +92,7 @@ void StreamPrinter::Print(const std::string & iValue)
   {
     //must replace \n by \r\n
     std::string tmp = iValue;
-    ra::strings::Replace(tmp, unix_newline, windows_newline);
+    Replace(tmp, unix_newline, windows_newline);
     Print( (unsigned char *)tmp.c_str(), tmp.size() );
   }
   else

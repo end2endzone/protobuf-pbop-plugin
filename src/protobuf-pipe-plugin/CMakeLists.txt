@@ -23,12 +23,11 @@ target_include_directories(protobuf-pipe-plugin
   PRIVATE
     ${PROTOBUF_INCLUDE_DIRS}
     ${CMAKE_SOURCE_DIR}/src/libProtobufPipePlugin
-    rapidassist
 )
 
 add_dependencies(protobuf-pipe-plugin libProtobufPipePlugin)
 
-target_link_libraries(protobuf-pipe-plugin PRIVATE libProtobufPipePlugin rapidassist protobuf::libprotobuf protobuf::libprotoc)
+target_link_libraries(protobuf-pipe-plugin PRIVATE libProtobufPipePlugin protobuf::libprotobuf protobuf::libprotoc)
 
 install(TARGETS protobuf-pipe-plugin
         EXPORT protobufpipeplugin-targets
