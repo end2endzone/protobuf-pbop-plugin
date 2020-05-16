@@ -35,13 +35,13 @@ __pragma( warning(disable: 4146))
 #include "libProtobufPipePlugin/Server.h"
 #include "libProtobufPipePlugin/Status.h"
 #include "libProtobufPipePlugin/Connection.h"
+
 #include "PipeMessages.pb.h"
 
 #ifdef _WIN32
 __pragma( warning(pop) )
 #endif //_WIN32
 
-//#include <strsafe.h>
 #include <Windows.h>
 #undef GetMessage
 #undef DispatchMessage

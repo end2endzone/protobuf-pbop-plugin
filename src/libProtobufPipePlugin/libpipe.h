@@ -22,7 +22,8 @@
  * SOFTWARE.
  *********************************************************************************/
 
-#pragma once
+#ifndef LIB_PROTOBUF_PIPE_PLUGIN_FUNCTIONS
+#define LIB_PROTOBUF_PIPE_PLUGIN_FUNCTIONS
 
 #ifdef _WIN32
 //google/protobuf/io/coded_stream.h(869): warning C4800: 'google::protobuf::internal::Atomic32' : forcing value to bool 'true' or 'false' (performance warning)
@@ -43,22 +44,29 @@ __pragma( warning(pop) )
 
 #include <string>
 
-int Replace(std::string & iString, const std::string & iOldValue, const std::string & iNewValue);
-std::string GetFilenameWithoutExtension(const char * iPath);
-std::string Uppercase(const std::string & iValue);
+namespace libProtobufPipePlugin
+{
 
-std::string ToCppNamespace(const std::string & iPackage);
+  int Replace(std::string & iString, const std::string & iOldValue, const std::string & iNewValue);
+  std::string GetFilenameWithoutExtension(const char * iPath);
+  std::string Uppercase(const std::string & iValue);
 
-///<summary>Add the given FileDescriptor (including its dependencies) to the given DescriptorPool.</summary>
-///<param name="pool">The pool of files into which to add the given FileDescriptor (iFile).</param>
-///<param name="iFile">The file descriptor to add to the pool.</param>
-///<param name="iIncludeFile">True if you want to add the given . False if you only need its dependencies</param>
-///<return>A FileDescriptor * which describes the given FileDescriptor (iFile).</return>
-const google::protobuf::FileDescriptor * AddFileDescriptorToPool(google::protobuf::DescriptorPool & pool, const google::protobuf::FileDescriptor & iFile, bool iIncludeFile);
+  std::string ToCppNamespace(const std::string & iPackage);
 
-const google::protobuf::FileDescriptor * BuildFileDescriptor(google::protobuf::DescriptorPool & pool, const google::protobuf::FileDescriptorProto & iFileProto);
+  ///<summary>Add the given FileDescriptor (including its dependencies) to the given DescriptorPool.</summary>
+  ///<param name="pool">The pool of files into which to add the given FileDescriptor (iFile).</param>
+  ///<param name="iFile">The file descriptor to add to the pool.</param>
+  ///<param name="iIncludeFile">True if you want to add the given . False if you only need its dependencies</param>
+  ///<return>A FileDescriptor * which describes the given FileDescriptor (iFile).</return>
+  const google::protobuf::FileDescriptor * AddFileDescriptorToPool(google::protobuf::DescriptorPool & pool, const google::protobuf::FileDescriptor & iFile, bool iIncludeFile);
 
-const void ToFileDescriptorProto( const google::protobuf::FileDescriptor & iFile, google::protobuf::FileDescriptorProto & oFileProto);
+  const google::protobuf::FileDescriptor * BuildFileDescriptor(google::protobuf::DescriptorPool & pool, const google::protobuf::FileDescriptorProto & iFileProto);
 
-std::string ToProtoString(const google::protobuf::FileDescriptor & iFile);
-std::string ToProtoString(const google::protobuf::FileDescriptorProto & iFileProto);
+  const void ToFileDescriptorProto( const google::protobuf::FileDescriptor & iFile, google::protobuf::FileDescriptorProto & oFileProto);
+
+  std::string ToProtoString(const google::protobuf::FileDescriptor & iFile);
+  std::string ToProtoString(const google::protobuf::FileDescriptorProto & iFileProto);
+
+}; //namespace libProtobufPipePlugin
+
+#endif //LIB_PROTOBUF_PIPE_PLUGIN_FUNCTIONS

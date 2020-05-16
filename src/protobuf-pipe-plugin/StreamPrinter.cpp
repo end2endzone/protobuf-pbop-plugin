@@ -92,7 +92,7 @@ void StreamPrinter::Print(const std::string & iValue)
   {
     //must replace \n by \r\n
     std::string tmp = iValue;
-    Replace(tmp, unix_newline, windows_newline);
+    libProtobufPipePlugin::Replace(tmp, unix_newline, windows_newline);
     Print( (unsigned char *)tmp.c_str(), tmp.size() );
   }
   else

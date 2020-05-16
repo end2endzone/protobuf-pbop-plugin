@@ -103,7 +103,7 @@ FileDescriptorProto getBookProtoFile()
 TEST_F(TestProtoFunctions, testToProtoString)
 {
   FileDescriptorProto book = getBookProtoFile();
-  std::string protoString = ToProtoString(book);
+  std::string protoString = libProtobufPipePlugin::ToProtoString(book);
   
   printf("%s\n", protoString.c_str());
 
@@ -119,9 +119,9 @@ TEST_F(TestProtoFunctions, testToProtoString)
   ASSERT_NE(protoString.find("FANTASY = 4"), std::string::npos);
 
   DescriptorPool pool;
-  const FileDescriptor * desc = BuildFileDescriptor(pool, book);
+  const FileDescriptor * desc = libProtobufPipePlugin::BuildFileDescriptor(pool, book);
   ASSERT_TRUE(desc != NULL);
 
-  std::string protoString2 = ToProtoString(*desc);
+  std::string protoString2 = libProtobufPipePlugin::ToProtoString(*desc);
   ASSERT_EQ(protoString, protoString2);
 }
