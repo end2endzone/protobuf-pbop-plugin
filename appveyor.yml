@@ -56,7 +56,7 @@ before_build:
 - cmd: call %APPVEYOR_BUILD_FOLDER%\ci\appveyor\install_glog.bat
 - cmd: call %APPVEYOR_BUILD_FOLDER%\ci\appveyor\install_protobuf.bat
 - cmd: call %APPVEYOR_BUILD_FOLDER%\ci\appveyor\install_rapidassist.bat
-- cmd: call %APPVEYOR_BUILD_FOLDER%\ci\appveyor\install_bin2cpp.bat
+#- cmd: call %APPVEYOR_BUILD_FOLDER%\ci\appveyor\install_bin2cpp.bat
 
 build_script:
 - cmd: call %APPVEYOR_BUILD_FOLDER%\ci\appveyor\build_project.bat
@@ -69,6 +69,7 @@ build_script:
 test_script:
 - cmd: call %APPVEYOR_BUILD_FOLDER%\ci\appveyor\test_script.bat
 - ps: . "$env:APPVEYOR_BUILD_FOLDER\ci\appveyor\UploadJUnitFiles.ps1" -Path "$env:APPVEYOR_BUILD_FOLDER\build\bin"
+- cmd: call %APPVEYOR_BUILD_FOLDER%\ci\appveyor\test_demo_greetings.bat
 
 #---------------------------------#
 #      artifacts configuration    #
