@@ -16,6 +16,10 @@ if (WIN32)
   add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
+# Set the output folder where your program will be created
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
+set(   LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
+
 # Define the *.proto files and their outputs
 set(PROTO_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/greetings.proto
@@ -62,6 +66,9 @@ target_include_directories(greetings_client
 )
 target_link_libraries(greetings_client libProtobufPipePlugin protobuf::libprotobuf greetings_proto)
 
+# Force CMAKE_DEBUG_POSTFIX for executables
+set_target_properties(greetings_client PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
+
 add_dependencies(greetings_client greetings_proto)
 
 
@@ -81,6 +88,9 @@ target_include_directories(greetings_server
     libProtobufPipePlugin
 )
 target_link_libraries(greetings_server libProtobufPipePlugin protobuf::libprotobuf greetings_proto)
+
+# Force CMAKE_DEBUG_POSTFIX for executables
+set_target_properties(greetings_server PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 
 add_dependencies(greetings_server greetings_proto)
 

@@ -23,9 +23,20 @@ using namespace greetings;
 
 static const char * kPipeName = "\\\\.\\pipe\\greetingspipe";
 
+std::string GetFilename(const std::string & path)
+{
+  size_t last_index = path.find_last_of("/\\");
+  if (last_index == std::string::npos)
+    last_index = 0;
+  else
+    last_index++;
+  std::string filename = path.substr(last_index);
+  return filename;
+}
+
 int main(int argc, char* argv[])
 {
-  printf("Launching client...\n");
+  printf("Running %s...\n", GetFilename(argv[0]).c_str());
 
   PipeConnection * connection = new PipeConnection();
   Status status = connection->Connect(kPipeName);
