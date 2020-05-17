@@ -8,7 +8,7 @@ if "%APPVEYOR_BUILD_FOLDER%"=="" (
 
 set zlib_DIR=%APPVEYOR_BUILD_FOLDER%\third_parties\zlib\install
 set protobuf_DIR=%APPVEYOR_BUILD_FOLDER%\third_parties\protobuf\install
-echo protobuf_DIR=%rapidassist_DIR%
+echo protobuf_DIR=%protobuf_DIR%
 
 echo ============================================================================
 echo Cloning protobuf into %APPVEYOR_BUILD_FOLDER%\third_parties\protobuf

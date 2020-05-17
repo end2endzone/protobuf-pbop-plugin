@@ -44,8 +44,11 @@ install:
 #       build configuration       #
 #---------------------------------#
 
+environment:
+  PlatformToolset: v140
+  
 # build platform, i.e. x86, x64, Any CPU. This setting is optional.
-#platform: x86
+platform: Win32
 
 # build Configuration, i.e. Debug, Release, etc.
 configuration: Release
@@ -76,7 +79,5 @@ test_script:
 #---------------------------------#
 
 artifacts:
-- path: .\build\bin\Release\protobuf-dcom-plugin-tests.x86.release.xml
-  name: protobuf-dcom-plugin-tests.x86.release.xml
-- path: .\build\protobuf-dcom-plugin-tests-*-win32.exe
-  name: protobuf-dcom-plugin-tests-win32.exe
+- path: .\build\bin\Release\protobuf-pipe-plugin.*.release.xml
+- path: .\build\protobuf-pipe-plugin-*-win*.*
