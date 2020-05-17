@@ -62,6 +62,7 @@ before_build:
 
 build_script:
 - cmd: call %APPVEYOR_BUILD_FOLDER%\ci\appveyor\build_project.bat
+- cmd: call %APPVEYOR_BUILD_FOLDER%\ci\appveyor\build_demo_greetings.bat
 
 #---------------------------------#
 #       tests configuration       #
