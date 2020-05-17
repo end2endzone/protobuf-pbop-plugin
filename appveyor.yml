@@ -59,7 +59,6 @@ before_build:
 - cmd: call %APPVEYOR_BUILD_FOLDER%\ci\appveyor\install_glog.bat
 - cmd: call %APPVEYOR_BUILD_FOLDER%\ci\appveyor\install_protobuf.bat
 - cmd: call %APPVEYOR_BUILD_FOLDER%\ci\appveyor\install_rapidassist.bat
-#- cmd: call %APPVEYOR_BUILD_FOLDER%\ci\appveyor\install_bin2cpp.bat
 
 build_script:
 - cmd: call %APPVEYOR_BUILD_FOLDER%\ci\appveyor\build_project.bat

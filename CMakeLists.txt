@@ -111,7 +111,6 @@ include_directories(${CMAKE_BINARY_DIR}/include     # for ${PROTOBUFPIPEPLUGIN_V
 find_package(GTest REQUIRED) #rapidassist requires GTest
 find_package(rapidassist REQUIRED)
 find_package(protobuf 3.5.1 REQUIRED NO_CMAKE_SYSTEM_PATH NO_CMAKE_PATH NO_CMAKE_SYSTEM_PACKAGE_REGISTRY )
-find_package(bin2cpp 2.3.0 REQUIRED)
 
 ##############################################################################################################################################
 # Subprojects

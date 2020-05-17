@@ -8,7 +8,6 @@ if "%APPVEYOR_BUILD_FOLDER%"=="" (
 
 set GTEST_ROOT=%APPVEYOR_BUILD_FOLDER%\third_parties\googletest\install
 set rapidassist_DIR=%APPVEYOR_BUILD_FOLDER%\third_parties\RapidAssist\install
-set bin2cpp_DIR=%APPVEYOR_BUILD_FOLDER%\third_parties\bin2cpp\install
 set protobuf_DIR=%APPVEYOR_BUILD_FOLDER%\third_parties\protobuf\install
 set zlib_DIR=%APPVEYOR_BUILD_FOLDER%\third_parties\zlib\install
 set INSTALL_LOCATION=%APPVEYOR_BUILD_FOLDER%\install
@@ -22,7 +21,7 @@ echo ===========================================================================
 cd /d %APPVEYOR_BUILD_FOLDER%
 mkdir build >NUL 2>NUL
 cd build
-cmake -Wno-dev -DCMAKE_GENERATOR_PLATFORM=%Platform% -T %PlatformToolset% -DCMAKE_INSTALL_PREFIX=%INSTALL_LOCATION% -DCMAKE_PREFIX_PATH="%GTEST_ROOT%;%rapidassist_DIR%;%bin2cpp_DIR%;%protobuf_DIR%;%zlib_DIR%" -DPROTOBUFPIPEPLUGIN_BUILD_TEST=ON -DBUILD_SHARED_LIBS=OFF ..
+cmake -Wno-dev -DCMAKE_GENERATOR_PLATFORM=%Platform% -T %PlatformToolset% -DCMAKE_INSTALL_PREFIX=%INSTALL_LOCATION% -DCMAKE_PREFIX_PATH="%GTEST_ROOT%;%rapidassist_DIR%;%protobuf_DIR%;%zlib_DIR%" -DPROTOBUFPIPEPLUGIN_BUILD_TEST=ON -DBUILD_SHARED_LIBS=OFF ..
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 echo ============================================================================
@@ -49,7 +48,6 @@ echo.
 ::Delete all temporary environment variable created
 set GTEST_ROOT=
 set rapidassist_DIR=
-set bin2cpp_DIR_DIR=
 set protobuf_DIR=
 set INSTALL_LOCATION=
 
