@@ -34,13 +34,17 @@ namespace libProtobufPipePlugin
 
   enum StatusCode
   {
-    STATUS_CODE_SUCCESS,
-    STATUS_CODE_UNKNOWN,
-    STATUS_CODE_NOT_IMPLEMENTED,
-    STATUS_CODE_OUT_OF_MEMORY,
-    STATUS_CODE_SERIALIZE_ERROR,
-    STATUS_CODE_DESERIALIZE_ERROR,
-    STATUS_CODE_PIPE_ERROR,
+    STATUS_CODE_SUCCESS,              // Not an error. The operation completed successfully.
+    STATUS_CODE_UNKNOWN,              // An unexpected error has occurred.
+    STATUS_CODE_SERIALIZE_ERROR,      // An error occured while the client or the server was serializing a message into a string.
+    STATUS_CODE_DESERIALIZE_ERROR,    // An error occured while the client or the server was deserializing a message from a string.
+    STATUS_CODE_CANCELLED,            // The operation was cancelled by the server.
+    STATUS_CODE_NOT_IMPLEMENTED,      // The requested service method is not implemented in the server.
+    STATUS_CODE_INVALID_ARGUMENT,     // The specified message argument is invalid.
+    STATUS_CODE_OUT_OF_RANGE,         // A value in the request message is out of range.
+    STATUS_CODE_OUT_OF_MEMORY,        // Not enough memory to process the operation.
+    STATUS_CODE_PIPE_ERROR,           // A pipe related error occured.
+    STATUS_CODE_IMPLEMENTATION,       // An error in the server's specific service implementation occured.
   };
 
   class Status
@@ -65,6 +69,8 @@ namespace libProtobufPipePlugin
     bool operator!=(const Status & other);
 
     static const Status & OK;
+
+    static const char * ToString(const StatusCode & code);
 
     class Factory
     {

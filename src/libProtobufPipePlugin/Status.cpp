@@ -102,6 +102,36 @@ namespace libProtobufPipePlugin
     return !( (*this) == other );
   }
 
+  const char * Status::ToString(const StatusCode & code)
+  {
+    switch (code)
+    {
+    case STATUS_CODE_SUCCESS:
+      return "Success";
+    case STATUS_CODE_SERIALIZE_ERROR:
+      return "Serialize Error";
+    case STATUS_CODE_DESERIALIZE_ERROR:
+      return "Deserialize Error";
+    case STATUS_CODE_CANCELLED:
+      return "Cancelled";
+    case STATUS_CODE_NOT_IMPLEMENTED:
+      return "Not Implemented";
+    case STATUS_CODE_INVALID_ARGUMENT:
+      return "Invalid Argument";
+    case STATUS_CODE_OUT_OF_RANGE:
+      return "Out Of Range";
+    case STATUS_CODE_OUT_OF_MEMORY:
+      return "Out Of Memory";
+    case STATUS_CODE_PIPE_ERROR:
+      return "Pipe Error";
+    case STATUS_CODE_IMPLEMENTATION:
+      return "Implementation Error";
+    case STATUS_CODE_UNKNOWN:
+    default:
+      return "Unknown";
+    };
+  }
+
   Status Status::Factory::OutOfMemory(const char * function)
   {
     std::string error_message;
