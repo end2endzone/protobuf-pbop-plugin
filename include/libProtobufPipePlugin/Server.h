@@ -41,6 +41,8 @@ namespace libProtobufPipePlugin
     Server();
     virtual ~Server();
 
+    virtual void SetBufferSize(unsigned int buffer_size);
+    virtual unsigned int GetBufferSize() const;
     virtual Status Run(const char * pipe_name);
     virtual void RegisterService(Service * service);
     virtual unsigned long ProcessIncommingMessages(Connection * connection);
@@ -48,6 +50,7 @@ namespace libProtobufPipePlugin
   private:
     virtual Status DispatchMessage(const std::string & input, std::string & output);
   private:
+    unsigned int buffer_size_;
     std::vector<Service *> services_;
   };
 

@@ -48,8 +48,6 @@ __pragma( warning(pop) )
 
 //https://docs.microsoft.com/en-us/windows/win32/ipc/multithreaded-pipe-server
 
-#define BUFSIZE 4096
-
 namespace libProtobufPipePlugin
 {
   DWORD WINAPI InstanceThread(LPVOID);
@@ -61,7 +59,7 @@ namespace libProtobufPipePlugin
     HANDLE pipe;
   };
 
-  Server::Server()
+  Server::Server() : buffer_size_(10240)
   {
   }
 
@@ -74,6 +72,16 @@ namespace libProtobufPipePlugin
         delete service;
     }
     services_.clear();
+  }
+
+  void Server::SetBufferSize(unsigned int buffer_size)
+  {
+    buffer_size_ = buffer_size;
+  }
+
+  unsigned int Server::GetBufferSize() const
+  {
+    return buffer_size_;
   }
 
   Status Server::Run(const char * pipe_name) 
@@ -97,8 +105,8 @@ namespace libProtobufPipePlugin
         PIPE_READMODE_MESSAGE |   // message-read mode 
         PIPE_WAIT,                // blocking mode 
         PIPE_UNLIMITED_INSTANCES, // max. instances  
-        BUFSIZE,                  // output buffer size 
-        BUFSIZE,                  // input buffer size 
+        buffer_size_,             // output buffer size 
+        buffer_size_,             // input buffer size 
         0,                        // client time-out 
         NULL);                    // default security attribute 
 
