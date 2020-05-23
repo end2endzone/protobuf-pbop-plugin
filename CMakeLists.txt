@@ -188,6 +188,7 @@ set(CPACK_PACKAGE_VERSION_PATCH "${PROTOBUFPIPEPLUGIN_VERSION_PATCH}")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Microsoft Pipe Client/Server for Inter-process Communication (IPC) plugin for Google Protocol Buffers.")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
+set(CPACK_GENERATOR "ZIP;NSIS")
 
 # we don't want to split our program up into several things
 set(CPACK_MONOLITHIC_INSTALL 1)
