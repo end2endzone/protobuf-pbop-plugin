@@ -12,13 +12,13 @@ __pragma( warning(disable: 4146))
 
 #include "greetings.pb.h"
 #include "greetings.pipe.pb.h"
-#include "libProtobufPipePlugin/Server.h"
+#include "pbop/Server.h"
 
 #ifdef _WIN32
 __pragma( warning(pop) )
 #endif //_WIN32
 
-using namespace libProtobufPipePlugin;
+using namespace pbop;
 using namespace greetings;
 
 static const char * kPipeName = "\\\\.\\pipe\\greetingspipe";

@@ -24,7 +24,7 @@
 
 #include "StreamPrinter.h"
 
-#include "libpipe.h"
+#include "pbop.h"
 
 #include <stdarg.h>
 
@@ -92,7 +92,7 @@ void StreamPrinter::Print(const std::string & iValue)
   {
     //must replace \n by \r\n
     std::string tmp = iValue;
-    libProtobufPipePlugin::Replace(tmp, unix_newline, windows_newline);
+    pbop::Replace(tmp, unix_newline, windows_newline);
     Print( (unsigned char *)tmp.c_str(), tmp.size() );
   }
   else

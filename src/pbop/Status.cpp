@@ -22,9 +22,9 @@
  * SOFTWARE.
  *********************************************************************************/
 
-#include "libProtobufPipePlugin/Status.h"
+#include "pbop/Status.h"
 
-namespace libProtobufPipePlugin
+namespace pbop
 {
   const Status & Status::OK = Status(STATUS_CODE_SUCCESS, "");
 
@@ -185,4 +185,4 @@ namespace libProtobufPipePlugin
     return Status(STATUS_CODE_NOT_IMPLEMENTED, error_message);
   }
 
-}; //namespace libProtobufPipePlugin
+}; //namespace pbop

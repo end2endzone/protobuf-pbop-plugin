@@ -25,14 +25,14 @@
 #ifndef LIB_PROTOBUF_PIPE_PLUGIN_SERVER
 #define LIB_PROTOBUF_PIPE_PLUGIN_SERVER
 
-#include "libProtobufPipePlugin/Status.h"
-#include "libProtobufPipePlugin/Service.h"
-#include "libProtobufPipePlugin/Connection.h"
+#include "pbop/Status.h"
+#include "pbop/Service.h"
+#include "pbop/Connection.h"
 
 #include <string>
 #include <vector>
 
-namespace libProtobufPipePlugin
+namespace pbop
 {
 
   class Server
@@ -54,6 +54,6 @@ namespace libProtobufPipePlugin
     std::vector<Service *> services_;
   };
 
-}; //namespace libProtobufPipePlugin
+}; //namespace pbop
 
 #endif //LIB_PROTOBUF_PIPE_PLUGIN_SERVER

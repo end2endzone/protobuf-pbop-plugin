@@ -44,7 +44,7 @@ __pragma( warning(pop) )
 
 #include <string>
 
-namespace libProtobufPipePlugin
+namespace pbop
 {
 
   int Replace(std::string & iString, const std::string & iOldValue, const std::string & iNewValue);
@@ -67,6 +67,6 @@ namespace libProtobufPipePlugin
   std::string ToProtoString(const google::protobuf::FileDescriptor & iFile);
   std::string ToProtoString(const google::protobuf::FileDescriptorProto & iFileProto);
 
-}; //namespace libProtobufPipePlugin
+}; //namespace pbop
 
 #endif //LIB_PROTOBUF_PIPE_PLUGIN_FUNCTIONS

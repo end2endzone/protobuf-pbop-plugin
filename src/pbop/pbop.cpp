@@ -22,9 +22,9 @@
  * SOFTWARE.
  *********************************************************************************/
 
-#include "libpipe.h"
+#include "pbop.h"
 
-namespace libProtobufPipePlugin
+namespace pbop
 {
 
   //From RapidAssist, https://github.com/end2endzone/RapidAssist/blob/0.8.1/src/rapidassist/strings.cpp#L261
@@ -202,4 +202,4 @@ namespace libProtobufPipePlugin
     return output;
   }
 
-}; //namespace libProtobufPipePlugin
+}; //namespace pbop

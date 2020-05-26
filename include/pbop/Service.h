@@ -30,7 +30,7 @@
 #include <string>
 #include <vector>
 
-namespace libProtobufPipePlugin
+namespace pbop
 {
 
   class Service
@@ -42,6 +42,6 @@ namespace libProtobufPipePlugin
     virtual Status DispatchMessage(const size_t & index, const std::string & input, std::string & output) = 0;
   };
 
-}; //namespace libProtobufPipePlugin
+}; //namespace pbop
 
 #endif //LIB_PROTOBUF_PIPE_PLUGIN_SERVICE

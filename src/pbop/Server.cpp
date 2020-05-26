@@ -32,9 +32,9 @@ __pragma( warning(disable: 4800))
 __pragma( warning(disable: 4146))
 #endif //_WIN32
 
-#include "libProtobufPipePlugin/Server.h"
-#include "libProtobufPipePlugin/Status.h"
-#include "libProtobufPipePlugin/Connection.h"
+#include "pbop/Server.h"
+#include "pbop/Status.h"
+#include "pbop/Connection.h"
 
 #include "PipeMessages.pb.h"
 
@@ -48,7 +48,7 @@ __pragma( warning(pop) )
 
 //https://docs.microsoft.com/en-us/windows/win32/ipc/multithreaded-pipe-server
 
-namespace libProtobufPipePlugin
+namespace pbop
 {
   DWORD WINAPI InstanceThread(LPVOID);
   std::string GetErrorDesription(DWORD code);
@@ -340,4 +340,4 @@ namespace libProtobufPipePlugin
     return 1;
   }
 
-}; //namespace libProtobufPipePlugin
+}; //namespace pbop

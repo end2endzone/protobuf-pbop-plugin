@@ -44,11 +44,11 @@ target_include_directories(protobuf-pipe-plugin_unittest
   PRIVATE 
     ${GTEST_INCLUDE_DIR}
     ${PROTOBUF_INCLUDE_DIRS}
-    ${CMAKE_SOURCE_DIR}/src/libProtobufPipePlugin
+    ${CMAKE_SOURCE_DIR}/src/pbop
     rapidassist
 )
-add_dependencies(protobuf-pipe-plugin_unittest protobuf-pipe-plugin libProtobufPipePlugin)
-target_link_libraries(protobuf-pipe-plugin_unittest PRIVATE libProtobufPipePlugin ${PTHREAD_LIBRARIES} ${GTEST_LIBRARIES} rapidassist)
+add_dependencies(protobuf-pipe-plugin_unittest protobuf-pipe-plugin pbop)
+target_link_libraries(protobuf-pipe-plugin_unittest PRIVATE pbop ${PTHREAD_LIBRARIES} ${GTEST_LIBRARIES} rapidassist)
 
 #------------------------------------------------
 # Define a prebuild step for target 'protobuf-pipe-plugin_unittest'.
@@ -79,10 +79,10 @@ foreach(output_file ${OUTPUT_PROTO_FILES})
   set(input_file "${CMAKE_CURRENT_SOURCE_DIR}/${filename}")
 
   #Output a copy confirmation on console
-  message("Copying '${filename}' to '${output_file}'...")
   add_custom_command(
     OUTPUT ${output_file}
     DEPENDS ${input_file}
+    COMMENT "Copying '${filename}' to '${output_file}'..."
     COMMAND ${CMAKE_COMMAND} -E copy
             ${input_file}
             ${output_file}

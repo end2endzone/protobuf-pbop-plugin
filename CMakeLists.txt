@@ -58,12 +58,12 @@ set(PROTOBUFPIPEPLUGIN_VERSION ${PROTOBUFPIPEPLUGIN_VERSION_MAJOR}.${PROTOBUFPIP
 file(READ ${CMAKE_SOURCE_DIR}/LICENSE.h LICENSE)
 
 # version.h file
-set(PROTOBUFPIPEPLUGIN_VERSION_HEADER ${CMAKE_BINARY_DIR}/include/protobufpipeplugin/version.h)
+set(PROTOBUFPIPEPLUGIN_VERSION_HEADER ${CMAKE_BINARY_DIR}/include/pbop/version.h)
 message("Generating ${PROTOBUFPIPEPLUGIN_VERSION_HEADER}...")
 configure_file( ${CMAKE_SOURCE_DIR}/src/protobuf-pipe-plugin/version.h.in ${PROTOBUFPIPEPLUGIN_VERSION_HEADER} )
 
 # config.h file
-set(PROTOBUFPIPEPLUGIN_CONFIG_HEADER ${CMAKE_BINARY_DIR}/include/protobufpipeplugin/config.h)
+set(PROTOBUFPIPEPLUGIN_CONFIG_HEADER ${CMAKE_BINARY_DIR}/include/pbop/config.h)
 message("Generating ${PROTOBUFPIPEPLUGIN_CONFIG_HEADER}...")
 if (BUILD_SHARED_LIBS)
   set(PROTOBUFPIPEPLUGIN_BUILD_TYPE_CPP_DEFINE "#define PROTOBUFPIPEPLUGIN_BUILT_AS_SHARED")
@@ -116,7 +116,7 @@ find_package(protobuf 3.5.1 REQUIRED NO_CMAKE_SYSTEM_PATH NO_CMAKE_PATH NO_CMAKE
 # Subprojects
 ##############################################################################################################################################
 
-add_subdirectory(src/libProtobufPipePlugin)
+add_subdirectory(src/pbop)
 add_subdirectory(src/protobuf-pipe-plugin)
 
 # unit tests
@@ -172,7 +172,7 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION ${PROTOBUFPIPEPLUGIN_
 install(FILES ${PROTOBUFPIPEPLUGIN_EXPORT_HEADER}
               ${PROTOBUFPIPEPLUGIN_VERSION_HEADER}
               ${PROTOBUFPIPEPLUGIN_CONFIG_HEADER}
-              DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_INCLUDE_DIR}/libProtobufPipePlugin)
+              DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_INCLUDE_DIR}/pbop)
 
 install(EXPORT protobufpipeplugin-targets DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_CMAKE_DIR})
 

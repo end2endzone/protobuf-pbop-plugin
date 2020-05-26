@@ -29,8 +29,8 @@
 
 #include "StreamPrinter.h"
 #include "DebugPrinter.h"
-#include "libpipe.h"
-#include "protobufpipeplugin/version.h"
+#include "pbop.h"
+#include "pbop/version.h"
 
 //for debugging
 #include <Windows.h>
@@ -53,10 +53,10 @@ PluginCodeGenerator::~PluginCodeGenerator()
 bool PluginCodeGenerator::GenerateHeader(const google::protobuf::FileDescriptor * file, const std::string & parameter, google::protobuf::compiler::GeneratorContext * generator_context, std::string * error) const
 {
   const std::string & proto_filename = file->name();
-  const std::string proto_filename_we = libProtobufPipePlugin::GetFilenameWithoutExtension(proto_filename.c_str());
+  const std::string proto_filename_we = pbop::GetFilenameWithoutExtension(proto_filename.c_str());
   const std::string header_filename = proto_filename_we + ".pipe.pb.h";
   const std::string cpp_filename = proto_filename_we + ".pipe.pb.cpp";
-  const std::string header_guard = "PROTOBUF_" + libProtobufPipePlugin::Uppercase(proto_filename_we) + "_PIPE_H";
+  const std::string header_guard = "PROTOBUF_" + pbop::Uppercase(proto_filename_we) + "_PIPE_H";
 
   std::stringstream ss;
 
@@ -68,9 +68,9 @@ bool PluginCodeGenerator::GenerateHeader(const google::protobuf::FileDescriptor 
   ss << "\n";
   ss << "#include \"" << proto_filename_we << ".pb.h\"\n";
   ss << "\n";
-  ss << "#include \"libProtobufPipePlugin/Status.h\"\n";
-  ss << "#include \"libProtobufPipePlugin/Service.h\"\n";
-  ss << "#include \"libProtobufPipePlugin/Connection.h\"\n";
+  ss << "#include \"pbop/Status.h\"\n";
+  ss << "#include \"pbop/Service.h\"\n";
+  ss << "#include \"pbop/Connection.h\"\n";
   ss << "\n";
   ss << "#include <string>\n";
   ss << "\n";
@@ -107,7 +107,7 @@ bool PluginCodeGenerator::GenerateHeader(const google::protobuf::FileDescriptor 
       const std::string method_output_fullname = method_output->full_name();
       const std::string & method_output_name = method_output->name();
 
-      ss << "    virtual libProtobufPipePlugin::Status " << method_name << "(const " << method_input_name << " & request, " << method_output_name << " & response) = 0;\n";
+      ss << "    virtual pbop::Status " << method_name << "(const " << method_input_name << " & request, " << method_output_name << " & response) = 0;\n";
     }
 
     ss << "  };\n";
@@ -115,7 +115,7 @@ bool PluginCodeGenerator::GenerateHeader(const google::protobuf::FileDescriptor 
     ss << "  class Client : public virtual " << service_name << "\n";
     ss << "  {\n";
     ss << "  public:\n";
-    ss << "    Client(libProtobufPipePlugin::Connection * connection);\n";
+    ss << "    Client(pbop::Connection * connection);\n";
     ss << "    virtual ~Client();\n";
 
     //for each methods
@@ -133,25 +133,25 @@ bool PluginCodeGenerator::GenerateHeader(const google::protobuf::FileDescriptor 
       const std::string method_output_fullname = method_output->full_name();
       const std::string & method_output_name = method_output->name();
 
-      ss << "    virtual libProtobufPipePlugin::Status " << method_name << "(const " << method_input_name << " & request, " << method_output_name << " & response);\n";
+      ss << "    virtual pbop::Status " << method_name << "(const " << method_input_name << " & request, " << method_output_name << " & response);\n";
     }
 
     ss << "  private:\n";
-    ss << "    libProtobufPipePlugin::Status ProcessCall(const char * name, const ::google::protobuf::Message & request, ::google::protobuf::Message & response);\n";
-    ss << "    libProtobufPipePlugin::Connection * connection_;\n";
+    ss << "    pbop::Status ProcessCall(const char * name, const ::google::protobuf::Message & request, ::google::protobuf::Message & response);\n";
+    ss << "    pbop::Connection * connection_;\n";
     ss << "  };\n";
     ss << "  \n";
-    ss << "  class ServerStub : public virtual " << service_name << ", public virtual libProtobufPipePlugin::Service\n";
+    ss << "  class ServerStub : public virtual " << service_name << ", public virtual pbop::Service\n";
     ss << "  {\n";
     ss << "  public:\n";
     ss << "    ServerStub();\n";
     ss << "    virtual ~ServerStub();\n";
     ss << "    \n";
-    ss << "    //libProtobufPipePlugin::Service definition\n";
+    ss << "    //pbop::Service definition\n";
     ss << "    virtual const std::string & GetPackageName() const;\n";
     ss << "    virtual const std::string & GetServiceName() const;\n";
     ss << "    virtual const std::vector<std::string> & GetFunctionIdentifiers() const;\n";
-    ss << "    virtual libProtobufPipePlugin::Status DispatchMessage(const size_t & index, const std::string & input, std::string & output);\n";
+    ss << "    virtual pbop::Status DispatchMessage(const size_t & index, const std::string & input, std::string & output);\n";
     ss << "    \n";
     ss << "    //" << service_name << " implementation\n";
 
@@ -170,7 +170,7 @@ bool PluginCodeGenerator::GenerateHeader(const google::protobuf::FileDescriptor 
       const std::string method_output_fullname = method_output->full_name();
       const std::string & method_output_name = method_output->name();
 
-      ss << "    inline libProtobufPipePlugin::Status " << method_name << "(const " << method_input_name << " & request, " << method_output_name << " & response) { return libProtobufPipePlugin::Status::Factory::NotImplemented(__FUNCTION__); }\n";
+      ss << "    inline pbop::Status " << method_name << "(const " << method_input_name << " & request, " << method_output_name << " & response) { return pbop::Status::Factory::NotImplemented(__FUNCTION__); }\n";
     }
 
     ss << "  private:\n";
@@ -197,10 +197,10 @@ bool PluginCodeGenerator::GenerateHeader(const google::protobuf::FileDescriptor 
 bool PluginCodeGenerator::GenerateSource(const google::protobuf::FileDescriptor * file, const std::string & parameter, google::protobuf::compiler::GeneratorContext * generator_context, std::string * error) const
 {
   const std::string & proto_filename = file->name();
-  const std::string proto_filename_we = libProtobufPipePlugin::GetFilenameWithoutExtension(proto_filename.c_str());
+  const std::string proto_filename_we = pbop::GetFilenameWithoutExtension(proto_filename.c_str());
   const std::string header_filename = proto_filename_we + ".pipe.pb.h";
   const std::string cpp_filename = proto_filename_we + ".pipe.pb.cpp";
-  const std::string header_guard = "PROTOBUF_" + libProtobufPipePlugin::Uppercase(proto_filename_we) + "_PIPE_H";
+  const std::string header_guard = "PROTOBUF_" + pbop::Uppercase(proto_filename_we) + "_PIPE_H";
 
   std::stringstream ss;
 
@@ -208,9 +208,9 @@ bool PluginCodeGenerator::GenerateSource(const google::protobuf::FileDescriptor 
   ss << "// source: " << proto_filename << "\n";
   ss << "\n";
   ss << "#include \"" << proto_filename_we << ".pipe.pb.h\"\n";
-  ss << "#include \"libProtobufPipePlugin/PipeMessages.pb.h\"\n";
+  ss << "#include \"pbop/PipeMessages.pb.h\"\n";
   ss << "\n";
-  ss << "using namespace ::libProtobufPipePlugin;\n";
+  ss << "using namespace ::pbop;\n";
   ss << "\n";
   ss << "namespace " << file->package() << "\n";
   ss << "{\n";
@@ -362,7 +362,7 @@ bool PluginCodeGenerator::GenerateSource(const google::protobuf::FileDescriptor 
     ss << "    return functions_;\n";
     ss << "  }\n";
     ss << "  \n";
-    ss << "  libProtobufPipePlugin::Status ServerStub::DispatchMessage(const size_t & index, const std::string & input, std::string & output)\n";
+    ss << "  pbop::Status ServerStub::DispatchMessage(const size_t & index, const std::string & input, std::string & output)\n";
     ss << "  {\n";
     ss << "    switch(index)\n";
     ss << "    {\n";

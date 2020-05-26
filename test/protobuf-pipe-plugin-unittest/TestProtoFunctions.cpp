@@ -23,7 +23,7 @@
  *********************************************************************************/
 
 #include "TestProtoFunctions.h"
-#include "libpipe.h"
+#include "pbop.h"
 
 #ifdef _WIN32
 //google/protobuf/io/coded_stream.h(869): warning C4800: 'google::protobuf::internal::Atomic32' : forcing value to bool 'true' or 'false' (performance warning)
@@ -103,7 +103,7 @@ FileDescriptorProto getBookProtoFile()
 TEST_F(TestProtoFunctions, testToProtoString)
 {
   FileDescriptorProto book = getBookProtoFile();
-  std::string protoString = libProtobufPipePlugin::ToProtoString(book);
+  std::string protoString = pbop::ToProtoString(book);
   
   printf("%s\n", protoString.c_str());
 
@@ -119,9 +119,9 @@ TEST_F(TestProtoFunctions, testToProtoString)
   ASSERT_NE(protoString.find("FANTASY = 4"), std::string::npos);
 
   DescriptorPool pool;
-  const FileDescriptor * desc = libProtobufPipePlugin::BuildFileDescriptor(pool, book);
+  const FileDescriptor * desc = pbop::BuildFileDescriptor(pool, book);
   ASSERT_TRUE(desc != NULL);
 
-  std::string protoString2 = libProtobufPipePlugin::ToProtoString(*desc);
+  std::string protoString2 = pbop::ToProtoString(*desc);
   ASSERT_EQ(protoString, protoString2);
 }

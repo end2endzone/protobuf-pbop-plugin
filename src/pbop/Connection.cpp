@@ -22,13 +22,13 @@
  * SOFTWARE.
  *********************************************************************************/
 
-#include "libProtobufPipePlugin/Connection.h"
+#include "pbop/Connection.h"
 
 //https://docs.microsoft.com/en-us/windows/win32/ipc/named-pipe-client
 
 #include <Windows.h>
 
-namespace libProtobufPipePlugin
+namespace pbop
 {
   inline HANDLE & AsHandle(size_t & value)
   {
@@ -204,4 +204,4 @@ namespace libProtobufPipePlugin
     return Status::OK;
   }
 
-}; //namespace libProtobufPipePlugin
+}; //namespace pbop

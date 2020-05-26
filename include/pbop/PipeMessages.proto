@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package libProtobufPipePlugin;
+package pbop;
 
 message FunctionIdentifier {
   string package = 1;

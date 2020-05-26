@@ -22,12 +22,12 @@ target_include_directories(protobuf-pipe-plugin
     $<INSTALL_INTERFACE:${PROTOBUFPIPEPLUGIN_INSTALL_INCLUDE_DIR}>  # for clients using the installed library.
   PRIVATE
     ${PROTOBUF_INCLUDE_DIRS}
-    ${CMAKE_SOURCE_DIR}/src/libProtobufPipePlugin
+    ${CMAKE_SOURCE_DIR}/src/pbop
 )
 
-add_dependencies(protobuf-pipe-plugin libProtobufPipePlugin)
+add_dependencies(protobuf-pipe-plugin pbop)
 
-target_link_libraries(protobuf-pipe-plugin PRIVATE libProtobufPipePlugin protobuf::libprotobuf protobuf::libprotoc)
+target_link_libraries(protobuf-pipe-plugin PRIVATE pbop protobuf::libprotobuf protobuf::libprotoc)
 
 install(TARGETS protobuf-pipe-plugin
         EXPORT protobufpipeplugin-targets

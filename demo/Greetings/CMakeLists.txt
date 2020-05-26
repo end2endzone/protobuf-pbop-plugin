@@ -44,9 +44,9 @@ add_library(greetings_proto STATIC
 target_include_directories(greetings_proto
   PUBLIC
     ${PROTOBUF_INCLUDE_DIRS}
-    libProtobufPipePlugin
+    pbop
 )
-target_link_libraries(greetings_proto libProtobufPipePlugin protobuf::libprotobuf)
+target_link_libraries(greetings_proto pbop protobuf::libprotobuf)
 
 
 # ==========================================================================================
@@ -62,9 +62,9 @@ target_include_directories(greetings_client
   PUBLIC
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PROTOBUF_INCLUDE_DIRS}
-    libProtobufPipePlugin
+    pbop
 )
-target_link_libraries(greetings_client libProtobufPipePlugin protobuf::libprotobuf greetings_proto)
+target_link_libraries(greetings_client pbop protobuf::libprotobuf greetings_proto)
 
 # Force CMAKE_DEBUG_POSTFIX for executables
 set_target_properties(greetings_client PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
@@ -85,9 +85,9 @@ target_include_directories(greetings_server
   PUBLIC
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PROTOBUF_INCLUDE_DIRS}
-    libProtobufPipePlugin
+    pbop
 )
-target_link_libraries(greetings_server libProtobufPipePlugin protobuf::libprotobuf greetings_proto)
+target_link_libraries(greetings_server pbop protobuf::libprotobuf greetings_proto)
 
 # Force CMAKE_DEBUG_POSTFIX for executables
 set_target_properties(greetings_server PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
@@ -110,17 +110,23 @@ message("PROTOC_LOCATION=" ${PROTOC_LOCATION})
 get_property(PROTOBUF_PIPE_PLUGIN_LOCATION TARGET protobuf-pipe-plugin PROPERTY LOCATION)
 message("PROTOBUF_PIPE_PLUGIN_LOCATION=" ${PROTOBUF_PIPE_PLUGIN_LOCATION})
 
+# Define the *.proto files and their outputs
+set(PROTO_FILES
+  ${CMAKE_CURRENT_SOURCE_DIR}/greetings.proto
+)
+
 # Execute 'greetings.proto' and output to CMAKE_CURRENT_BINARY_DIR
 add_custom_command(
   OUTPUT ${PROTO_GENERATED_FILES}
-  DEPENDS ${input_file}
+  DEPENDS ${PROTO_FILES}
   # Warning: CMake treats ; character differently. They must be escaped to prevent issues
-  COMMAND echo $<TARGET_FILE:protobuf::protoc> --cpp_out=${CMAKE_CURRENT_BINARY_DIR} --plugin=protoc-gen-pipe=$<TARGET_FILE:protobuf-pipe-plugin> --pipe_out=${CMAKE_CURRENT_BINARY_DIR} --proto_path=.\;${PROTOBUF_INCLUDE_DIRS}\;${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/greetings.proto
-  COMMAND      $<TARGET_FILE:protobuf::protoc> --cpp_out=${CMAKE_CURRENT_BINARY_DIR} --plugin=protoc-gen-pipe=$<TARGET_FILE:protobuf-pipe-plugin> --pipe_out=${CMAKE_CURRENT_BINARY_DIR} --proto_path=.\;${PROTOBUF_INCLUDE_DIRS}\;${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/greetings.proto
+  COMMENT "Executing protobuf-pipe-plugin for ${PROTO_FILES}..."
+  COMMAND echo $<TARGET_FILE:protobuf::protoc> --cpp_out=${CMAKE_CURRENT_BINARY_DIR} --plugin=protoc-gen-pipe=$<TARGET_FILE:protobuf-pipe-plugin> --pipe_out=${CMAKE_CURRENT_BINARY_DIR} --proto_path=.\;${PROTOBUF_INCLUDE_DIRS}\;${CMAKE_CURRENT_SOURCE_DIR} ${PROTO_FILES}
+  COMMAND      $<TARGET_FILE:protobuf::protoc> --cpp_out=${CMAKE_CURRENT_BINARY_DIR} --plugin=protoc-gen-pipe=$<TARGET_FILE:protobuf-pipe-plugin> --pipe_out=${CMAKE_CURRENT_BINARY_DIR} --proto_path=.\;${PROTOBUF_INCLUDE_DIRS}\;${CMAKE_CURRENT_SOURCE_DIR} ${PROTO_FILES}
   COMMAND echo done.
 )
 
-# Define a prebuild step of libProtobufPipePlugin
+# Define a prebuild step of pbop
 add_custom_target(greetings_proto-prebuild DEPENDS ${PROTO_GENERATED_FILES})
 add_dependencies(greetings_proto greetings_proto-prebuild)
 

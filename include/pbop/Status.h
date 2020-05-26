@@ -29,7 +29,7 @@
 
 #include <google/protobuf/message.h>
 
-namespace libProtobufPipePlugin
+namespace pbop
 {
 
   enum StatusCode
@@ -87,6 +87,6 @@ namespace libProtobufPipePlugin
     std::string message_;
   };
 
-}; //namespace libProtobufPipePlugin
+}; //namespace pbop
 
 #endif //LIB_PROTOBUF_PIPE_PLUGIN_STATUS

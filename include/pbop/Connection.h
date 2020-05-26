@@ -25,12 +25,12 @@
 #ifndef LIB_PROTOBUF_PIPE_PLUGIN_CONNECTION
 #define LIB_PROTOBUF_PIPE_PLUGIN_CONNECTION
 
-#include "libProtobufPipePlugin/Status.h"
+#include "pbop/Status.h"
 
 #include <string>
 #include <vector>
 
-namespace libProtobufPipePlugin
+namespace pbop
 {
 
   class Connection
@@ -59,6 +59,6 @@ namespace libProtobufPipePlugin
     size_t pipe_handle_;
   };
 
-}; //namespace libProtobufPipePlugin
+}; //namespace pbop
 
 #endif //LIB_PROTOBUF_PIPE_PLUGIN_CONNECTION
