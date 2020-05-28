@@ -22,6 +22,8 @@ add_executable(protobuf-pipe-plugin_unittest
   TestPluginRun.proto
   TestProtoFunctions.cpp
   TestProtoFunctions.h
+  TestServer.cpp
+  TestServer.h
   TestUtils.cpp
   TestUtils.h
 )
@@ -44,7 +46,8 @@ target_include_directories(protobuf-pipe-plugin_unittest
   PRIVATE 
     ${GTEST_INCLUDE_DIR}
     ${PROTOBUF_INCLUDE_DIRS}
-    ${CMAKE_SOURCE_DIR}/src/pbop
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/src/pbop    # for pbop.h only
     rapidassist
 )
 add_dependencies(protobuf-pipe-plugin_unittest protobuf-pipe-plugin pbop)

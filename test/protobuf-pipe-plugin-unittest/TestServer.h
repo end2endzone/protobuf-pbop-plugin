@@ -22,46 +22,16 @@
  * SOFTWARE.
  *********************************************************************************/
 
-#ifndef LIB_PROTOBUF_PIPE_PLUGIN_SERVER
-#define LIB_PROTOBUF_PIPE_PLUGIN_SERVER
+#ifndef TEST_PBOP_SERVER_H
+#define TEST_PBOP_SERVER_H
 
-#include "pbop/Status.h"
-#include "pbop/Service.h"
-#include "pbop/Connection.h"
+#include <gtest/gtest.h>
 
-#include <string>
-#include <vector>
-
-namespace pbop
+class TestServer : public ::testing::Test
 {
+public:
+  virtual void SetUp();
+  virtual void TearDown();
+};
 
-  class Server
-  {
-  public:
-    Server();
-    virtual ~Server();
-
-    virtual void SetBufferSize(unsigned int buffer_size);
-    virtual unsigned int GetBufferSize() const;
-    virtual Status Run(const char * pipe_name);
-    virtual void RegisterService(Service * service);
-    virtual unsigned long ProcessIncommingMessages(Connection * connection);
-    virtual bool IsRunning() const;
-    virtual Status Shutdown();
-
-  private:
-    virtual Status DispatchMessage(const std::string & input, std::string & output);
-  private:
-    std::string pipe_name_;
-    unsigned int buffer_size_;
-    bool running_;
-    bool shutdown_request_;
-    bool shutdown_processed_;
-    std::vector<Service *> services_;
-    std::vector<size_t> pipe_handles_;
-    std::vector<size_t> threads_;
-  };
-
-}; //namespace pbop
-
-#endif //LIB_PROTOBUF_PIPE_PLUGIN_SERVER
+#endif //TEST_PBOP_SERVER_H

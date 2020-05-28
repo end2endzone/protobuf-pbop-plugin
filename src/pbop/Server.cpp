@@ -50,7 +50,7 @@ __pragma( warning(pop) )
 
 namespace pbop
 {
-  DWORD WINAPI InstanceThread(LPVOID);
+  DWORD WINAPI InstanceThread(LPVOID lpvParam);
   std::string GetErrorDesription(DWORD code);
 
   struct ThreadParams
@@ -59,7 +59,11 @@ namespace pbop
     HANDLE pipe;
   };
 
-  Server::Server() : buffer_size_(10240)
+  Server::Server() : 
+    buffer_size_(10240),
+    running_(false),
+    shutdown_request_(false),
+    shutdown_processed_(false)
   {
   }
 
@@ -84,18 +88,53 @@ namespace pbop
     return buffer_size_;
   }
 
+  bool IsThreadAlive(HANDLE hThread)
+  {
+    // https://stackoverflow.com/questions/301054/how-can-i-determine-if-a-win32-thread-has-terminated
+    DWORD result = WaitForSingleObject(hThread, 0);
+    if(result == WAIT_OBJECT_0)
+    {
+      // the thread handle is signaled - the thread has terminated
+      return false;
+    }
+    else
+    {
+      // the thread handle is not signaled - the thread is still alive
+      return true;
+    }
+  }
+
+  void WaitThreadExit(HANDLE hThread)
+  {
+    bool alive = IsThreadAlive(hThread);
+    while(alive)
+    {
+      // Wait a little more
+      Sleep(100);
+
+      // And check again
+      alive = IsThreadAlive(hThread);
+    }
+  }
+
   Status Server::Run(const char * pipe_name) 
   { 
     BOOL   fConnected = FALSE; 
     DWORD  dwThreadId = 0; 
     HANDLE hPipe = INVALID_HANDLE_VALUE, hThread = NULL; 
 
+    pipe_name_ = pipe_name;
+    running_ = true;
+    shutdown_request_ = false;
+    shutdown_processed_ = false;
+
     // The main loop creates an instance of the named pipe and 
     // then waits for a client to connect to it. When the client 
     // connects, a thread is created to handle communications 
     // with that client, and this loop is free to wait for the
-    // next client connect request. It is an infinite loop.
-    for (;;) 
+    // next client connect request. It is an infinite loop until
+    // a server shutdown is requested.
+    while(!shutdown_request_)
     { 
       printf("\nPipe Server: Main thread awaiting client connection on %s\n", pipe_name);
       hPipe = CreateNamedPipe( 
@@ -129,6 +168,10 @@ namespace pbop
         thread_params->pipe = hPipe;
         thread_params->server = this;
 
+        // Remember this pipe
+        const size_t tmp = reinterpret_cast<size_t>(hPipe);
+        pipe_handles_.push_back(tmp);
+
         // Create a thread for this client. 
         hThread = CreateThread( 
           NULL,              // no security attribute 
@@ -144,7 +187,11 @@ namespace pbop
           return Status(STATUS_CODE_PIPE_ERROR, error_description);
         }
         else
-          CloseHandle(hThread); 
+        {
+          // Remember this thread
+          const size_t tmp = reinterpret_cast<size_t>(hThread);
+          threads_.push_back(tmp);
+        }
       } 
       else
       {
@@ -152,6 +199,40 @@ namespace pbop
         CloseHandle(hPipe);
       }
     } 
+
+    // At this point, the server loop is closed.
+    // There will be no new pipe_handles_.
+    // Close the existing one to force each thread to exit
+    for(size_t i=0; i<pipe_handles_.size(); i++)
+    {
+      const size_t & tmp = pipe_handles_[i];
+      const HANDLE hPipe = reinterpret_cast<HANDLE>(tmp);
+      CloseHandle(hPipe);
+    }
+
+    // At this point, the listening threads should leave their loop
+    // There will be no new threads_.
+    // Wait for all the threads to complete.
+    for(size_t i=0; i<threads_.size(); i++)
+    {
+      const size_t & tmp = threads_[i];
+      const HANDLE hThread = reinterpret_cast<HANDLE>(tmp);
+
+      // Wait for the theads to exit
+      WaitThreadExit(hThread);
+    }
+
+    // Close each threads
+    for(size_t i=0; i<threads_.size(); i++)
+    {
+      const size_t & tmp = threads_[i];
+      const HANDLE hThread = reinterpret_cast<HANDLE>(tmp);
+      CloseHandle(hThread);
+    }
+
+    // The shutdown process is completed.
+    shutdown_processed_ = true;
+    running_ = false;
 
     return Status::OK; 
   } 
@@ -267,11 +348,16 @@ namespace pbop
     printf("InstanceThread: Created, receiving and processing messages.\n");
 
     // Loop until done reading
-    while (1) 
+    while(!shutdown_request_)
     { 
       // Read client requests from the pipe.
       std::string read_buffer;
       Status status = connection->Read(read_buffer);
+
+      // Leave the loop if a shutdown was requested 
+      if (shutdown_request_)
+        break;
+
       if (!status.Success())
       {
         DWORD wLastErrorCode = GetLastError();
@@ -338,6 +424,38 @@ namespace pbop
 
     printf("InstanceThread: Exiting.\n");
     return 1;
+  }
+
+  bool Server::IsRunning() const
+  {
+    return running_;
+  }
+
+  Status Server::Shutdown()
+  {
+    // Prevent the Run() loop to start again
+    shutdown_processed_ = false;
+    shutdown_request_ = true;
+
+    // Force a connection to the server. This will force the 
+    // listening loop to verify the shutdown_request_ flag and leave.
+    PipeConnection connection;
+    Status status = connection.Connect(pipe_name_.c_str());
+    if (!status.Success())
+      return status;
+
+    // Allow up to 5 seconds to detect the shutdown_processed_ flag
+    static const size_t timeout_ms = 5000;
+    for(size_t i=0; i<(timeout_ms/100) && shutdown_processed_ == false; i++)
+    {
+      Sleep(100);
+    }
+
+    // Validate if server loop has shutdown
+    if (shutdown_processed_ == false)
+      return Status(STATUS_CODE_CANCELLED, "The server shutdown was not verified. The server might still be running.");
+
+    return Status::OK;
   }
 
 }; //namespace pbop
