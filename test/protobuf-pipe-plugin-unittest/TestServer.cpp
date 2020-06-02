@@ -27,6 +27,8 @@
 #include "rapidassist/testing.h"
 #include "rapidassist/timing.h"
 
+#include <time.h>       /* clock_t, clock, CLOCKS_PER_SEC */
+
 #include <Windows.h>
 
 using namespace pbop;
@@ -150,6 +152,241 @@ TEST_F(TestServer, testShutdown)
 
   // Wait for the shutdown thread to complete
   WaitThreadExit(hThread);
+
+  int a = 0;
+}
+
+struct ServerThreadProcParams
+{
+  Server * server;
+  std::string pipe_name;
+};
+
+DWORD WINAPI ServerThreadProc(LPVOID lpvParam)
+{
+  // Read the thread's parameters
+  ServerThreadProcParams * params = static_cast<ServerThreadProcParams*>(lpvParam);
+  Server * server = params->server;
+  std::string pipe_name = params->pipe_name;
+
+  printf("Starting server in blocking mode.\n");
+  Status status = server->Run(pipe_name.c_str());
+  printf("Server returned.\n");
+
+  return 1;
+}
+
+class MyEventLoggingServer : public Server
+{
+public:
+  MyEventLoggingServer() : 
+    num_EventStartup           (0),
+    num_EventShutdown          (0),
+    num_EventListening         (0),
+    num_EventConnection        (0),
+    num_EventClientCreate      (0),
+    num_EventClientDisconnected(0),
+    num_EventClientDestroy     (0),
+    num_EventClientError       (0)
+    {
+    }
+
+  virtual ~MyEventLoggingServer() {}
+
+  virtual void OnEvent(EventStartup            * e) { num_EventStartup           ++; LogEvent("EventStartup           "); };
+  virtual void OnEvent(EventShutdown           * e) { num_EventShutdown          ++; LogEvent("EventShutdown          "); };
+  virtual void OnEvent(EventListening          * e) { num_EventListening         ++; LogEvent("EventListening         "); };
+  virtual void OnEvent(EventConnection         * e) { num_EventConnection        ++; LogEvent("EventConnection        "); };
+  virtual void OnEvent(EventClientCreate       * e) { num_EventClientCreate      ++; LogEvent("EventClientCreate      "); };
+  virtual void OnEvent(EventClientDisconnected * e) { num_EventClientDisconnected++; LogEvent("EventClientDisconnected"); };
+  virtual void OnEvent(EventClientDestroy      * e) { num_EventClientDestroy     ++; LogEvent("EventClientDestroy     "); };
+  virtual void OnEvent(EventClientError        * e) { num_EventClientError       ++; LogEvent("EventClientError       "); };
+
+  int num_EventStartup           ;
+  int num_EventShutdown          ;
+  int num_EventListening         ;
+  int num_EventConnection        ;
+  int num_EventClientCreate      ;
+  int num_EventClientDisconnected;
+  int num_EventClientDestroy     ;
+  int num_EventClientError       ;
+
+  struct CallLog
+  {
+    std::string name;
+    clock_t time;
+  };
+  std::vector<CallLog> call_logs_;
+
+  void LogEvent(const char * name)
+  {
+    clock_t t = clock();
+
+    CallLog c;
+    c.name = name;
+    c.time = t;
+
+    call_logs_.push_back(c);
+
+    Sleep(15);  //force the next event to be at a different time
+  }
+
+  void PrintCounts()
+  {
+    printf("Call counts:\n");
+    printf("  EventStartup            = %d\n", num_EventStartup           );
+    printf("  EventShutdown           = %d\n", num_EventShutdown          );
+    printf("  EventListening          = %d\n", num_EventListening         );
+    printf("  EventConnection         = %d\n", num_EventConnection        );
+    printf("  EventClientCreate       = %d\n", num_EventClientCreate      );
+    printf("  EventClientDisconnected = %d\n", num_EventClientDisconnected);
+    printf("  EventClientDestroy      = %d\n", num_EventClientDestroy     );
+    printf("  EventClientError        = %d\n", num_EventClientError       );
+  }
+
+  void PrintCallLogs()
+  {
+    printf("Call times:\n");
+    for(size_t i=0; i<call_logs_.size(); i++)
+    {
+      const CallLog & c = call_logs_[i];
+      printf("  %20s, %u\n", c.name.c_str(), c.time);
+    }
+  }
+};
+
+TEST_F(TestServer, testEventsBasic)
+{
+  MyEventLoggingServer server;
+
+  ServerThreadProcParams params;
+  params.server = &server;
+  params.pipe_name = GetPipeNameFromTestName();
+
+  // Create a thread that will shutdown this server.
+  HANDLE hThread = NULL;
+  DWORD  dwThreadId = 0;
+  hThread = CreateThread(
+    NULL,               // no security attribute
+    0,                  // default stack size
+    ServerThreadProc,   // thread proc
+    &params,            // thread parameter
+    0,                  // not suspended
+    &dwThreadId);       // returns thread ID
+  ASSERT_FALSE(hThread == NULL);
+  CloseHandle(hThread);
+
+  // Allow time for the server to start listening for connections
+  while(!server.IsRunning())
+  {
+    ra::timing::Millisleep(100);
+  }
+  ra::timing::Millisleep(100);
+
+  // Initiate shutdown process
+  server.Shutdown();
+
+  ASSERT_EQ(1, server.num_EventStartup           ); 
+  ASSERT_EQ(1, server.num_EventShutdown          ); 
+  ASSERT_EQ(1, server.num_EventListening         ); 
+  ASSERT_EQ(0, server.num_EventConnection        ); 
+  ASSERT_EQ(0, server.num_EventClientCreate      ); 
+  ASSERT_EQ(0, server.num_EventClientDisconnected); 
+  ASSERT_EQ(0, server.num_EventClientDestroy     ); 
+  ASSERT_EQ(0, server.num_EventClientError       ); 
+
+  // Wait for the shutdown thread to complete
+  WaitThreadExit(hThread);
+
+  server.PrintCounts();
+  server.PrintCallLogs();
+
+  int a = 0;
+}
+
+TEST_F(TestServer, testEventsConnection)
+{
+  MyEventLoggingServer server;
+
+  ServerThreadProcParams params;
+  params.server = &server;
+  params.pipe_name = GetPipeNameFromTestName();
+
+  // Create a thread that will shutdown this server.
+  HANDLE hThread = NULL;
+  DWORD  dwThreadId = 0;
+  hThread = CreateThread(
+    NULL,               // no security attribute
+    0,                  // default stack size
+    ServerThreadProc,   // thread proc
+    &params,            // thread parameter
+    0,                  // not suspended
+    &dwThreadId);       // returns thread ID
+  ASSERT_FALSE(hThread == NULL);
+  CloseHandle(hThread);
+
+  // Allow time for the server to start listening for connections
+  while(!server.IsRunning())
+  {
+    ra::timing::Millisleep(100);
+  }
+  ra::timing::Millisleep(100);
+
+  PipeConnection * pipe1 = new PipeConnection;
+  pipe1->Connect(params.pipe_name.c_str());
+
+  //Wait for the server to process this connection
+  ra::timing::Millisleep(500);
+
+  ASSERT_EQ(1, server.num_EventStartup           );
+  ASSERT_EQ(0, server.num_EventShutdown          );
+  ASSERT_EQ(2, server.num_EventListening         );
+  ASSERT_EQ(1, server.num_EventConnection        );
+  ASSERT_EQ(1, server.num_EventClientCreate      );
+  ASSERT_EQ(0, server.num_EventClientDisconnected);
+  ASSERT_EQ(0, server.num_EventClientDestroy     );
+  ASSERT_EQ(0, server.num_EventClientError       );
+
+  //disconnect from the server
+  delete pipe1;
+  pipe1 = NULL;
+
+  //Wait for the server to process this disconnection
+  ra::timing::Millisleep(500);
+
+  ASSERT_EQ(1, server.num_EventStartup           );
+  ASSERT_EQ(0, server.num_EventShutdown          );
+  ASSERT_EQ(2, server.num_EventListening         );
+  ASSERT_EQ(1, server.num_EventConnection        );
+  ASSERT_EQ(1, server.num_EventClientCreate      );
+  ASSERT_EQ(1, server.num_EventClientDisconnected);
+  ASSERT_EQ(1, server.num_EventClientDestroy     );
+  ASSERT_EQ(0, server.num_EventClientError       );
+
+  // Initiate shutdown process
+  server.Shutdown();
+
+  // Allow time for the server to shutdown
+  while(server.IsRunning())
+  {
+    ra::timing::Millisleep(100);
+  }
+  ra::timing::Millisleep(100);
+
+  ASSERT_EQ(1, server.num_EventStartup           );
+  ASSERT_EQ(1, server.num_EventShutdown          );
+  ASSERT_EQ(2, server.num_EventListening         );
+  ASSERT_EQ(1, server.num_EventConnection        );
+  ASSERT_EQ(1, server.num_EventClientCreate      );
+  ASSERT_EQ(1, server.num_EventClientDisconnected);
+  ASSERT_EQ(1, server.num_EventClientDestroy     );
+  ASSERT_EQ(0, server.num_EventClientError       );
+
+  // Wait for the shutdown thread to complete
+  WaitThreadExit(hThread);
+
+  server.PrintCounts();
+  server.PrintCallLogs();
 
   int a = 0;
 }

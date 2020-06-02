@@ -28,6 +28,8 @@
 #include "pbop/Status.h"
 #include "pbop/Service.h"
 #include "pbop/Connection.h"
+#include "pbop/Types.h"
+#include "pbop/Events.h"
 
 #include <string>
 #include <vector>
@@ -43,20 +45,40 @@ namespace pbop
 
     virtual void SetBufferSize(unsigned int buffer_size);
     virtual unsigned int GetBufferSize() const;
+    virtual const char * GetPipeName() const;
+
     virtual Status Run(const char * pipe_name);
     virtual void RegisterService(Service * service);
-    virtual unsigned long ProcessIncommingMessages(Connection * connection);
+
+    struct ClientContext
+    {
+      Connection * connection;
+      connection_id_t connection_id;
+    };
+    virtual unsigned long ProcessIncommingMessages(ClientContext & context);
+
     virtual bool IsRunning() const;
     virtual Status Shutdown();
+
+    virtual void OnEvent(EventStartup * e) {};
+    virtual void OnEvent(EventShutdown * e) {};
+    virtual void OnEvent(EventListening * e) {};
+    virtual void OnEvent(EventConnection * e) {};
+    virtual void OnEvent(EventClientCreate * e) {};
+    virtual void OnEvent(EventClientDestroy * e) {};
+    virtual void OnEvent(EventClientDisconnected * e) {};
+    virtual void OnEvent(EventClientError * e) {};
 
   private:
     virtual Status DispatchMessage(const std::string & input, std::string & output);
   private:
     std::string pipe_name_;
     unsigned int buffer_size_;
+    connection_id_t next_connection_id_;
     bool running_;
     bool shutdown_request_;
     bool shutdown_processed_;
+  protected:
     std::vector<Service *> services_;
     std::vector<size_t> pipe_handles_;
     std::vector<size_t> threads_;

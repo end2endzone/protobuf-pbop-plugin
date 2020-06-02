@@ -56,11 +56,13 @@ namespace pbop
   struct ThreadParams
   {
     Server * server;
+    connection_id_t connection_id;
     HANDLE pipe;
   };
 
   Server::Server() : 
     buffer_size_(10240),
+    next_connection_id_(0),
     running_(false),
     shutdown_request_(false),
     shutdown_processed_(false)
@@ -88,20 +90,37 @@ namespace pbop
     return buffer_size_;
   }
 
+  const char * Server::GetPipeName() const
+  {
+    return pipe_name_.c_str();
+  }
+
   bool IsThreadAlive(HANDLE hThread)
   {
     // https://stackoverflow.com/questions/301054/how-can-i-determine-if-a-win32-thread-has-terminated
     DWORD result = WaitForSingleObject(hThread, 0);
-    if(result == WAIT_OBJECT_0)
+    DWORD dwLastError = 0;
+    std::string desc;
+    switch(result)
     {
+    case WAIT_OBJECT_0:
       // the thread handle is signaled - the thread has terminated
       return false;
-    }
-    else
-    {
+    case WAIT_TIMEOUT:
       // the thread handle is not signaled - the thread is still alive
       return true;
-    }
+    case WAIT_FAILED:
+      dwLastError = GetLastError();
+      if (dwLastError == ERROR_INVALID_HANDLE)
+      {
+        // the handle is no longer associated with a thread - the thread has terminated
+        return false;
+      }
+      else
+        return true;
+    default:
+      return false;
+    };
   }
 
   void WaitThreadExit(HANDLE hThread)
@@ -128,6 +147,10 @@ namespace pbop
     shutdown_request_ = false;
     shutdown_processed_ = false;
 
+    // Process events
+    EventStartup event_startup;
+    OnEvent(&event_startup);
+
     // The main loop creates an instance of the named pipe and 
     // then waits for a client to connect to it. When the client 
     // connects, a thread is created to handle communications 
@@ -135,8 +158,7 @@ namespace pbop
     // next client connect request. It is an infinite loop until
     // a server shutdown is requested.
     while(!shutdown_request_)
-    { 
-      printf("\nPipe Server: Main thread awaiting client connection on %s\n", pipe_name);
+    {
       hPipe = CreateNamedPipe( 
         pipe_name,                // pipe name 
         PIPE_ACCESS_DUPLEX,       // read/write access 
@@ -155,16 +177,27 @@ namespace pbop
         return Status(STATUS_CODE_PIPE_ERROR, error_description);
       }
 
+      // Process events
+      EventListening event_listening;
+      OnEvent(&event_listening);
+
       // Wait for the client to connect; if it succeeds, 
       // the function returns a nonzero value. If the function
       // returns zero, GetLastError returns ERROR_PIPE_CONNECTED. 
-
       fConnected = ConnectNamedPipe(hPipe, NULL) ? TRUE : (GetLastError() == ERROR_PIPE_CONNECTED); 
       if (fConnected) 
       { 
-        printf("Client connected, creating a processing thread.\n"); 
+        if (!shutdown_request_)
+        {
+          // Process events
+          next_connection_id_++;
+          EventConnection event_connection;
+          event_connection.SetConnectionId(next_connection_id_);
+          OnEvent(&event_connection);
+        }
 
         ThreadParams * thread_params = new ThreadParams();
+        thread_params->connection_id = next_connection_id_;
         thread_params->pipe = hPipe;
         thread_params->server = this;
 
@@ -233,6 +266,10 @@ namespace pbop
     // The shutdown process is completed.
     shutdown_processed_ = true;
     running_ = false;
+
+    // Process events
+    EventShutdown event_shutdown;
+    OnEvent(&event_shutdown);
 
     return Status::OK; 
   } 
@@ -327,6 +364,7 @@ namespace pbop
     ThreadParams * thread_params = static_cast<ThreadParams*>(lpvParam);
 
     // Copy ThreadParams locally
+    connection_id_t connection_id = thread_params->connection_id;
     Server * server = thread_params->server;
     HANDLE hPipe = thread_params->pipe;
     delete thread_params;
@@ -336,23 +374,31 @@ namespace pbop
     connection->Assign(reinterpret_cast<size_t>(hPipe));
 
     // Continue with the server for processing messages
-    return server->ProcessIncommingMessages(connection);
+    Server::ClientContext context;
+    context.connection = connection;
+    context.connection_id = connection_id;
+    return server->ProcessIncommingMessages(context);
   }
 
-  DWORD Server::ProcessIncommingMessages(Connection * connection)
+  DWORD Server::ProcessIncommingMessages(ClientContext & context)
   {
     BOOL fSuccess = FALSE;
     HANDLE hPipe = NULL;
 
-    // Print verbose messages. In production code, this should be for debugging only.
-    printf("InstanceThread: Created, receiving and processing messages.\n");
+    if (!shutdown_request_)
+    {
+      // Process events
+      EventClientCreate event_create;
+      event_create.SetConnectionId(context.connection_id);
+      OnEvent(&event_create);
+    }
 
     // Loop until done reading
     while(!shutdown_request_)
     { 
       // Read client requests from the pipe.
       std::string read_buffer;
-      Status status = connection->Read(read_buffer);
+      Status status = context.connection->Read(read_buffer);
 
       // Leave the loop if a shutdown was requested 
       if (shutdown_request_)
@@ -363,12 +409,25 @@ namespace pbop
         DWORD wLastErrorCode = GetLastError();
         if (wLastErrorCode == ERROR_BROKEN_PIPE)
         {
-          printf("InstanceThread: Client disconnected.\n");
+          // Client disconnected
+
+          if (!shutdown_request_)
+          {
+            // Process events
+            EventClientDisconnected event_disconnected;
+            event_disconnected.SetConnectionId(context.connection_id);
+            OnEvent(&event_disconnected);
+          }
         }
         else
         {
           //other read error
-          printf("InstanceThread: %d, %s\n", status.GetCode(), status.GetMessage().c_str());
+
+          // Process events
+          EventClientError event_error;
+          event_error.SetConnectionId(context.connection_id);
+          event_error.SetStatus(status);
+          OnEvent(&event_error);
         }
         break;
       }
@@ -381,7 +440,13 @@ namespace pbop
       {
         delete function_call_result;
         function_call_result = NULL;
-        printf("InstanceThread: %d, %s\n", status.GetCode(), status.GetMessage().c_str());
+
+        // Process events
+        EventClientError event_error;
+        event_error.SetConnectionId(context.connection_id);
+        event_error.SetStatus(status);
+        OnEvent(&event_error);
+
         break;
       }
 
@@ -399,12 +464,18 @@ namespace pbop
       if (!success)
       {
         Status status = Status::Factory::Serialization(__FUNCTION__, server_response);
-        printf("InstanceThread: %d, %s\n", status.GetCode(), status.GetMessage().c_str());
+
+        // Process events
+        EventClientError event_error;
+        event_error.SetConnectionId(context.connection_id);
+        event_error.SetStatus(status);
+        OnEvent(&event_error);
+
         break;
       }
 
       // Send response to client through the pipe connection.
-      status = connection->Write(write_buffer);
+      status = context.connection->Write(write_buffer);
       if (!status.Success())
       {
         printf("InstanceThread: %d, %s\n", status.GetCode(), status.GetMessage().c_str());
@@ -420,9 +491,17 @@ namespace pbop
     DisconnectNamedPipe(hPipe); 
     //CloseHandle(hPipe); will be processed by PipeConnection destructor
 
-    delete connection;
+    delete context.connection;
+    context.connection = NULL;
 
-    printf("InstanceThread: Exiting.\n");
+    if (!shutdown_request_)
+    {
+      // Process events
+      EventClientDestroy event_destroy;
+      event_destroy.SetConnectionId(context.connection_id);
+      OnEvent(&event_destroy);
+    }
+
     return 1;
   }
 
