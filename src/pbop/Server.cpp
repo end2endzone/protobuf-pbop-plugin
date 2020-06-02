@@ -50,6 +50,27 @@ __pragma( warning(pop) )
 
 namespace pbop
 {
+  class Server::ClientContext
+  {
+  public:
+    ClientContext()
+    {
+      connection = NULL;
+      connection_id = 0;
+      server = NULL;
+    }
+    ~ClientContext() {}
+
+    unsigned long run()
+    {
+      return server->ProcessIncommingMessages(this);
+    }
+
+    Connection * connection;
+    connection_id_t connection_id;
+    Server * server;
+  };
+
   DWORD WINAPI InstanceThread(LPVOID lpvParam);
   std::string GetErrorDesription(DWORD code);
 
@@ -375,12 +396,14 @@ namespace pbop
 
     // Continue with the server for processing messages
     Server::ClientContext context;
+    context.server = server;
     context.connection = connection;
     context.connection_id = connection_id;
-    return server->ProcessIncommingMessages(context);
+
+    return context.run();
   }
 
-  DWORD Server::ProcessIncommingMessages(ClientContext & context)
+  DWORD Server::ProcessIncommingMessages(Server::ClientContext * context)
   {
     BOOL fSuccess = FALSE;
     HANDLE hPipe = NULL;
@@ -389,7 +412,7 @@ namespace pbop
     {
       // Process events
       EventClientCreate event_create;
-      event_create.SetConnectionId(context.connection_id);
+      event_create.SetConnectionId(context->connection_id);
       OnEvent(&event_create);
     }
 
@@ -398,7 +421,7 @@ namespace pbop
     { 
       // Read client requests from the pipe.
       std::string read_buffer;
-      Status status = context.connection->Read(read_buffer);
+      Status status = context->connection->Read(read_buffer);
 
       // Leave the loop if a shutdown was requested 
       if (shutdown_request_)
@@ -415,7 +438,7 @@ namespace pbop
           {
             // Process events
             EventClientDisconnected event_disconnected;
-            event_disconnected.SetConnectionId(context.connection_id);
+            event_disconnected.SetConnectionId(context->connection_id);
             OnEvent(&event_disconnected);
           }
         }
@@ -425,7 +448,7 @@ namespace pbop
 
           // Process events
           EventClientError event_error;
-          event_error.SetConnectionId(context.connection_id);
+          event_error.SetConnectionId(context->connection_id);
           event_error.SetStatus(status);
           OnEvent(&event_error);
         }
@@ -443,7 +466,7 @@ namespace pbop
 
         // Process events
         EventClientError event_error;
-        event_error.SetConnectionId(context.connection_id);
+        event_error.SetConnectionId(context->connection_id);
         event_error.SetStatus(status);
         OnEvent(&event_error);
 
@@ -467,7 +490,7 @@ namespace pbop
 
         // Process events
         EventClientError event_error;
-        event_error.SetConnectionId(context.connection_id);
+        event_error.SetConnectionId(context->connection_id);
         event_error.SetStatus(status);
         OnEvent(&event_error);
 
@@ -475,10 +498,15 @@ namespace pbop
       }
 
       // Send response to client through the pipe connection.
-      status = context.connection->Write(write_buffer);
+      status = context->connection->Write(write_buffer);
       if (!status.Success())
       {
-        printf("InstanceThread: %d, %s\n", status.GetCode(), status.GetMessage().c_str());
+        // Process events
+        EventClientError event_error;
+        event_error.SetConnectionId(context->connection_id);
+        event_error.SetStatus(status);
+        OnEvent(&event_error);
+
         break;
       }
     }
@@ -491,14 +519,14 @@ namespace pbop
     DisconnectNamedPipe(hPipe); 
     //CloseHandle(hPipe); will be processed by PipeConnection destructor
 
-    delete context.connection;
-    context.connection = NULL;
+    delete context->connection;
+    context->connection = NULL;
 
     if (!shutdown_request_)
     {
       // Process events
       EventClientDestroy event_destroy;
-      event_destroy.SetConnectionId(context.connection_id);
+      event_destroy.SetConnectionId(context->connection_id);
       OnEvent(&event_destroy);
     }
 

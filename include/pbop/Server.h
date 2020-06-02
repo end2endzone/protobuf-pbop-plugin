@@ -50,12 +50,12 @@ namespace pbop
     virtual Status Run(const char * pipe_name);
     virtual void RegisterService(Service * service);
 
-    struct ClientContext
-    {
-      Connection * connection;
-      connection_id_t connection_id;
-    };
-    virtual unsigned long ProcessIncommingMessages(ClientContext & context);
+    // Client threads support
+    class ClientContext;
+  private:
+    friend class ClientContext;
+    virtual unsigned long ProcessIncommingMessages(ClientContext * context);
+  public:
 
     virtual bool IsRunning() const;
     virtual Status Shutdown();
