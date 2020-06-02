@@ -312,6 +312,23 @@ TEST_F(TestServer, testEventsConnection)
   params.server = &server;
   params.pipe_name = GetPipeNameFromTestName();
 
+  int expected_EventStartup            = 0;
+  int expected_EventShutdown           = 0;
+  int expected_EventListening          = 0;
+  int expected_EventConnection         = 0;
+  int expected_EventClientCreate       = 0;
+  int expected_EventClientDisconnected = 0;
+  int expected_EventClientDestroy      = 0;
+  int expected_EventClientError        = 0;
+  ASSERT_EQ(expected_EventStartup           , server.num_EventStartup           );
+  ASSERT_EQ(expected_EventShutdown          , server.num_EventShutdown          );
+  ASSERT_EQ(expected_EventListening         , server.num_EventListening         );
+  ASSERT_EQ(expected_EventConnection        , server.num_EventConnection        );
+  ASSERT_EQ(expected_EventClientCreate      , server.num_EventClientCreate      );
+  ASSERT_EQ(expected_EventClientDisconnected, server.num_EventClientDisconnected);
+  ASSERT_EQ(expected_EventClientDestroy     , server.num_EventClientDestroy     );
+  ASSERT_EQ(expected_EventClientError       , server.num_EventClientError       );
+
   // Create a thread that will shutdown this server.
   HANDLE hThread = NULL;
   DWORD  dwThreadId = 0;
@@ -332,20 +349,37 @@ TEST_F(TestServer, testEventsConnection)
   }
   ra::timing::Millisleep(100);
 
+  // At this point, the server should be started and listening
+  expected_EventStartup++;
+  expected_EventListening++;
+  ASSERT_EQ(expected_EventStartup           , server.num_EventStartup           );
+  ASSERT_EQ(expected_EventShutdown          , server.num_EventShutdown          );
+  ASSERT_EQ(expected_EventListening         , server.num_EventListening         );
+  ASSERT_EQ(expected_EventConnection        , server.num_EventConnection        );
+  ASSERT_EQ(expected_EventClientCreate      , server.num_EventClientCreate      );
+  ASSERT_EQ(expected_EventClientDisconnected, server.num_EventClientDisconnected);
+  ASSERT_EQ(expected_EventClientDestroy     , server.num_EventClientDestroy     );
+  ASSERT_EQ(expected_EventClientError       , server.num_EventClientError       );
+
   PipeConnection * pipe1 = new PipeConnection;
   pipe1->Connect(params.pipe_name.c_str());
 
   //Wait for the server to process this connection
   ra::timing::Millisleep(500);
 
-  ASSERT_EQ(1, server.num_EventStartup           );
-  ASSERT_EQ(0, server.num_EventShutdown          );
-  ASSERT_EQ(2, server.num_EventListening         );
-  ASSERT_EQ(1, server.num_EventConnection        );
-  ASSERT_EQ(1, server.num_EventClientCreate      );
-  ASSERT_EQ(0, server.num_EventClientDisconnected);
-  ASSERT_EQ(0, server.num_EventClientDestroy     );
-  ASSERT_EQ(0, server.num_EventClientError       );
+  // At this point, the connection should be completed
+  // The server should be back to listening again
+  expected_EventConnection++;
+  expected_EventClientCreate++;
+  expected_EventListening++;
+  ASSERT_EQ(expected_EventStartup           , server.num_EventStartup           );
+  ASSERT_EQ(expected_EventShutdown          , server.num_EventShutdown          );
+  ASSERT_EQ(expected_EventListening         , server.num_EventListening         );
+  ASSERT_EQ(expected_EventConnection        , server.num_EventConnection        );
+  ASSERT_EQ(expected_EventClientCreate      , server.num_EventClientCreate      );
+  ASSERT_EQ(expected_EventClientDisconnected, server.num_EventClientDisconnected);
+  ASSERT_EQ(expected_EventClientDestroy     , server.num_EventClientDestroy     );
+  ASSERT_EQ(expected_EventClientError       , server.num_EventClientError       );
 
   //disconnect from the server
   delete pipe1;
@@ -354,14 +388,17 @@ TEST_F(TestServer, testEventsConnection)
   //Wait for the server to process this disconnection
   ra::timing::Millisleep(500);
 
-  ASSERT_EQ(1, server.num_EventStartup           );
-  ASSERT_EQ(0, server.num_EventShutdown          );
-  ASSERT_EQ(2, server.num_EventListening         );
-  ASSERT_EQ(1, server.num_EventConnection        );
-  ASSERT_EQ(1, server.num_EventClientCreate      );
-  ASSERT_EQ(1, server.num_EventClientDisconnected);
-  ASSERT_EQ(1, server.num_EventClientDestroy     );
-  ASSERT_EQ(0, server.num_EventClientError       );
+  // At this point, the server should have noticed the closed connection
+  expected_EventClientDisconnected++;
+  expected_EventClientDestroy++;
+  ASSERT_EQ(expected_EventStartup           , server.num_EventStartup           );
+  ASSERT_EQ(expected_EventShutdown          , server.num_EventShutdown          );
+  ASSERT_EQ(expected_EventListening         , server.num_EventListening         );
+  ASSERT_EQ(expected_EventConnection        , server.num_EventConnection        );
+  ASSERT_EQ(expected_EventClientCreate      , server.num_EventClientCreate      );
+  ASSERT_EQ(expected_EventClientDisconnected, server.num_EventClientDisconnected);
+  ASSERT_EQ(expected_EventClientDestroy     , server.num_EventClientDestroy     );
+  ASSERT_EQ(expected_EventClientError       , server.num_EventClientError       );
 
   // Initiate shutdown process
   server.Shutdown();
@@ -373,14 +410,16 @@ TEST_F(TestServer, testEventsConnection)
   }
   ra::timing::Millisleep(100);
 
-  ASSERT_EQ(1, server.num_EventStartup           );
-  ASSERT_EQ(1, server.num_EventShutdown          );
-  ASSERT_EQ(2, server.num_EventListening         );
-  ASSERT_EQ(1, server.num_EventConnection        );
-  ASSERT_EQ(1, server.num_EventClientCreate      );
-  ASSERT_EQ(1, server.num_EventClientDisconnected);
-  ASSERT_EQ(1, server.num_EventClientDestroy     );
-  ASSERT_EQ(0, server.num_EventClientError       );
+  // The server has shutdown
+  expected_EventShutdown++;
+  ASSERT_EQ(expected_EventStartup           , server.num_EventStartup           );
+  ASSERT_EQ(expected_EventShutdown          , server.num_EventShutdown          );
+  ASSERT_EQ(expected_EventListening         , server.num_EventListening         );
+  ASSERT_EQ(expected_EventConnection        , server.num_EventConnection        );
+  ASSERT_EQ(expected_EventClientCreate      , server.num_EventClientCreate      );
+  ASSERT_EQ(expected_EventClientDisconnected, server.num_EventClientDisconnected);
+  ASSERT_EQ(expected_EventClientDestroy     , server.num_EventClientDestroy     );
+  ASSERT_EQ(expected_EventClientError       , server.num_EventClientError       );
 
   // Wait for the shutdown thread to complete
   WaitThreadExit(hThread);
