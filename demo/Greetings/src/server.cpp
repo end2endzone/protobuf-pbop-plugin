@@ -31,13 +31,13 @@ public:
 
   Status SayHello(const SayHelloRequest & request, SayHelloResponse & response)
   {
-    response.set_message("Hello " + request.name());
+    response.set_message("Greetings " + request.name());
     return Status::OK;
   }
 
   Status SayGoodbye(const SayGoodbyeRequest & request, SayGoodbyeResponse & response)
   {
-    response.set_message("Hello " + request.name());
+    response.set_message("Farewell " + request.name());
     return Status::OK;
   }
 };
