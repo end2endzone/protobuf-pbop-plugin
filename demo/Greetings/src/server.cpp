@@ -18,27 +18,24 @@ __pragma( warning(disable: 4146))
 __pragma( warning(pop) )
 #endif //_WIN32
 
-using namespace pbop;
-using namespace greetings;
-
 static const char * kPipeName = "\\\\.\\pipe\\greetingspipe";
 
-class GreeterServiceImpl : public Greeter::ServerStub
+class GreeterServiceImpl : public greetings::Greeter::ServerStub
 {
 public:
   GreeterServiceImpl() {}
   virtual ~GreeterServiceImpl() {}
 
-  Status SayHello(const SayHelloRequest & request, SayHelloResponse & response)
+  pbop::Status SayHello(const greetings::SayHelloRequest & request, greetings::SayHelloResponse & response)
   {
     response.set_message("Greetings " + request.name());
-    return Status::OK;
+    return pbop::Status::OK;
   }
 
-  Status SayGoodbye(const SayGoodbyeRequest & request, SayGoodbyeResponse & response)
+  pbop::Status SayGoodbye(const greetings::SayGoodbyeRequest & request, greetings::SayGoodbyeResponse & response)
   {
     response.set_message("Farewell " + request.name());
-    return Status::OK;
+    return pbop::Status::OK;
   }
 };
 
@@ -59,9 +56,9 @@ int main(int argc, char* argv[])
 
   GreeterServiceImpl * impl = new GreeterServiceImpl();
 
-  Server server;
+  pbop::Server server;
   server.RegisterService(impl);
-  Status status = server.Run(kPipeName);
+  pbop::Status status = server.Run(kPipeName);
   if (!status.Success())
   {
     printf("Error in main(): %d, %s\n", status.GetCode(), status.GetMessage().c_str());

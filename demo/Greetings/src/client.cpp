@@ -18,9 +18,6 @@ __pragma( warning(disable: 4146))
 __pragma( warning(pop) )
 #endif //_WIN32
 
-using namespace pbop;
-using namespace greetings;
-
 static const char * kPipeName = "\\\\.\\pipe\\greetingspipe";
 
 std::string GetFilename(const std::string & path)
@@ -38,18 +35,18 @@ int main(int argc, char* argv[])
 {
   printf("Running %s...\n", GetFilename(argv[0]).c_str());
 
-  PipeConnection * connection = new PipeConnection();
-  Status status = connection->Connect(kPipeName);
+  pbop::PipeConnection * connection = new pbop::PipeConnection();
+  pbop::Status status = connection->Connect(kPipeName);
   if (!status.Success())
   {
     printf("Error in main(): %d, %s\n", status.GetCode(), status.GetMessage().c_str());
     return status.GetCode();
   }
 
-  Greeter::Client client(connection);
+  greetings::Greeter::Client client(connection);
 
-  SayHelloRequest request;
-  SayHelloResponse response;
+  greetings::SayHelloRequest request;
+  greetings::SayHelloResponse response;
 
   request.set_name("bob");
 
