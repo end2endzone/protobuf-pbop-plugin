@@ -50,7 +50,7 @@ add_custom_command(
   OUTPUT ${PROTO_GENERATED_FILES}
   DEPENDS ${PROTO_FILES}
   # Warning: CMake treats ; character differently. They must be escaped to prevent issues
-  COMMENT "Executing protobuf-pipe-plugin for ${PROTO_FILES}..."
+  COMMENT "Executing protobuf-pbop-plugin for ${PROTO_FILES}..."
   COMMAND echo $<TARGET_FILE:protobuf::protoc> --cpp_out=${CMAKE_CURRENT_BINARY_DIR} --proto_path=.\;${PROTOBUF_INCLUDE_DIRS}\;${LIB_PBOP_INCLUDE_DIR}/pbop ${PROTO_FILES}
   COMMAND      $<TARGET_FILE:protobuf::protoc> --cpp_out=${CMAKE_CURRENT_BINARY_DIR} --proto_path=.\;${PROTOBUF_INCLUDE_DIRS}\;${LIB_PBOP_INCLUDE_DIR}/pbop ${PROTO_FILES}
   COMMAND echo done.
