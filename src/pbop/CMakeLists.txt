@@ -1,5 +1,5 @@
 # Define include dir for the library
-set(LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
+set(LIB_PBOP_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
 
 # Manually get the location of include directories for libprotobuf
 get_target_property(PROTOBUF_INCLUDE_DIRS protobuf::libprotobuf INTERFACE_INCLUDE_DIRECTORIES)
@@ -9,16 +9,16 @@ get_property(PROTOC_LOCATION TARGET protobuf::protoc PROPERTY LOCATION)
 
 # Define the *.proto files and their outputs
 set(PROTO_FILES
-  ${LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR}/pbop/PipeMessages.proto
+  ${LIB_PBOP_INCLUDE_DIR}/pbop/PipeMessages.proto
 )
-set(LIBPROTOBUFPIPEPLUGIN_INCLUDE_FILES
-  ${LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR}/pbop/Connection.h
-  ${LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR}/pbop/Events.h
-  ${LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR}/pbop/PipeMessages.proto
-  ${LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR}/pbop/Server.h
-  ${LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR}/pbop/Service.h
-  ${LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR}/pbop/Status.h
-  ${LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR}/pbop/Types.h
+set(LIBPROTOBUFPBOPPLUGIN_INCLUDE_FILES
+  ${LIB_PBOP_INCLUDE_DIR}/pbop/Connection.h
+  ${LIB_PBOP_INCLUDE_DIR}/pbop/Events.h
+  ${LIB_PBOP_INCLUDE_DIR}/pbop/PipeMessages.proto
+  ${LIB_PBOP_INCLUDE_DIR}/pbop/Server.h
+  ${LIB_PBOP_INCLUDE_DIR}/pbop/Service.h
+  ${LIB_PBOP_INCLUDE_DIR}/pbop/Status.h
+  ${LIB_PBOP_INCLUDE_DIR}/pbop/Types.h
 )
 
 set(PROTO_GENERATED_FILES
@@ -27,12 +27,12 @@ set(PROTO_GENERATED_FILES
 )
 
 add_library(pbop
-  ${PROTOBUFPIPEPLUGIN_EXPORT_HEADER}
-  ${PROTOBUFPIPEPLUGIN_VERSION_HEADER}
-  ${PROTOBUFPIPEPLUGIN_CONFIG_HEADER}
+  ${PBOP_EXPORT_HEADER}
+  ${PBOP_VERSION_HEADER}
+  ${PBOP_CONFIG_HEADER}
   #${PROTO_FILES}
   ${PROTO_GENERATED_FILES}
-  ${LIBPROTOBUFPIPEPLUGIN_INCLUDE_FILES}
+  ${LIBPROTOBUFPBOPPLUGIN_INCLUDE_FILES}
   Connection.cpp
   Events.cpp
   pbop.cpp
@@ -51,8 +51,8 @@ add_custom_command(
   DEPENDS ${PROTO_FILES}
   # Warning: CMake treats ; character differently. They must be escaped to prevent issues
   COMMENT "Executing protobuf-pipe-plugin for ${PROTO_FILES}..."
-  COMMAND echo $<TARGET_FILE:protobuf::protoc> --cpp_out=${CMAKE_CURRENT_BINARY_DIR} --proto_path=.\;${PROTOBUF_INCLUDE_DIRS}\;${LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR}/pbop ${PROTO_FILES}
-  COMMAND      $<TARGET_FILE:protobuf::protoc> --cpp_out=${CMAKE_CURRENT_BINARY_DIR} --proto_path=.\;${PROTOBUF_INCLUDE_DIRS}\;${LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR}/pbop ${PROTO_FILES}
+  COMMAND echo $<TARGET_FILE:protobuf::protoc> --cpp_out=${CMAKE_CURRENT_BINARY_DIR} --proto_path=.\;${PROTOBUF_INCLUDE_DIRS}\;${LIB_PBOP_INCLUDE_DIR}/pbop ${PROTO_FILES}
+  COMMAND      $<TARGET_FILE:protobuf::protoc> --cpp_out=${CMAKE_CURRENT_BINARY_DIR} --proto_path=.\;${PROTOBUF_INCLUDE_DIRS}\;${LIB_PBOP_INCLUDE_DIR}/pbop ${PROTO_FILES}
   COMMAND echo done.
 )
 
@@ -66,10 +66,10 @@ set_target_properties(pbop PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 # Define include directories for exported code.
 target_include_directories(pbop
   PUBLIC
-    $<INSTALL_INTERFACE:${PROTOBUFPIPEPLUGIN_INSTALL_INCLUDE_DIR}>  # for clients using the installed library.
+    $<INSTALL_INTERFACE:${PBOP_INSTALL_INCLUDE_DIR}>  # for clients using the installed library.
   PRIVATE
     ${PROTOBUF_INCLUDE_DIRS}
-    ${LIBPROTOBUFPIPEPLUGIN_INCLUDE_DIR}    # For repository's include directory
+    ${LIB_PBOP_INCLUDE_DIR}    # For repository's include directory
     ${CMAKE_CURRENT_BINARY_DIR}             # For 'PipeMessages.pb.h'
 )
 target_link_libraries(pbop PRIVATE protobuf::libprotobuf )
@@ -86,11 +86,11 @@ if (WIN32)
 endif()
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/PipeMessages.pb.h
-              DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_INCLUDE_DIR}/pbop)
+              DESTINATION ${PBOP_INSTALL_INCLUDE_DIR}/pbop)
 
 install(TARGETS pbop
-        EXPORT protobufpipeplugin-targets
-        ARCHIVE DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_LIB_DIR}
-        LIBRARY DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_LIB_DIR}
-        RUNTIME DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_BIN_DIR}
+        EXPORT pbop-targets
+        ARCHIVE DESTINATION ${PBOP_INSTALL_LIB_DIR}
+        LIBRARY DESTINATION ${PBOP_INSTALL_LIB_DIR}
+        RUNTIME DESTINATION ${PBOP_INSTALL_BIN_DIR}
 )
