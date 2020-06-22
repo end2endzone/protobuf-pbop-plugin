@@ -1,0 +1,15 @@
+@LICENSE@
+#ifndef PBOP_CONFIG_H
+#define PBOP_CONFIG_H
+
+@PBOP_BUILD_TYPE_CPP_DEFINE@
+
+#ifdef PBOP_BUILT_AS_SHARED
+#   include "export.h"
+#endif
+
+#ifndef PBOP_EXPORT
+#   define PBOP_EXPORT
+#endif
+
+#endif //PBOP_CONFIG_H

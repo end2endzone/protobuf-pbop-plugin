@@ -11,14 +11,14 @@ __pragma( warning(disable: 4146))
 #endif //_WIN32
 
 #include "greetings.pb.h"
-#include "greetings.pipe.pb.h"
+#include "greetings.pbop.pb.h"
 #include "pbop/Server.h"
 
 #ifdef _WIN32
 __pragma( warning(pop) )
 #endif //_WIN32
 
-static const char * kPipeName = "\\\\.\\pipe\\greetingspipe";
+static const char * kPipeName = "\\\\.\\pipe\\greetings.pipe";
 
 std::string GetFilename(const std::string & path)
 {

@@ -149,9 +149,9 @@ where
 
 For example:
 
-`protoc.exe --plugin=protoc-gen-pipe=C:\Projets\demoplugin\bin\protobuf-pbop-plugin.exe --pipe_out=C:\Projets\demoplugin\output --proto_path=C:/Projets/third_parties/protobuf/install/include;C:\Projets\demoplugin\protos; C:\Projets\demoplugin\protos\demo.proto`
+`protoc.exe --plugin=protoc-gen-pbop=C:\Projets\demoplugin\bin\protobuf-pbop-plugin.exe --pbop_out=C:\Projets\demoplugin\output --proto_path=C:/Projets/third_parties/protobuf/install/include;C:\Projets\demoplugin\protos; C:\Projets\demoplugin\protos\demo.proto`
 
-Note: In the previous example, the identifier `pipe` is used as the plugin's short name.
+Note: In the previous example, the identifier `pbop` is used as the plugin's short name.
 
 
 
@@ -207,10 +207,10 @@ With the following, one can create a client that creates a pipe connection to a 
 ```cpp
 #include <stdio.h>
 #include "greetings.pb.h"
-#include "greetings.pipe.pb.h"
+#include "greetings.pbop.pb.h"
 #include "pbop/Server.h"
 
-static const char * kPipeName = "\\\\.\\pipe\\greetingspipe";
+static const char * kPipeName = "\\\\.\\pipe\\greetings.pipe";
 
 int main(int argc, char* argv[])
 {
@@ -254,10 +254,10 @@ With the following, one can create a server that listens for a connection from a
 ```cpp
 #include <stdio.h>
 #include "greetings.pb.h"
-#include "greetings.pipe.pb.h"
+#include "greetings.pbop.pb.h"
 #include "pbop/Server.h"
 
-static const char * kPipeName = "\\\\.\\pipe\\greetingspipe";
+static const char * kPipeName = "\\\\.\\pipe\\greetings.pipe";
 
 class GreeterServiceImpl : public greetings::Greeter::ServerStub
 {

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(greetings)
 
-find_package(protobufpipeplugin REQUIRED)
+find_package(pbop REQUIRED)
 find_package(protobuf 3.5.1 REQUIRED NO_CMAKE_SYSTEM_PATH NO_CMAKE_PATH NO_CMAKE_SYSTEM_PACKAGE_REGISTRY )
 
 # Force a debug postfix if none specified.
@@ -27,8 +27,8 @@ set(PROTO_FILES
 set(PROTO_GENERATED_FILES
   ${CMAKE_CURRENT_BINARY_DIR}/greetings.pb.cc
   ${CMAKE_CURRENT_BINARY_DIR}/greetings.pb.h
-  ${CMAKE_CURRENT_BINARY_DIR}/greetings.pipe.pb.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/greetings.pipe.pb.h
+  ${CMAKE_CURRENT_BINARY_DIR}/greetings.pbop.pb.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/greetings.pbop.pb.h
 )
 
 # ==========================================================================================
@@ -106,9 +106,9 @@ get_target_property(PROTOBUF_INCLUDE_DIRS protobuf::libprotobuf INTERFACE_INCLUD
 get_property(PROTOC_LOCATION TARGET protobuf::protoc PROPERTY LOCATION)
 message("PROTOC_LOCATION=" ${PROTOC_LOCATION})
 
-# Manually get the location of protobuf-pipe-plugin
-get_property(PROTOBUF_PIPE_PLUGIN_LOCATION TARGET protobuf-pipe-plugin PROPERTY LOCATION)
-message("PROTOBUF_PIPE_PLUGIN_LOCATION=" ${PROTOBUF_PIPE_PLUGIN_LOCATION})
+# Manually get the location of protobuf-pbop-plugin
+get_property(PROTOBUF_PBOP_PLUGIN_LOCATION TARGET protobuf-pbop-plugin PROPERTY LOCATION)
+message("PROTOBUF_PBOP_PLUGIN_LOCATION=" ${PROTOBUF_PBOP_PLUGIN_LOCATION})
 
 # Define the *.proto files and their outputs
 set(PROTO_FILES
@@ -120,9 +120,9 @@ add_custom_command(
   OUTPUT ${PROTO_GENERATED_FILES}
   DEPENDS ${PROTO_FILES}
   # Warning: CMake treats ; character differently. They must be escaped to prevent issues
-  COMMENT "Executing protobuf-pipe-plugin for ${PROTO_FILES}..."
-  COMMAND echo $<TARGET_FILE:protobuf::protoc> --cpp_out=${CMAKE_CURRENT_BINARY_DIR} --plugin=protoc-gen-pipe=$<TARGET_FILE:protobuf-pipe-plugin> --pipe_out=${CMAKE_CURRENT_BINARY_DIR} --proto_path=.\;${PROTOBUF_INCLUDE_DIRS}\;${CMAKE_CURRENT_SOURCE_DIR} ${PROTO_FILES}
-  COMMAND      $<TARGET_FILE:protobuf::protoc> --cpp_out=${CMAKE_CURRENT_BINARY_DIR} --plugin=protoc-gen-pipe=$<TARGET_FILE:protobuf-pipe-plugin> --pipe_out=${CMAKE_CURRENT_BINARY_DIR} --proto_path=.\;${PROTOBUF_INCLUDE_DIRS}\;${CMAKE_CURRENT_SOURCE_DIR} ${PROTO_FILES}
+  COMMENT "Executing protobuf-pbop-plugin for ${PROTO_FILES}..."
+  COMMAND echo $<TARGET_FILE:protobuf::protoc> --cpp_out=${CMAKE_CURRENT_BINARY_DIR} --plugin=protoc-gen-pbop=$<TARGET_FILE:protobuf-pbop-plugin> --pbop_out=${CMAKE_CURRENT_BINARY_DIR} --proto_path=.\;${PROTOBUF_INCLUDE_DIRS}\;${CMAKE_CURRENT_SOURCE_DIR} ${PROTO_FILES}
+  COMMAND      $<TARGET_FILE:protobuf::protoc> --cpp_out=${CMAKE_CURRENT_BINARY_DIR} --plugin=protoc-gen-pbop=$<TARGET_FILE:protobuf-pbop-plugin> --pbop_out=${CMAKE_CURRENT_BINARY_DIR} --proto_path=.\;${PROTOBUF_INCLUDE_DIRS}\;${CMAKE_CURRENT_SOURCE_DIR} ${PROTO_FILES}
   COMMAND echo done.
 )
 
@@ -139,5 +139,5 @@ if (WIN32)
 
   message("Disabling warning C4146 and warning C4800 on Windows.")
   set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/greetings.pb.cc       PROPERTIES COMPILE_FLAGS "/wd\"4146\" /wd\"4800\"")
-  set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/greetings.pipe.pb.cpp PROPERTIES COMPILE_FLAGS "/wd\"4146\" /wd\"4800\"")
+  set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/greetings.pbop.pb.cpp PROPERTIES COMPILE_FLAGS "/wd\"4146\" /wd\"4800\"")
 endif()

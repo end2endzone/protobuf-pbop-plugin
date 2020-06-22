@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
   }
 
   //define default values for xml output report
-  std::string outputXml = "xml:" "protobuf-pipe-plugin_unittest";
+  std::string outputXml = "xml:" "protobuf-pbop-plugin_unittest";
   outputXml += (ra::environment::IsProcess32Bit() ? ".x86" : ".x64");
   outputXml += (ra::environment::IsConfigurationDebug() ? ".debug" : ".release");
   outputXml += ".xml";
