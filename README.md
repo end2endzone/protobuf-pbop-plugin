@@ -5,8 +5,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Github Releases](https://img.shields.io/github/release/end2endzone/protobuf-pbop-plugin.svg)](https://github.com/end2endzone/protobuf-pbop-plugin/releases)
 
-protobuf-pbop-plugin is a C++ open-source plugin for Google Protocol Buffers which provides inter-process communication (IPC) over Windows Named Pipes.
 
+protobuf-pbop-plugin is a C++ open-source plugin for _Google Protocol Buffers_ which provides inter-process communication (IPC) over Windows Named Pipes.
+
+The acronym PBOP is for **P**rotocol **B**uffers **O**ver **P**ipe (PBOP)
 
 
 
@@ -159,7 +161,7 @@ Note: In the previous example, the identifier `pbop` is used as the plugin's sho
 
 The following section show an actual example of using protobuf-pbop-plugin.
 
-The `greetings.proto` file defines a single service called `Greeter`. The service has two service methods: `SayHello` and `SayGoodbye`. 
+The `greetings.proto` file defines a single service called `Greeter`. The service has two service methods: `SayHello` and `SayGoodbye`. Each service method has their own "request" and "response" set of messages.
 
 
 
