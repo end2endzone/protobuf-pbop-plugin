@@ -36,7 +36,7 @@ __pragma( warning(disable: 4146))
 #include "pbop/Status.h"
 #include "pbop/Connection.h"
 
-#include "PipeMessages.pb.h"
+#include "pbop.pb.h"
 
 #ifdef _WIN32
 __pragma( warning(pop) )

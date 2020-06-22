@@ -9,12 +9,12 @@ get_property(PROTOC_LOCATION TARGET protobuf::protoc PROPERTY LOCATION)
 
 # Define the *.proto files and their outputs
 set(PROTO_FILES
-  ${LIB_PBOP_INCLUDE_DIR}/pbop/PipeMessages.proto
+  ${LIB_PBOP_INCLUDE_DIR}/pbop/pbop.proto
 )
 set(LIBPROTOBUFPBOPPLUGIN_INCLUDE_FILES
   ${LIB_PBOP_INCLUDE_DIR}/pbop/Connection.h
   ${LIB_PBOP_INCLUDE_DIR}/pbop/Events.h
-  ${LIB_PBOP_INCLUDE_DIR}/pbop/PipeMessages.proto
+  ${LIB_PBOP_INCLUDE_DIR}/pbop/pbop.proto
   ${LIB_PBOP_INCLUDE_DIR}/pbop/Server.h
   ${LIB_PBOP_INCLUDE_DIR}/pbop/Service.h
   ${LIB_PBOP_INCLUDE_DIR}/pbop/Status.h
@@ -22,8 +22,8 @@ set(LIBPROTOBUFPBOPPLUGIN_INCLUDE_FILES
 )
 
 set(PROTO_GENERATED_FILES
-  ${CMAKE_CURRENT_BINARY_DIR}/PipeMessages.pb.cc
-  ${CMAKE_CURRENT_BINARY_DIR}/PipeMessages.pb.h
+  ${CMAKE_CURRENT_BINARY_DIR}/pbop.pb.cc
+  ${CMAKE_CURRENT_BINARY_DIR}/pbop.pb.h
 )
 
 add_library(pbop
@@ -45,7 +45,7 @@ add_library(pbop
 source_group("Proto Files" FILES ${PROTO_FILES})
 source_group("Generated Files" FILES ${PROTO_GENERATED_FILES})
 
-# Execute 'PipeMessages.proto' and output to CMAKE_CURRENT_BINARY_DIR
+# Execute 'pbop.proto' and output to CMAKE_CURRENT_BINARY_DIR
 add_custom_command(
   OUTPUT ${PROTO_GENERATED_FILES}
   DEPENDS ${PROTO_FILES}
@@ -70,7 +70,7 @@ target_include_directories(pbop
   PRIVATE
     ${PROTOBUF_INCLUDE_DIRS}
     ${LIB_PBOP_INCLUDE_DIR}    # For repository's include directory
-    ${CMAKE_CURRENT_BINARY_DIR}             # For 'PipeMessages.pb.h'
+    ${CMAKE_CURRENT_BINARY_DIR}             # For 'pbop.pb.h'
 )
 target_link_libraries(pbop PRIVATE protobuf::libprotobuf )
 
@@ -82,10 +82,10 @@ if (WIN32)
   #  google/protobuf/generated_message_util.h(160): warning C4800: 'const google::protobuf::uint32' : forcing value to bool 'true' or 'false' (performance warning)
 
   message("Disabling warning C4146 and warning C4800 on Windows.")
-  set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/PipeMessages.pb.cc PROPERTIES COMPILE_FLAGS "/wd\"4146\" /wd\"4800\"")
+  set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/pbop.pb.cc PROPERTIES COMPILE_FLAGS "/wd\"4146\" /wd\"4800\"")
 endif()
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/PipeMessages.pb.h
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/pbop.pb.h
               DESTINATION ${PBOP_INSTALL_INCLUDE_DIR}/pbop)
 
 install(TARGETS pbop

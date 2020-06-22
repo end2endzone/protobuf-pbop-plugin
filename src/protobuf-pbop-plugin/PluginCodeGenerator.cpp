@@ -208,7 +208,7 @@ bool PluginCodeGenerator::GenerateSource(const google::protobuf::FileDescriptor 
   ss << "// source: " << proto_filename << "\n";
   ss << "\n";
   ss << "#include \"" << proto_filename_we << ".pbop.pb.h\"\n";
-  ss << "#include \"pbop/PipeMessages.pb.h\"\n";
+  ss << "#include \"pbop/pbop.pb.h\"\n";
   ss << "\n";
   ss << "using namespace ::pbop;\n";
   ss << "\n";
