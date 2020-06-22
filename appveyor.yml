@@ -79,5 +79,5 @@ test_script:
 #---------------------------------#
 
 artifacts:
-- path: .\build\bin\Release\protobuf-pbop-plugin.*.release.xml
+- path: .\build\bin\Release\protobuf-pbop-plugin_unittest.*.release.xml
 - path: .\build\protobuf-pbop-plugin-*-win*.*
