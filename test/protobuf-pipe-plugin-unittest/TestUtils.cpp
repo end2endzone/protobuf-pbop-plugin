@@ -32,11 +32,11 @@
 
 #include <algorithm>
 
-static const char * PROTOBUF_PIPE_PLUGIN_NAME = "protobuf-pipe-plugin";
+static const char * PROTOBUF_PBOP_PLUGIN_NAME = "protobuf-pbop-plugin";
 
 std::string GetPluginShortName()
 {
-  return "pipe";
+  return "pbop";
 }
 
 std::string GetPluginFileName()
@@ -51,8 +51,8 @@ std::string GetPluginFilePath()
   std::string path = ra::process::GetCurrentProcessPath();
 
   //replace test executable name by plugin executable name
-  static const std::string plugin_name = PROTOBUF_PIPE_PLUGIN_NAME;
-  static const std::string   test_name = "protobuf-pipe-plugin_unittest";
+  static const std::string plugin_name = PROTOBUF_PBOP_PLUGIN_NAME;
+  static const std::string   test_name = "protobuf-pbop-plugin_unittest";
   ra::strings::Replace(path, test_name, plugin_name);
 
   return path;

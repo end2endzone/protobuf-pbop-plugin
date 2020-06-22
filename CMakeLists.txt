@@ -1,6 +1,6 @@
 # CMakeLists.txt
 cmake_minimum_required(VERSION 3.4.3 FATAL_ERROR)
-project(protobuf-pipe-plugin)
+project(protobuf-pbop-plugin)
 
 ##############################################################################################################################################
 # Standard CMake variables
@@ -49,44 +49,44 @@ MESSAGE( STATUS "CMAKE_SYSTEM_PROCESSOR:   " ${CMAKE_SYSTEM_PROCESSOR} )
 ##############################################################################################################################################
 
 # Product version according to Semantic Versioning v2.0.0 https://semver.org/
-SET(PROTOBUFPIPEPLUGIN_VERSION_MAJOR 0)
-SET(PROTOBUFPIPEPLUGIN_VERSION_MINOR 1)
-SET(PROTOBUFPIPEPLUGIN_VERSION_PATCH 0)
-set(PROTOBUFPIPEPLUGIN_VERSION ${PROTOBUFPIPEPLUGIN_VERSION_MAJOR}.${PROTOBUFPIPEPLUGIN_VERSION_MINOR}.${PROTOBUFPIPEPLUGIN_VERSION_PATCH})
+SET(PBOP_VERSION_MAJOR 0)
+SET(PBOP_VERSION_MINOR 1)
+SET(PBOP_VERSION_PATCH 0)
+set(PBOP_VERSION ${PBOP_VERSION_MAJOR}.${PBOP_VERSION_MINOR}.${PBOP_VERSION_PATCH})
 
 # read license file
 file(READ ${CMAKE_SOURCE_DIR}/LICENSE.h LICENSE)
 
 # version.h file
-set(PROTOBUFPIPEPLUGIN_VERSION_HEADER ${CMAKE_BINARY_DIR}/include/pbop/version.h)
-message("Generating ${PROTOBUFPIPEPLUGIN_VERSION_HEADER}...")
-configure_file( ${CMAKE_SOURCE_DIR}/src/protobuf-pipe-plugin/version.h.in ${PROTOBUFPIPEPLUGIN_VERSION_HEADER} )
+set(PBOP_VERSION_HEADER ${CMAKE_BINARY_DIR}/include/pbop/version.h)
+message("Generating ${PBOP_VERSION_HEADER}...")
+configure_file( ${CMAKE_SOURCE_DIR}/src/protobuf-pbop-plugin/version.h.in ${PBOP_VERSION_HEADER} )
 
 # config.h file
-set(PROTOBUFPIPEPLUGIN_CONFIG_HEADER ${CMAKE_BINARY_DIR}/include/pbop/config.h)
-message("Generating ${PROTOBUFPIPEPLUGIN_CONFIG_HEADER}...")
+set(PBOP_CONFIG_HEADER ${CMAKE_BINARY_DIR}/include/pbop/config.h)
+message("Generating ${PBOP_CONFIG_HEADER}...")
 if (BUILD_SHARED_LIBS)
-  set(PROTOBUFPIPEPLUGIN_BUILD_TYPE_CPP_DEFINE "#define PROTOBUFPIPEPLUGIN_BUILT_AS_SHARED")
+  set(PBOP_BUILD_TYPE_CPP_DEFINE "#define PBOP_BUILT_AS_SHARED")
 else()
-  set(PROTOBUFPIPEPLUGIN_BUILD_TYPE_CPP_DEFINE "#define PROTOBUFPIPEPLUGIN_BUILT_AS_STATIC")
+  set(PBOP_BUILD_TYPE_CPP_DEFINE "#define PBOP_BUILT_AS_STATIC")
 endif()
-configure_file( ${CMAKE_SOURCE_DIR}/src/protobuf-pipe-plugin/config.h.in ${PROTOBUFPIPEPLUGIN_CONFIG_HEADER} )
-set(PROTOBUFPIPEPLUGIN_BUILD_TYPE_CPP_DEFINE)
+configure_file( ${CMAKE_SOURCE_DIR}/src/protobuf-pbop-plugin/config.h.in ${PBOP_CONFIG_HEADER} )
+set(PBOP_BUILD_TYPE_CPP_DEFINE)
 
 # Define installation directories
-set(PROTOBUFPIPEPLUGIN_INSTALL_BIN_DIR      "bin")
-set(PROTOBUFPIPEPLUGIN_INSTALL_LIB_DIR      "lib/protobufpipeplugin-${PROTOBUFPIPEPLUGIN_VERSION}")
-set(PROTOBUFPIPEPLUGIN_INSTALL_INCLUDE_DIR  "include/protobufpipeplugin-${PROTOBUFPIPEPLUGIN_VERSION}")
-set(PROTOBUFPIPEPLUGIN_INSTALL_CMAKE_DIR    ${PROTOBUFPIPEPLUGIN_INSTALL_LIB_DIR}) # CMake files (*.cmake) should have the same destination as the library files. Some also prefers to use "cmake".
+set(PBOP_INSTALL_BIN_DIR      "bin")
+set(PBOP_INSTALL_LIB_DIR      "lib/pbop-${PBOP_VERSION}")
+set(PBOP_INSTALL_INCLUDE_DIR  "include/pbop-${PBOP_VERSION}")
+set(PBOP_INSTALL_CMAKE_DIR    ${PBOP_INSTALL_LIB_DIR}) # CMake files (*.cmake) should have the same destination as the library files. Some also prefers to use "cmake".
 
 ##############################################################################################################################################
 # Project settings
 ##############################################################################################################################################
 
 # Build options
-option(PROTOBUFPIPEPLUGIN_BUILD_TEST "Build all protobuf-pipe-plugin's unit tests" OFF)
-option(PROTOBUFPIPEPLUGIN_BUILD_DOC "Build documentation" OFF)
-option(PROTOBUFPIPEPLUGIN_BUILD_SAMPLES "Build protobuf-pipe-plugin samples" OFF)
+option(PBOP_BUILD_TEST "Build all protobuf-pbop-plugin's unit tests" OFF)
+option(PBOP_BUILD_DOC "Build documentation" OFF)
+option(PBOP_BUILD_SAMPLES "Build protobuf-pbop-plugin samples" OFF)
 
 # Force a debug postfix if none specified.
 # This allows publishing both release and debug binaries to the same location
@@ -102,7 +102,7 @@ endif()
 
 # Define include directories for source code.
 # The specified values will not be exported.
-include_directories(${CMAKE_BINARY_DIR}/include     # for ${PROTOBUFPIPEPLUGIN_VERSION_HEADER} and ${PROTOBUFPIPEPLUGIN_CONFIG_HEADER} generated files.
+include_directories(${CMAKE_BINARY_DIR}/include     # for ${PBOP_VERSION_HEADER} and ${PBOP_CONFIG_HEADER} generated files.
 )
 
 ##############################################################################################################################################
@@ -117,18 +117,18 @@ find_package(protobuf 3.5.1 REQUIRED NO_CMAKE_SYSTEM_PATH NO_CMAKE_PATH NO_CMAKE
 ##############################################################################################################################################
 
 add_subdirectory(src/pbop)
-add_subdirectory(src/protobuf-pipe-plugin)
+add_subdirectory(src/protobuf-pbop-plugin)
 
 # unit tests
-if(PROTOBUFPIPEPLUGIN_BUILD_TEST)
-  add_subdirectory(test/protobuf-pipe-plugin-unittest)
+if(PBOP_BUILD_TEST)
+  add_subdirectory(test/protobuf-pbop-plugin-unittest)
 endif()
 
 ##############################################################################################################################################
 # Generate doxygen documentation
 # See https://vicrucann.github.io/tutorials/quick-cmake-doxygen/
 ##############################################################################################################################################
-if (PROTOBUFPIPEPLUGIN_BUILD_DOC)
+if (PBOP_BUILD_DOC)
   # check if Doxygen is installed
   find_package(Doxygen)
   if (DOXYGEN_FOUND)
@@ -141,7 +141,7 @@ if (PROTOBUFPIPEPLUGIN_BUILD_DOC)
     message("Doxygen build started")
  
     # note the option ALL which allows to build the docs together with the application
-    add_custom_target( PROTOBUFPIPEPLUGIN_doc ALL
+    add_custom_target( pbop_doc ALL
       COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       COMMENT "Generating API documentation with Doxygen"
@@ -160,31 +160,31 @@ endif()
 #   On Windows, installs to "C:\Program Files (x86)\${PROJECT_NAME}" or to "C:\Program Files\${PROJECT_NAME}" for 64 bit binaries
 
 # Target config version verification file
-configure_file(${CMAKE_SOURCE_DIR}/cmake/protobufpipeplugin-config-version.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/cmake/protobufpipeplugin-config-version.cmake @ONLY)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/protobufpipeplugin-config-version.cmake DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_CMAKE_DIR})
+configure_file(${CMAKE_SOURCE_DIR}/cmake/pbop-config-version.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/cmake/pbop-config-version.cmake @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/pbop-config-version.cmake DESTINATION ${PBOP_INSTALL_CMAKE_DIR})
 
 # Target config file
-configure_file(${CMAKE_SOURCE_DIR}/cmake/protobufpipeplugin-config.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/cmake/protobufpipeplugin-config.cmake @ONLY)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/protobufpipeplugin-config.cmake DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_CMAKE_DIR})
+configure_file(${CMAKE_SOURCE_DIR}/cmake/pbop-config.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/cmake/pbop-config.cmake @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/pbop-config.cmake DESTINATION ${PBOP_INSTALL_CMAKE_DIR})
 
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_INCLUDE_DIR})
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION ${PBOP_INSTALL_INCLUDE_DIR})
 
-install(FILES ${PROTOBUFPIPEPLUGIN_EXPORT_HEADER}
-              ${PROTOBUFPIPEPLUGIN_VERSION_HEADER}
-              ${PROTOBUFPIPEPLUGIN_CONFIG_HEADER}
-              DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_INCLUDE_DIR}/pbop)
+install(FILES ${PBOP_EXPORT_HEADER}
+              ${PBOP_VERSION_HEADER}
+              ${PBOP_CONFIG_HEADER}
+              DESTINATION ${PBOP_INSTALL_INCLUDE_DIR}/pbop)
 
-install(EXPORT protobufpipeplugin-targets DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_CMAKE_DIR})
+install(EXPORT pbop-targets DESTINATION ${PBOP_INSTALL_CMAKE_DIR})
 
 ##############################################################################################################################################
 # Packaging
 ##############################################################################################################################################
 
 set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
-set(CPACK_PACKAGE_VERSION ${PROTOBUFPIPEPLUGIN_VERSION})
-set(CPACK_PACKAGE_VERSION_MAJOR "${PROTOBUFPIPEPLUGIN_VERSION_MAJOR}")
-set(CPACK_PACKAGE_VERSION_MINOR "${PROTOBUFPIPEPLUGIN_VERSION_MINOR}")
-set(CPACK_PACKAGE_VERSION_PATCH "${PROTOBUFPIPEPLUGIN_VERSION_PATCH}")
+set(CPACK_PACKAGE_VERSION ${PBOP_VERSION})
+set(CPACK_PACKAGE_VERSION_MAJOR "${PBOP_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${PBOP_VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${PBOP_VERSION_PATCH}")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Microsoft Pipe Client/Server for Inter-process Communication (IPC) plugin for Google Protocol Buffers.")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")

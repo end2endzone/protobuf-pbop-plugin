@@ -1,1 +1,1 @@
-include("${CMAKE_CURRENT_LIST_DIR}/protobufpipeplugin-targets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/pbop-targets.cmake")

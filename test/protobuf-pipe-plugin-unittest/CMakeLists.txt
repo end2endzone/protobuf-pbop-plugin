@@ -9,10 +9,10 @@ get_filename_component(PROTOC_DIRECTORY ${PROTOC_LOCATION} DIRECTORY)
 set(PROTOBUF_LOCATOR_SOURCE ${CMAKE_CURRENT_BINARY_DIR}/protobuf_locator.cpp)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/protobuf_locator.cpp.in ${PROTOBUF_LOCATOR_SOURCE} @ONLY)
 
-add_executable(protobuf-pipe-plugin_unittest
-  ${PROTOBUFPIPEPLUGIN_EXPORT_HEADER}
-  ${PROTOBUFPIPEPLUGIN_VERSION_HEADER}
-  ${PROTOBUFPIPEPLUGIN_CONFIG_HEADER}
+add_executable(protobuf-pbop-plugin_unittest
+  ${PBOP_EXPORT_HEADER}
+  ${PBOP_VERSION_HEADER}
+  ${PBOP_CONFIG_HEADER}
   main.cpp
   ${PROTOBUF_LOCATOR_SOURCE}
   protobuf_locator.cpp.in
@@ -37,12 +37,12 @@ if(NOT WIN32)
 endif()
 
 # Force CMAKE_DEBUG_POSTFIX for executables
-set_target_properties(protobuf-pipe-plugin_unittest PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
+set_target_properties(protobuf-pbop-plugin_unittest PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 
 # Manually get the location of include directories for libprotobuf
 get_target_property(PROTOBUF_INCLUDE_DIRS protobuf::libprotobuf INTERFACE_INCLUDE_DIRECTORIES)
 
-target_include_directories(protobuf-pipe-plugin_unittest 
+target_include_directories(protobuf-pbop-plugin_unittest 
   PRIVATE 
     ${GTEST_INCLUDE_DIR}
     ${PROTOBUF_INCLUDE_DIRS}
@@ -50,11 +50,11 @@ target_include_directories(protobuf-pipe-plugin_unittest
     ${CMAKE_SOURCE_DIR}/src/pbop    # for pbop.h only
     rapidassist
 )
-add_dependencies(protobuf-pipe-plugin_unittest protobuf-pipe-plugin pbop)
-target_link_libraries(protobuf-pipe-plugin_unittest PRIVATE pbop ${PTHREAD_LIBRARIES} ${GTEST_LIBRARIES} rapidassist)
+add_dependencies(protobuf-pbop-plugin_unittest protobuf-pbop-plugin pbop)
+target_link_libraries(protobuf-pbop-plugin_unittest PRIVATE pbop ${PTHREAD_LIBRARIES} ${GTEST_LIBRARIES} rapidassist)
 
 #------------------------------------------------
-# Define a prebuild step for target 'protobuf-pipe-plugin_unittest'.
+# Define a prebuild step for target 'protobuf-pbop-plugin_unittest'.
 # Copies unit test *.proto files based on the following criteria:
 #   1) At build time, copies the input file if output does not exists.
 #   2) At build time, copies the input file if input file is modified.
@@ -90,15 +90,15 @@ foreach(output_file ${OUTPUT_PROTO_FILES})
             ${input_file}
             ${output_file}
   )
-  install(FILES ${input_file} DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_BIN_DIR})
+  install(FILES ${input_file} DESTINATION ${PBOP_INSTALL_BIN_DIR})
 endforeach()
-add_custom_target(protobuf-pipe-plugin_unittest-prebuild DEPENDS ${OUTPUT_PROTO_FILES})
-add_dependencies(protobuf-pipe-plugin_unittest protobuf-pipe-plugin_unittest-prebuild)
+add_custom_target(protobuf-pbop-plugin_unittest-prebuild DEPENDS ${OUTPUT_PROTO_FILES})
+add_dependencies(protobuf-pbop-plugin_unittest protobuf-pbop-plugin_unittest-prebuild)
 
 # Force Visual Studio to execute code in $(OutDir) when debugging from the IDE.
 # and add protoc directory to PATH environment variable
 if (WIN32)
-  file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/protobuf-pipe-plugin_unittest.vcxproj.user" 
+  file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/protobuf-pbop-plugin_unittest.vcxproj.user" 
       "<?xml version=\"1.0\" encoding=\"utf-8\"?>
       <Project ToolsVersion=\"4.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">
         <PropertyGroup>
@@ -110,9 +110,9 @@ if (WIN32)
   )
 endif()
 
-install(TARGETS protobuf-pipe-plugin_unittest
-        EXPORT protobufpipeplugin-targets
-        ARCHIVE DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_LIB_DIR}
-        LIBRARY DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_LIB_DIR}
-        RUNTIME DESTINATION ${PROTOBUFPIPEPLUGIN_INSTALL_BIN_DIR}
+install(TARGETS protobuf-pbop-plugin_unittest
+        EXPORT pbop-targets
+        ARCHIVE DESTINATION ${PBOP_INSTALL_LIB_DIR}
+        LIBRARY DESTINATION ${PBOP_INSTALL_LIB_DIR}
+        RUNTIME DESTINATION ${PBOP_INSTALL_BIN_DIR}
 )

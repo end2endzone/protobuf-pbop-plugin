@@ -4,7 +4,7 @@ The application does not provides pre-build binaries or provides an installation
 
 The following steps show how to install the application:
 
-1) Download the source code from an existing [tags](http://github.com/end2endzone/protobuf-pipe-plugin/tags) and extract the content to a local directory (for example `c:\projects\protobuf-pipe-plugin`).
+1) Download the source code from an existing [tags](http://github.com/end2endzone/protobuf-pbop-plugin/tags) and extract the content to a local directory (for example `c:\projects\protobuf-pbop-plugin`).
 
 2) Build the source code according to the [Build Steps](#build-steps) instructions specified in this document.
 
@@ -44,8 +44,8 @@ The project uses the CMake build system to generate a platform-specific build en
 To build the software, execute the following steps:
 
 1) Get a copy of the source code by using one of the following methods:
-   * Download the source code of the project from an existing [tags](http://github.com/end2endzone/protobuf-pipe-plugin) and extract the downloaded zip file to a local directory (for example `c:\projects\protobuf-pipe-plugin` or `~/dev/protobuf-pipe-plugin`).
-   * Clone the github repository by running `git clone "http://github.com/end2endzone/protobuf-pipe-plugin"`.
+   * Download the source code of the project from an existing [tags](http://github.com/end2endzone/protobuf-pbop-plugin) and extract the downloaded zip file to a local directory (for example `c:\projects\protobuf-pbop-plugin` or `~/dev/protobuf-pbop-plugin`).
+   * Clone the github repository by running `git clone "http://github.com/end2endzone/protobuf-pbop-plugin"`.
 
 2) Generate the project files for your build system. From your source code directory, enter the following commands:
 ```
@@ -116,12 +116,12 @@ With this method, users *do not* have to define environment variable such as `[N
 
 The following table shows the available build option supported:
 
-| Name                          | Type   | Default                 | Usage                                                      |
-|-------------------------------|--------|-------------------------|------------------------------------------------------------|
-| CMAKE_INSTALL_PREFIX          | STRING | See CMake documentation | Defines the installation folder of the library.            |
-| BUILD_SHARED_LIBS             | BOOL   | OFF                     | Enable/disable the generation of shared library makefiles  |
-| PROTOBUFPIPEPLUGIN_BUILD_TEST | BOOL   | OFF                     | Enable/disable the generation of unit tests target.        |
-| PROTOBUFPIPEPLUGIN_BUILD_DOC  | BOOL   | OFF                     | Enable/disable the generation of API documentation target. |
+| Name                 | Type   | Default                 | Usage                                                      |
+|----------------------|--------|-------------------------|------------------------------------------------------------|
+| CMAKE_INSTALL_PREFIX | STRING | See CMake documentation | Defines the installation folder of the library.            |
+| BUILD_SHARED_LIBS    | BOOL   | OFF                     | Enable/disable the generation of shared library makefiles  |
+| PBOP_BUILD_TEST      | BOOL   | OFF                     | Enable/disable the generation of unit tests target.        |
+| PBOP_BUILD_DOC       | BOOL   | OFF                     | Enable/disable the generation of API documentation target. |
 
 To enable a build option, run the following command at the cmake configuration time:
 ```cmake
@@ -132,7 +132,7 @@ cmake -D<BUILD-OPTION-NAME>=ON ..
 
 
 # Testing #
-protobuf-pipe-plugin comes with unit tests which help maintaining the product stability and level of quality.
+protobuf-pbop-plugin comes with unit tests which help maintaining the product stability and level of quality.
 
 Test are build using the Google Test v1.8.0 framework. For more information on how googletest is working, see the [google test documentation primer](https://github.com/google/googletest/blob/release-1.8.0/googletest/docs/V1_6_Primer.md).  
 
@@ -140,9 +140,9 @@ Test are disabled by default and must be manually enabled. See the [Build Option
 
 Test are automatically build when building the solution.
 
-To run tests, navigate to the `build/bin` folder and run `protobuf-pipe-plugin_unittest` executable. For Windows users, the executable is located in `build\bin\Release`.
+To run tests, navigate to the `build/bin` folder and run `protobuf-pbop-plugin_unittest` executable. For Windows users, the executable is located in `build\bin\Release`.
 
-Test results are saved in junit format in file `protobuf-pipe-plugin_unittest.x86.debug.xml` or `protobuf-pipe-plugin_unittest.x86.release.xml` depending on the selected configuration.
+Test results are saved in junit format in file `protobuf-pbop-plugin_unittest.x86.debug.xml` or `protobuf-pbop-plugin_unittest.x86.release.xml` depending on the selected configuration.
 
 The latest test results are available at the beginning of the [README.md](README.md) file.
 

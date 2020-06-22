@@ -1,11 +1,11 @@
-![protobuf-pipe-plugin logo](docs/protobuf-pipe-plugin-splashscreen.jpg?raw=true)
+![protobuf-pbop-plugin logo](docs/protobuf-pbop-plugin-splashscreen.jpg?raw=true)
 
 
-# protobuf-pipe-plugin #
+# protobuf-pbop-plugin #
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Github Releases](https://img.shields.io/github/release/end2endzone/protobuf-pipe-plugin.svg)](https://github.com/end2endzone/protobuf-pipe-plugin/releases)
+[![Github Releases](https://img.shields.io/github/release/end2endzone/protobuf-pbop-plugin.svg)](https://github.com/end2endzone/protobuf-pbop-plugin/releases)
 
-protobuf-pipe-plugin is a C++ open-source plugin for Google Protocol Buffers which provides inter-process communication (IPC) over Windows Named Pipes.
+protobuf-pbop-plugin is a C++ open-source plugin for Google Protocol Buffers which provides inter-process communication (IPC) over Windows Named Pipes.
 
 
 
@@ -16,12 +16,12 @@ Build:
 
 | Service | Build | Tests |
 |----|-------|-------|
-| AppVeyor | [![Build status](https://img.shields.io/appveyor/ci/end2endzone/protobuf-pipe-plugin/master.svg?logo=appveyor)](https://ci.appveyor.com/project/end2endzone/protobuf-pipe-plugin) | [![Tests status](https://img.shields.io/appveyor/tests/end2endzone/protobuf-pipe-plugin/master.svg?logo=appveyor)](https://ci.appveyor.com/project/end2endzone/protobuf-pipe-plugin/branch/master/tests) |
+| AppVeyor | [![Build status](https://img.shields.io/appveyor/ci/end2endzone/protobuf-pbop-plugin/master.svg?logo=appveyor)](https://ci.appveyor.com/project/end2endzone/protobuf-pbop-plugin) | [![Tests status](https://img.shields.io/appveyor/tests/end2endzone/protobuf-pbop-plugin/master.svg?logo=appveyor)](https://ci.appveyor.com/project/end2endzone/protobuf-pbop-plugin/branch/master/tests) |
 
 
 Statistics:
 
-[![Statistics](https://buildstats.info/appveyor/chart/end2endzone/protobuf-pipe-plugin)](https://ci.appveyor.com/project/end2endzone/protobuf-pipe-plugin/branch/master)
+[![Statistics](https://buildstats.info/appveyor/chart/end2endzone/protobuf-pbop-plugin)](https://ci.appveyor.com/project/end2endzone/protobuf-pbop-plugin/branch/master)
 
 
 
@@ -34,14 +34,14 @@ However, gRPC have limitations on Windows platform. One of them is performance w
 
 For local inter-process communication, in situations where low latency is a requirement, [Named Pipes](https://en.wikipedia.org/wiki/Named_pipe) offer a great alternative over sockets. For examples, pipes are preferable over sockets in real-time application, for services that must process multiple queries in a short period.
 
-protobuf-pipe-plugin was created for this purpose. It provides a simple solution for implementing low-latency, fast inter-process communication (IPC) solution over Named Pipes on Windows.
+protobuf-pbop-plugin was created for this purpose. It provides a simple solution for implementing low-latency, fast inter-process communication (IPC) solution over Named Pipes on Windows.
 
 
 
 
 # Features #
 
-The main features of protobuf-pipe-plugin are:
+The main features of protobuf-pbop-plugin are:
 
 * Prebuild _Windows Named Pipe_ `Client` and `Server` base classes.
 * Event based programming for the `Server` class: `Startup`, `Shutdown`, `Listening`, `Connection`, `Client-Created`, `Client-Disconnected`, `Client-Destroyed`, `Client-Error`.
@@ -49,7 +49,7 @@ The main features of protobuf-pipe-plugin are:
 * Build on top of Google's Protocol Buffers library. Get serialization performance and robustness from a tested source.  
 
 
-Note: protobuf-pipe-plugin **does not** support the following features:
+Note: protobuf-pbop-plugin **does not** support the following features:
 * Client or Server _streaming RPCs_: service methods that uses or returns a stream instead of a message.
 * Asynchronous IPC calls.
 
@@ -58,13 +58,13 @@ Note: protobuf-pipe-plugin **does not** support the following features:
 
 # Usage #
 
-The following instructions show how to use protobuf-pipe-plugin.
+The following instructions show how to use protobuf-pbop-plugin.
 
 
 
 ## About Protocol Buffers ##
 
-protobuf-pipe-plugin is a code generator plugin for [Protocol Buffers](https://developers.google.com/protocol-buffers) which is Google's library for serializing structured data. Once data is serialized, it can be transfered from a client to a server (or from a server back to a client).
+protobuf-pbop-plugin is a code generator plugin for [Protocol Buffers](https://developers.google.com/protocol-buffers) which is Google's library for serializing structured data. Once data is serialized, it can be transfered from a client to a server (or from a server back to a client).
 
 Before continuing with the plugin, a good understanding of how to use protocol buffers is required. If you are already familiar with Protocol Buffers, you can skip this section.
 
@@ -88,7 +88,7 @@ For each service, the following will be generated:
 See the example section for details.
 
 The generated code have a dependency on the following libraries:
-* protobuf-pipe-plugin
+* protobuf-pbop-plugin
 * Google's Protocol Buffers (protobuf)
 * zLib
 
@@ -124,10 +124,10 @@ where
 
 For example:
 
-`protoc.exe --protobuf-pipe-plugin_out=C:\Projets\demoplugin\output --proto_path=C:/Projets/third_parties/protobuf/install/include;C:\Projets\demoplugin\protos; C:\Projets\demoplugin\protos\demo.proto
+`protoc.exe --protobuf-pbop-plugin_out=C:\Projets\demoplugin\output --proto_path=C:/Projets/third_parties/protobuf/install/include;C:\Projets\demoplugin\protos; C:\Projets\demoplugin\protos\demo.proto
 `
 
-Note: This method is working because the plugin's filename is `protobuf-pipe-plugin.exe`.
+Note: This method is working because the plugin's filename is `protobuf-pbop-plugin.exe`.
 
 
 
@@ -149,7 +149,7 @@ where
 
 For example:
 
-`protoc.exe --plugin=protoc-gen-pipe=C:\Projets\demoplugin\bin\protobuf-pipe-plugin.exe --pipe_out=C:\Projets\demoplugin\output --proto_path=C:/Projets/third_parties/protobuf/install/include;C:\Projets\demoplugin\protos; C:\Projets\demoplugin\protos\demo.proto`
+`protoc.exe --plugin=protoc-gen-pipe=C:\Projets\demoplugin\bin\protobuf-pbop-plugin.exe --pipe_out=C:\Projets\demoplugin\output --proto_path=C:/Projets/third_parties/protobuf/install/include;C:\Projets\demoplugin\protos; C:\Projets\demoplugin\protos\demo.proto`
 
 Note: In the previous example, the identifier `pipe` is used as the plugin's short name.
 
@@ -157,7 +157,7 @@ Note: In the previous example, the identifier `pipe` is used as the plugin's sho
 
 ## Example: Greetings service ##
 
-The following section show an actual example of using protobuf-pipe-plugin.
+The following section show an actual example of using protobuf-pbop-plugin.
 
 The `greetings.proto` file defines a single service called `Greeter`. The service has two service methods: `SayHello` and `SayGoodbye`. 
 
@@ -308,7 +308,7 @@ Please refer to file [INSTALL.md](INSTALL.md) for details on how installing/buil
 
 # Platform #
 
-protobuf-pipe-plugin has been tested with the following platform:
+protobuf-pbop-plugin has been tested with the following platform:
 
 *   Windows x86/x64
 
@@ -317,7 +317,7 @@ protobuf-pipe-plugin has been tested with the following platform:
 
 # Versioning #
 
-This project use [Semantic Versioning 2.0.0](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/end2endzone/protobuf-pipe-plugin/tags).
+This project use [Semantic Versioning 2.0.0](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/end2endzone/protobuf-pbop-plugin/tags).
 
 
 
@@ -326,7 +326,7 @@ This project use [Semantic Versioning 2.0.0](http://semver.org/) for versioning.
 
 * **Antoine Beauchamp** - *Initial work* - [end2endzone](https://github.com/end2endzone)
 
-See also the list of [contributors](https://github.com/end2endzone/protobuf-pipe-plugin/blob/master/AUTHORS) who participated in this project.
+See also the list of [contributors](https://github.com/end2endzone/protobuf-pbop-plugin/blob/master/AUTHORS) who participated in this project.
 
 
 

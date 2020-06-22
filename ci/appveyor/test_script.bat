@@ -11,9 +11,9 @@ echo Testing project
 echo =======================================================================
 cd /d %APPVEYOR_BUILD_FOLDER%\build\bin\%Configuration%
 if "%Configuration%" == "Debug" (
-  protobuf-pipe-plugin_unittest-d.exe
+  protobuf-pbop-plugin_unittest-d.exe
 ) else (
-  protobuf-pipe-plugin_unittest.exe
+  protobuf-pbop-plugin_unittest.exe
 )
 
 ::reset error in case of test case fail

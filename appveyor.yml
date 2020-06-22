@@ -34,7 +34,7 @@ init:
   - ps: $env:GIT_HASH=$env:APPVEYOR_REPO_COMMIT.Substring(0, 10)
 
 # clone directory
-clone_folder: c:\projects\protobuf-pipe-plugin
+clone_folder: c:\projects\protobuf-pbop-plugin
 
 # scripts that run after cloning repository
 install:
@@ -79,5 +79,5 @@ test_script:
 #---------------------------------#
 
 artifacts:
-- path: .\build\bin\Release\protobuf-pipe-plugin.*.release.xml
-- path: .\build\protobuf-pipe-plugin-*-win*.*
+- path: .\build\bin\Release\protobuf-pbop-plugin.*.release.xml
+- path: .\build\protobuf-pbop-plugin-*-win*.*

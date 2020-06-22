@@ -21,7 +21,7 @@ echo ===========================================================================
 cd /d %APPVEYOR_BUILD_FOLDER%
 mkdir build >NUL 2>NUL
 cd build
-cmake -Wno-dev -DCMAKE_GENERATOR_PLATFORM=%Platform% -T %PlatformToolset% -DCMAKE_INSTALL_PREFIX=%INSTALL_LOCATION% -DCMAKE_PREFIX_PATH="%GTEST_ROOT%;%rapidassist_DIR%;%protobuf_DIR%;%zlib_DIR%" -DPROTOBUFPIPEPLUGIN_BUILD_TEST=ON -DBUILD_SHARED_LIBS=OFF ..
+cmake -Wno-dev -DCMAKE_GENERATOR_PLATFORM=%Platform% -T %PlatformToolset% -DCMAKE_INSTALL_PREFIX=%INSTALL_LOCATION% -DCMAKE_PREFIX_PATH="%GTEST_ROOT%;%rapidassist_DIR%;%protobuf_DIR%;%zlib_DIR%" -DPBOP_BUILD_TEST=ON -DBUILD_SHARED_LIBS=OFF ..
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 echo ============================================================================

@@ -69,7 +69,7 @@ TEST_F(TestPluginRun, testRunPluginAbsolutePath)
   ASSERT_TRUE( ra::filesystem::DirectoryExists(outdir.c_str()) );
 
   //protoc --plugin=protoc-gen-NAME=path/to/mybinary.exe --NAME_out=OUT_DIR
-  //protoc --plugin=protoc-gen-foobar=[...]\src\Debug\protobuf-pipe-plugin.exe --foobar_out=[...]\src\Debug\output --proto_path=[...]\src\Debug\proto_files [...]\src\Debug\proto_files\addressbookservice.proto
+  //protoc --plugin=protoc-gen-foobar=[...]\src\Debug\protobuf-pbop-plugin.exe --foobar_out=[...]\src\Debug\output --proto_path=[...]\src\Debug\proto_files [...]\src\Debug\proto_files\addressbookservice.proto
 
   //build
   std::string cmdline;
