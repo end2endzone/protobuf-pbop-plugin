@@ -22,12 +22,12 @@
  * SOFTWARE.
  *********************************************************************************/
 
-#ifndef LIB_PROTOBUF_PIPE_PLUGIN_TYPES
-#define LIB_PROTOBUF_PIPE_PLUGIN_TYPES
+#ifndef LIB_PBOP_TYPES
+#define LIB_PBOP_TYPES
 
 namespace pbop
 {
   typedef unsigned int connection_id_t;
 }; //namespace pbop
 
-#endif //LIB_PROTOBUF_PIPE_PLUGIN_TYPES
+#endif //LIB_PBOP_TYPES

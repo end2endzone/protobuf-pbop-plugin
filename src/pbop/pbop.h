@@ -22,8 +22,8 @@
  * SOFTWARE.
  *********************************************************************************/
 
-#ifndef LIB_PROTOBUF_PIPE_PLUGIN_FUNCTIONS
-#define LIB_PROTOBUF_PIPE_PLUGIN_FUNCTIONS
+#ifndef LIB_PBOP_FUNCTIONS
+#define LIB_PBOP_FUNCTIONS
 
 #ifdef _WIN32
 //google/protobuf/io/coded_stream.h(869): warning C4800: 'google::protobuf::internal::Atomic32' : forcing value to bool 'true' or 'false' (performance warning)
@@ -69,4 +69,4 @@ namespace pbop
 
 }; //namespace pbop
 
-#endif //LIB_PROTOBUF_PIPE_PLUGIN_FUNCTIONS
+#endif //LIB_PBOP_FUNCTIONS

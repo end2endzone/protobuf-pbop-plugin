@@ -22,8 +22,8 @@
  * SOFTWARE.
  *********************************************************************************/
 
-#ifndef LIB_PROTOBUF_PIPE_PLUGIN_STATUS
-#define LIB_PROTOBUF_PIPE_PLUGIN_STATUS
+#ifndef LIB_PBOP_STATUS
+#define LIB_PBOP_STATUS
 
 #include <string>
 
@@ -89,4 +89,4 @@ namespace pbop
 
 }; //namespace pbop
 
-#endif //LIB_PROTOBUF_PIPE_PLUGIN_STATUS
+#endif //LIB_PBOP_STATUS

@@ -22,8 +22,8 @@
  * SOFTWARE.
  *********************************************************************************/
 
-#ifndef LIB_PROTOBUF_PIPE_PLUGIN_EVENTS
-#define LIB_PROTOBUF_PIPE_PLUGIN_EVENTS
+#ifndef LIB_PBOP_EVENTS
+#define LIB_PBOP_EVENTS
 
 #include "pbop/Types.h"
 #include "pbop/Status.h"
@@ -112,4 +112,4 @@ namespace pbop
 
 }; //namespace pbop
 
-#endif //LIB_PROTOBUF_PIPE_PLUGIN_EVENTS
+#endif //LIB_PBOP_EVENTS

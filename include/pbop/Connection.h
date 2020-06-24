@@ -22,8 +22,8 @@
  * SOFTWARE.
  *********************************************************************************/
 
-#ifndef LIB_PROTOBUF_PIPE_PLUGIN_CONNECTION
-#define LIB_PROTOBUF_PIPE_PLUGIN_CONNECTION
+#ifndef LIB_PBOP_CONNECTION
+#define LIB_PBOP_CONNECTION
 
 #include "pbop/Status.h"
 
@@ -61,4 +61,4 @@ namespace pbop
 
 }; //namespace pbop
 
-#endif //LIB_PROTOBUF_PIPE_PLUGIN_CONNECTION
+#endif //LIB_PBOP_CONNECTION
