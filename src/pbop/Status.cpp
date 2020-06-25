@@ -92,7 +92,7 @@ namespace pbop
 
   bool Status::operator==(const Status & other)
   {
-    if (this == &other || this->code_ == other.code_)
+    if (this == &other || (this->code_ == other.code_ && this->message_ == other.message_))
       return true;
     return false;
   }
