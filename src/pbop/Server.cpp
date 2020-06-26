@@ -392,7 +392,7 @@ namespace pbop
 
     // Create a connection for this thread
     PipeConnection * connection = new PipeConnection();
-    connection->Assign(reinterpret_cast<size_t>(hPipe));
+    connection->Assign(hPipe);
 
     // Continue with the server for processing messages
     Server::ClientContext context;

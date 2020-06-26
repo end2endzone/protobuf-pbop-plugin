@@ -365,7 +365,8 @@ TEST_F(TestServer, testEventsConnection)
   for(size_t i=0; i<2; i++)
   {
     PipeConnection * pipe = new PipeConnection;
-    pipe->Connect(params.pipe_name.c_str());
+    Status s = pipe->Connect(params.pipe_name.c_str());
+    ASSERT_TRUE( s.Success() );
 
     //Wait for the server to process this connection
     ra::timing::Millisleep(500);

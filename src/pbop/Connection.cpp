@@ -30,15 +30,6 @@
 
 namespace pbop
 {
-  inline HANDLE & AsHandle(size_t & value)
-  {
-    size_t * value_ptr = &value;
-    HANDLE * handle_ptr = (HANDLE *)value_ptr;
-    return *handle_ptr;
-  }
-
-  static const size_t INVALID_HANDLE_VALUE_SIZE_T = reinterpret_cast<size_t>(INVALID_HANDLE_VALUE);
-
   std::string GetErrorDesription(DWORD code)
   {
     const DWORD error_buffer_size = 10240;
@@ -54,30 +45,27 @@ namespace pbop
     return error_desc;
   }
 
-  PipeConnection::PipeConnection() : pipe_handle_(INVALID_HANDLE_VALUE_SIZE_T)
+  PipeConnection::PipeConnection() : hPipe_(INVALID_HANDLE_VALUE)
   {
   }
 
   PipeConnection::~PipeConnection()
   {
-    HANDLE hPipe = AsHandle(pipe_handle_);
-    if (hPipe)
-      CloseHandle(hPipe);
-    hPipe = INVALID_HANDLE_VALUE;
+    if (hPipe_ != INVALID_HANDLE_VALUE)
+      CloseHandle(hPipe_);
+    hPipe_ = INVALID_HANDLE_VALUE;
   }
 
-  void PipeConnection::Assign(size_t pipe_handle)
+  void PipeConnection::Assign(HANDLE hPipe)
   {
-    HANDLE hPipe = AsHandle(pipe_handle_);
-
     //Close existing connection
-    if (hPipe != INVALID_HANDLE_VALUE)
+    if (hPipe_ != INVALID_HANDLE_VALUE)
     {
       CloseHandle(hPipe);
       hPipe = INVALID_HANDLE_VALUE;
     }
 
-    pipe_handle_ = pipe_handle;
+    hPipe_ = hPipe;
   }
 
   Status PipeConnection::Connect(const char * pipe_name)
@@ -133,7 +121,7 @@ namespace pbop
     }
 
     // Connection succesful
-    pipe_handle_ = reinterpret_cast<size_t>(hPipe);
+    hPipe_ = hPipe;
     name_ = pipe_name;
 
     return Status::OK;
@@ -141,13 +129,12 @@ namespace pbop
 
   Status PipeConnection::Write(const std::string & buffer)
   {
-    HANDLE hPipe = AsHandle(pipe_handle_);
-    if (hPipe == INVALID_HANDLE_VALUE)
+    if (hPipe_ == INVALID_HANDLE_VALUE)
       return Status(STATUS_CODE_PIPE_ERROR, "Pipe is invalid.");
 
     DWORD wBytesWritten = 0;
     BOOL fSuccess = WriteFile( 
-      hPipe,                  // pipe handle 
+      hPipe_,                 // pipe handle 
       buffer.data(),          // message 
       buffer.size(),          // message length 
       &wBytesWritten,         // bytes written 
@@ -166,8 +153,7 @@ namespace pbop
   {
     buffer.clear();
 
-    HANDLE hPipe = AsHandle(pipe_handle_);
-    if (hPipe == INVALID_HANDLE_VALUE)
+    if (hPipe_ == INVALID_HANDLE_VALUE)
       return Status(STATUS_CODE_PIPE_ERROR, "Pipe is invalid.");
 
     BOOL fSuccess = FALSE;
@@ -178,7 +164,7 @@ namespace pbop
       // Read from the pipe.
       DWORD wBytesReaded = 0;
       fSuccess = ReadFile( 
-          hPipe,        // pipe handle 
+          hPipe_,       // pipe handle 
           tmp,          // buffer to receive reply 
           BUFFER_SIZE,  // size of buffer 
           &wBytesReaded,// number of bytes read 

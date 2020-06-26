@@ -30,6 +30,19 @@
 #include <string>
 #include <vector>
 
+//Define `HANDLE` ourselve to prevent a dependency on <Windows.h>.
+//Using `#include <WinNT.h>` to only get the definition of `HANDLE` results in multiple errors:
+//  WinNT.h(351): error C2146: syntax error : missing ';' before identifier 'WCHAR'
+//  WinNT.h(351): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+//  WinNT.h(355): error C2143: syntax error : missing ';' before '*'
+//  WinNT.h(355): error C2040: 'PWSTR' : 'CONST' differs in levels of indirection from 'WCHAR *'
+//  WinNT.h(355): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+//  WinNT.h(357): error C2143: syntax error : missing ';' before '*'
+//  WinNT.h(357): error C2371: 'WCHAR' : redefinition; different basic types
+//Maybe because its missing include/header guards.
+typedef void *PVOID;
+typedef PVOID HANDLE;
+
 namespace pbop
 {
 
@@ -49,14 +62,27 @@ namespace pbop
     virtual Status Write(const std::string & buffer);
     virtual Status Read(std::string & buffer);
 
-    virtual void Assign(size_t pipe_handle);
+    /// <summary>
+    /// Assigns an alreay connected pipe HANDLE to this connection.
+    /// This instance takes ownership of the given HANDLE.
+    /// If an existing handle is already assigned to the connection, 
+    /// the existing connection will be closed and the new handle will be assigned to this connection.
+    /// </summary>
+    /// <param name="hPipe">An valid pipe HANDLE.</param>
+    virtual void Assign(HANDLE hPipe);
+
+    /// <summary>
+    /// Initiate a pipe connection to the given pipe name.
+    /// </summary>
+    /// <param name="name">A valid pipe name (path). On Windows, pipe names must be in the following format: \\.\pipe\[name] where [name] is an actual file.</param>
+    /// <returns>Returns a Status instance which code set to STATUS_CODE_SUCCESS when the connection is successful.</returns>
     virtual Status Connect(const char * name);
 
   private:
     PipeConnection(const PipeConnection & c);
   private:
     std::string name_;
-    size_t pipe_handle_;
+    HANDLE hPipe_;
   };
 
 }; //namespace pbop
