@@ -45,6 +45,7 @@ namespace pbop
 
     virtual void SetBufferSize(unsigned int buffer_size);
     virtual unsigned int GetBufferSize() const;
+
     virtual const char * GetPipeName() const;
 
     virtual Status Run(const char * pipe_name);
@@ -58,6 +59,7 @@ namespace pbop
   public:
 
     virtual bool IsRunning() const;
+
     virtual Status Shutdown();
 
     virtual void OnEvent(EventStartup * e) {};
@@ -80,8 +82,8 @@ namespace pbop
     bool shutdown_processed_;
   protected:
     std::vector<Service *> services_;
-    std::vector<size_t> pipe_handles_;
-    std::vector<size_t> threads_;
+    std::vector<HANDLE> pipe_handles_;
+    std::vector<HANDLE> threads_;
   };
 
 }; //namespace pbop

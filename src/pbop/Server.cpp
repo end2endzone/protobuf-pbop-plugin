@@ -223,8 +223,7 @@ namespace pbop
         thread_params->server = this;
 
         // Remember this pipe
-        const size_t tmp = reinterpret_cast<size_t>(hPipe);
-        pipe_handles_.push_back(tmp);
+        pipe_handles_.push_back(hPipe);
 
         // Create a thread for this client. 
         hThread = CreateThread( 
@@ -243,8 +242,7 @@ namespace pbop
         else
         {
           // Remember this thread
-          const size_t tmp = reinterpret_cast<size_t>(hThread);
-          threads_.push_back(tmp);
+          threads_.push_back(hThread);
         }
       } 
       else
@@ -259,8 +257,7 @@ namespace pbop
     // Close the existing one to force each thread to exit
     for(size_t i=0; i<pipe_handles_.size(); i++)
     {
-      const size_t & tmp = pipe_handles_[i];
-      const HANDLE hPipe = reinterpret_cast<HANDLE>(tmp);
+      HANDLE hPipe = pipe_handles_[i];
       CloseHandle(hPipe);
     }
 
@@ -269,8 +266,7 @@ namespace pbop
     // Wait for all the threads to complete.
     for(size_t i=0; i<threads_.size(); i++)
     {
-      const size_t & tmp = threads_[i];
-      const HANDLE hThread = reinterpret_cast<HANDLE>(tmp);
+      HANDLE hThread = threads_[i];
 
       // Wait for the theads to exit
       WaitThreadExit(hThread);
@@ -279,8 +275,7 @@ namespace pbop
     // Close each threads
     for(size_t i=0; i<threads_.size(); i++)
     {
-      const size_t & tmp = threads_[i];
-      const HANDLE hThread = reinterpret_cast<HANDLE>(tmp);
+      HANDLE hThread = threads_[i];
       CloseHandle(hThread);
     }
 
