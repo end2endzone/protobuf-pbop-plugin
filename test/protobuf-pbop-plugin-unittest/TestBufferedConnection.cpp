@@ -52,9 +52,33 @@ TEST_F(TestBufferedConnection, testReadWrite)
 
   //read data from connection 2
   std::string read_data;
-  s = conn1.Read(read_data);
+  s = conn2.Read(read_data);
   ASSERT_TRUE( s.Success() ) << s.GetMessage();
 
   //expect readed and written data to be identical.
   ASSERT_EQ(write_data, read_data);
+}
+
+TEST_F(TestBufferedConnection, testInvalidWrite)
+{
+  std::string buffer;
+
+  BufferedConnection conn(&buffer, NULL);
+
+  //write data to connection
+  const std::string data = "hello!";
+  Status s = conn.Write(data);
+  ASSERT_FALSE( s.Success() ) << s.GetMessage();
+}
+
+TEST_F(TestBufferedConnection, testInvalidRead)
+{
+  std::string buffer;
+
+  BufferedConnection conn(NULL, &buffer);
+
+  //read data to connection
+  std::string data;
+  Status s = conn.Read(data);
+  ASSERT_FALSE( s.Success() ) << s.GetMessage();
 }
