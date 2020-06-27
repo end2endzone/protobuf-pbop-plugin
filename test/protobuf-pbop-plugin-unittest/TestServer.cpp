@@ -24,6 +24,7 @@
 
 #include "TestServer.h"
 #include "pbop/Server.h"
+#include "pbop/PipeConnection.h"
 #include "rapidassist/testing.h"
 #include "rapidassist/timing.h"
 
