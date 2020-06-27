@@ -173,8 +173,6 @@ bool PluginCodeGenerator::GenerateHeader(const google::protobuf::FileDescriptor 
       ss << "    inline pbop::Status " << method_name << "(const " << method_input_name << " & request, " << method_output_name << " & response) { return pbop::Status::Factory::NotImplemented(__FUNCTION__); }\n";
     }
 
-    ss << "  //private:\n";
-    ss << "  //  std::vector<std::string> functions_;\n";
     ss << "  };\n";
     ss << "\n";
     ss << "}; //namespace " << service_name << "\n";
@@ -305,7 +303,7 @@ bool PluginCodeGenerator::GenerateSource(const google::protobuf::FileDescriptor 
     ss << "    if (!server_response.has_status())\n";
     ss << "      return Status::Factory::MissingField(__FUNCTION__, \"status\", server_response);\n";
     ss << "    \n";
-    ss << "    // Convert ServerStatus to Status\n";
+    ss << "    // Convert StatusMessage to Status\n";
     ss << "    status.SetCode( static_cast<StatusCode>(server_response.status().code()) );\n";
     ss << "    status.SetMessage(server_response.status().description());\n";
     ss << "    if (!status.Success())\n";

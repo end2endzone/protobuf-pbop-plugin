@@ -8,7 +8,7 @@ message FunctionIdentifier {
   string function_name = 3;
 }
 
-message ServerStatus {
+message StatusMessage {
   int32 code = 1;
   string description = 2;
 }
@@ -19,6 +19,6 @@ message ClientRequest {
 }
 
 message ServerResponse {
-  ServerStatus status = 1;
+  StatusMessage status = 1;
   bytes response_buffer = 2;
 }

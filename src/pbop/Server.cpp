@@ -471,12 +471,12 @@ namespace pbop
       }
 
       // Build server response for the client.
-      ServerStatus * server_status = new ServerStatus();
-      server_status->set_code(status.GetCode());
-      server_status->set_allocated_description(new std::string(status.GetMessage()));
+      StatusMessage * status_message = new StatusMessage();
+      status_message->set_code(status.GetCode());
+      status_message->set_allocated_description(new std::string(status.GetMessage()));
 
       ServerResponse server_response;
-      server_response.set_allocated_status(server_status);
+      server_response.set_allocated_status(status_message);
       server_response.set_allocated_response_buffer(function_call_result);
       
       std::string write_buffer;
