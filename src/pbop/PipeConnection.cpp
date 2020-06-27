@@ -22,7 +22,7 @@
  * SOFTWARE.
  *********************************************************************************/
 
-#include "pbop/Connection.h"
+#include "pbop/PipeConnection.h"
 
 //https://docs.microsoft.com/en-us/windows/win32/ipc/named-pipe-client
 

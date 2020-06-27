@@ -34,7 +34,7 @@ __pragma( warning(disable: 4146))
 
 #include "pbop/Server.h"
 #include "pbop/Status.h"
-#include "pbop/Connection.h"
+#include "pbop/PipeConnection.h"
 
 #include "pbop.pb.h"
 

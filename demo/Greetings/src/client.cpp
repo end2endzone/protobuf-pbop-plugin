@@ -13,6 +13,7 @@ __pragma( warning(disable: 4146))
 #include "greetings.pb.h"
 #include "greetings.pbop.pb.h"
 #include "pbop/Server.h"
+#include "pbop/PipeConnection.h"
 
 #ifdef _WIN32
 __pragma( warning(pop) )

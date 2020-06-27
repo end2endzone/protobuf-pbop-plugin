@@ -22,16 +22,12 @@
  * SOFTWARE.
  *********************************************************************************/
 
-#ifndef LIB_PBOP_SERVER
-#define LIB_PBOP_SERVER
+#ifndef LIB_PBOP_PIPE_CONNECTION
+#define LIB_PBOP_PIPE_CONNECTION
 
 #include "pbop/Status.h"
-#include "pbop/Service.h"
 #include "pbop/Connection.h"
-#include "pbop/Types.h"
-#include "pbop/Events.h"
 
-#include <string>
 #include <vector>
 
 //Define `HANDLE` ourselve to prevent a dependency on <Windows.h>.
@@ -50,55 +46,38 @@ typedef PVOID HANDLE;
 namespace pbop
 {
 
-  class Server
+  class PipeConnection : public Connection
   {
   public:
-    Server();
-    virtual ~Server();
+    PipeConnection();
+    virtual ~PipeConnection();
 
-    virtual void SetBufferSize(unsigned int buffer_size);
-    virtual unsigned int GetBufferSize() const;
+    virtual Status Write(const std::string & buffer);
+    virtual Status Read(std::string & buffer);
 
-    virtual const char * GetPipeName() const;
+    /// <summary>
+    /// Assigns an alreay connected pipe HANDLE to this connection.
+    /// This instance takes ownership of the given HANDLE.
+    /// If an existing handle is already assigned to the connection, 
+    /// the existing connection will be closed and the new handle will be assigned to this connection.
+    /// </summary>
+    /// <param name="hPipe">An valid pipe HANDLE.</param>
+    virtual void Assign(HANDLE hPipe);
 
-    virtual Status Run(const char * pipe_name);
-    virtual void RegisterService(Service * service);
-
-    // Client threads support
-    class ClientContext;
-  private:
-    friend class ClientContext;
-    virtual unsigned long ProcessIncommingMessages(ClientContext * context);
-  public:
-
-    virtual bool IsRunning() const;
-
-    virtual Status Shutdown();
-
-    virtual void OnEvent(EventStartup * e) {};
-    virtual void OnEvent(EventShutdown * e) {};
-    virtual void OnEvent(EventListening * e) {};
-    virtual void OnEvent(EventConnection * e) {};
-    virtual void OnEvent(EventClientCreate * e) {};
-    virtual void OnEvent(EventClientDestroy * e) {};
-    virtual void OnEvent(EventClientDisconnected * e) {};
-    virtual void OnEvent(EventClientError * e) {};
+    /// <summary>
+    /// Initiate a pipe connection to the given pipe name.
+    /// </summary>
+    /// <param name="name">A valid pipe name (path). On Windows, pipe names must be in the following format: \\.\pipe\[name] where [name] is an actual file.</param>
+    /// <returns>Returns a Status instance which code is set to STATUS_CODE_SUCCESS when the operation is successful.</returns>
+    virtual Status Connect(const char * name);
 
   private:
-    virtual Status DispatchMessage(const std::string & input, std::string & output);
+    PipeConnection(const PipeConnection & c);
   private:
-    std::string pipe_name_;
-    unsigned int buffer_size_;
-    connection_id_t next_connection_id_;
-    bool running_;
-    bool shutdown_request_;
-    bool shutdown_processed_;
-  protected:
-    std::vector<Service *> services_;
-    std::vector<HANDLE> pipe_handles_;
-    std::vector<HANDLE> threads_;
+    std::string name_;
+    HANDLE hPipe_;
   };
 
 }; //namespace pbop
 
-#endif //LIB_PBOP_SERVER
+#endif //LIB_PBOP_PIPE_CONNECTION

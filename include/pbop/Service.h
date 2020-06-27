@@ -60,7 +60,7 @@ namespace pbop
     /// <param name="index">The index in GetFunctionIdentifiers() of the service method to process this message.</param>
     /// <param name="name">The serialized input message for the service method.</param>
     /// <param name="name">The serialized output message of the service method.</param>
-    /// <returns>Returns a Status instance which code set to STATUS_CODE_SUCCESS when the connection is successful.</returns>
+    /// <returns>Returns a Status instance which code is set to STATUS_CODE_SUCCESS when the operation is successful.</returns>
     virtual Status DispatchMessage(const size_t & index, const std::string & input, std::string & output) = 0;
   };
 

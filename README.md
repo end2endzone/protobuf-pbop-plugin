@@ -211,6 +211,7 @@ With the following, one can create a client that creates a pipe connection to a 
 #include "greetings.pb.h"
 #include "greetings.pbop.pb.h"
 #include "pbop/Server.h"
+#include "pbop/PipeConnection.h"
 
 static const char * kPipeName = "\\\\.\\pipe\\greetings.pipe";
 
