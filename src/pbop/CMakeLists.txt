@@ -12,6 +12,7 @@ set(PROTO_FILES
   ${LIB_PBOP_INCLUDE_DIR}/pbop/pbop.proto
 )
 set(LIBPROTOBUFPBOPPLUGIN_INCLUDE_FILES
+  ${LIB_PBOP_INCLUDE_DIR}/pbop/BufferedConnection.h
   ${LIB_PBOP_INCLUDE_DIR}/pbop/Connection.h
   ${LIB_PBOP_INCLUDE_DIR}/pbop/Events.h
   ${LIB_PBOP_INCLUDE_DIR}/pbop/pbop.proto
@@ -34,6 +35,7 @@ add_library(pbop
   #${PROTO_FILES}
   ${PROTO_GENERATED_FILES}
   ${LIBPROTOBUFPBOPPLUGIN_INCLUDE_FILES}
+  BufferedConnection.cpp
   Events.cpp
   pbop.cpp
   pbop.h

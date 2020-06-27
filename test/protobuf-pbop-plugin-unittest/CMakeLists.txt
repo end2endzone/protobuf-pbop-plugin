@@ -19,6 +19,8 @@ add_executable(protobuf-pbop-plugin_unittest
   protobuf_locator.h
   TestPluginRun.cpp
   TestPluginRun.h
+  TestBufferedConnection.cpp
+  TestBufferedConnection.h
   TestPluginRun.proto
   TestProtoFunctions.cpp
   TestProtoFunctions.h

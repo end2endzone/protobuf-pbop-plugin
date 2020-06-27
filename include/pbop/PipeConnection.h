@@ -28,8 +28,6 @@
 #include "pbop/Status.h"
 #include "pbop/Connection.h"
 
-#include <vector>
-
 //Define `HANDLE` ourselve to prevent a dependency on <Windows.h>.
 //Using `#include <WinNT.h>` to only get the definition of `HANDLE` results in multiple errors:
 //  WinNT.h(351): error C2146: syntax error : missing ';' before identifier 'WCHAR'
