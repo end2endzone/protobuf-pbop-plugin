@@ -342,12 +342,14 @@ namespace pbop
     // Find the index of the target function
     static const size_t INVALID_INDEX = (size_t)-1;
     size_t index = INVALID_INDEX;
-    const std::vector<std::string> & functions = service->GetFunctionIdentifiers();
-    for(size_t i=0; i<functions.size() && index == INVALID_INDEX; i++)
+    const char ** functions = service->GetFunctionIdentifiers();
+    for(size_t i=0; functions != NULL && *functions != NULL && index == INVALID_INDEX && i<INVALID_INDEX; i++)
     {
-      const std::string & tmp_function_name = functions[i];
-      if (tmp_function_name == function_name)
+      if (function_name == *functions)
         index = i;
+
+      //search next function
+      functions++;
     }
 
     // Did we found a valid index ?

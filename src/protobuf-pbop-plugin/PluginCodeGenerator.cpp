@@ -148,9 +148,9 @@ bool PluginCodeGenerator::GenerateHeader(const google::protobuf::FileDescriptor 
     ss << "    virtual ~ServerStub();\n";
     ss << "    \n";
     ss << "    //pbop::Service definition\n";
-    ss << "    virtual const std::string & GetPackageName() const;\n";
-    ss << "    virtual const std::string & GetServiceName() const;\n";
-    ss << "    virtual const std::vector<std::string> & GetFunctionIdentifiers() const;\n";
+    ss << "    virtual const char * GetPackageName() const;\n";
+    ss << "    virtual const char * GetServiceName() const;\n";
+    ss << "    virtual const char ** GetFunctionIdentifiers() const;\n";
     ss << "    virtual pbop::Status DispatchMessage(const size_t & index, const std::string & input, std::string & output);\n";
     ss << "    \n";
     ss << "    //" << service_name << " implementation\n";
@@ -173,8 +173,8 @@ bool PluginCodeGenerator::GenerateHeader(const google::protobuf::FileDescriptor 
       ss << "    inline pbop::Status " << method_name << "(const " << method_input_name << " & request, " << method_output_name << " & response) { return pbop::Status::Factory::NotImplemented(__FUNCTION__); }\n";
     }
 
-    ss << "  private:\n";
-    ss << "    std::vector<std::string> functions_;\n";
+    ss << "  //private:\n";
+    ss << "  //  std::vector<std::string> functions_;\n";
     ss << "  };\n";
     ss << "\n";
     ss << "}; //namespace " << service_name << "\n";
@@ -322,6 +322,25 @@ bool PluginCodeGenerator::GenerateSource(const google::protobuf::FileDescriptor 
     ss << "  \n";
     ss << "  ServerStub::ServerStub()\n";
     ss << "  {\n";
+    ss << "  }\n";
+    ss << "  \n";
+    ss << "  ServerStub::~ServerStub()\n";
+    ss << "  {\n";
+    ss << "  }\n";
+    ss << "  \n";
+    ss << "  const char * ServerStub::GetPackageName() const\n";
+    ss << "  {\n";
+    ss << "    return kPackage.c_str();\n";
+    ss << "  }\n";
+    ss << "  \n";
+    ss << "  const char * ServerStub::GetServiceName() const\n";
+    ss << "  {\n";
+    ss << "    return kService.c_str();\n";
+    ss << "  }\n";
+    ss << "  \n";
+    ss << "  const char ** ServerStub::GetFunctionIdentifiers() const\n";
+    ss << "  {\n";
+    ss << "    static const char * identifiers[] = {\n";
 
     //for each methods
     for(int j=0; j<num_methods; j++)
@@ -338,28 +357,11 @@ bool PluginCodeGenerator::GenerateSource(const google::protobuf::FileDescriptor 
       const std::string method_output_fullname = method_output->full_name();
       const std::string & method_output_name = method_output->name();
 
-      ss << "    functions_.push_back(\"" << method_name << "\");\n";
+      ss << "      \"" << method_name << "\",\n";
     }
-
-    ss << "  }\n";
-    ss << "  \n";
-    ss << "  ServerStub::~ServerStub()\n";
-    ss << "  {\n";
-    ss << "  }\n";
-    ss << "  \n";
-    ss << "  const std::string & ServerStub::GetPackageName() const\n";
-    ss << "  {\n";
-    ss << "    return kPackage;\n";
-    ss << "  }\n";
-    ss << "  \n";
-    ss << "  const std::string & ServerStub::GetServiceName() const\n";
-    ss << "  {\n";
-    ss << "    return kService;\n";
-    ss << "  }\n";
-    ss << "  \n";
-    ss << "  const std::vector<std::string> & ServerStub::GetFunctionIdentifiers() const\n";
-    ss << "  {\n";
-    ss << "    return functions_;\n";
+    ss << "      NULL\n";
+    ss << "    };\n";
+    ss << "    return identifiers;\n";
     ss << "  }\n";
     ss << "  \n";
     ss << "  pbop::Status ServerStub::DispatchMessage(const size_t & index, const std::string & input, std::string & output)\n";
