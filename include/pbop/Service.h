@@ -55,13 +55,14 @@ namespace pbop
     virtual const char ** GetFunctionIdentifiers() const = 0;
 
     /// <summary>
-    /// Dispatch a serialized message to the service and wait for the output serialized message.
+    /// Invoke a function of the service and wait for the output serialized message.
+    /// The function is identified with an index based on the functions array returned by GetFunctionIdentifiers().
     /// </summary>
     /// <param name="index">The index in GetFunctionIdentifiers() of the service method to process this message.</param>
-    /// <param name="name">The serialized input message for the service method.</param>
-    /// <param name="name">The serialized output message of the service method.</param>
+    /// <param name="name">The serialized input message for the service method. The arguments of the function call.</param>
+    /// <param name="name">The serialized output message of the service method. The return type of the function call.</param>
     /// <returns>Returns a Status instance which code is set to STATUS_CODE_SUCCESS when the operation is successful.</returns>
-    virtual Status DispatchMessage(const size_t & index, const std::string & input, std::string & output) = 0;
+    virtual Status InvokeMethod(const size_t & index, const std::string & input, std::string & output) = 0;
   };
 
 }; //namespace pbop

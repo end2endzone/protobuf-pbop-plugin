@@ -64,11 +64,11 @@ namespace pbop
     virtual Status Run(const char * pipe_name);
     virtual void RegisterService(Service * service);
 
-    // Client threads support
-    class ClientContext;
+    // Threads support for client connections
+    class ClientThreadContext;
   private:
-    friend class ClientContext;
-    virtual unsigned long ProcessIncommingMessages(ClientContext * context);
+    friend class ClientThreadContext;
+    virtual unsigned long RunMessageProcessingLoop(ClientThreadContext * context);
   public:
 
     virtual bool IsRunning() const;
@@ -85,7 +85,7 @@ namespace pbop
     virtual void OnEvent(EventClientError * e) {};
 
   private:
-    virtual Status DispatchMessage(const std::string & input, std::string & output);
+    virtual Status RouteMessageToServiceMethod(const std::string & input, std::string & output);
   private:
     std::string pipe_name_;
     unsigned int buffer_size_;

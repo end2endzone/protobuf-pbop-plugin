@@ -151,7 +151,7 @@ bool PluginCodeGenerator::GenerateHeader(const google::protobuf::FileDescriptor 
     ss << "    virtual const char * GetPackageName() const;\n";
     ss << "    virtual const char * GetServiceName() const;\n";
     ss << "    virtual const char ** GetFunctionIdentifiers() const;\n";
-    ss << "    virtual pbop::Status DispatchMessage(const size_t & index, const std::string & input, std::string & output);\n";
+    ss << "    virtual pbop::Status InvokeMethod(const size_t & index, const std::string & input, std::string & output);\n";
     ss << "    \n";
     ss << "    //" << service_name << " implementation\n";
 
@@ -362,7 +362,7 @@ bool PluginCodeGenerator::GenerateSource(const google::protobuf::FileDescriptor 
     ss << "    return identifiers;\n";
     ss << "  }\n";
     ss << "  \n";
-    ss << "  pbop::Status ServerStub::DispatchMessage(const size_t & index, const std::string & input, std::string & output)\n";
+    ss << "  pbop::Status ServerStub::InvokeMethod(const size_t & index, const std::string & input, std::string & output)\n";
     ss << "  {\n";
     ss << "    switch(index)\n";
     ss << "    {\n";

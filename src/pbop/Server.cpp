@@ -44,26 +44,26 @@ __pragma( warning(pop) )
 
 #include <Windows.h>
 #undef GetMessage
-#undef DispatchMessage
+#undef RouteMessageToServiceMethod
 
 //https://docs.microsoft.com/en-us/windows/win32/ipc/multithreaded-pipe-server
 
 namespace pbop
 {
-  class Server::ClientContext
+  class Server::ClientThreadContext
   {
   public:
-    ClientContext()
+    ClientThreadContext()
     {
       connection = NULL;
       connection_id = 0;
       server = NULL;
     }
-    ~ClientContext() {}
+    ~ClientThreadContext() {}
 
     unsigned long run()
     {
-      return server->ProcessIncommingMessages(this);
+      return server->RunMessageProcessingLoop(this);
     }
 
     Connection * connection;
@@ -295,7 +295,7 @@ namespace pbop
     services_.push_back(service);
   }
 
-  Status Server::DispatchMessage(const std::string & input, std::string & output)
+  Status Server::RouteMessageToServiceMethod(const std::string & input, std::string & output)
   {
     // Process the incoming message.
     ClientRequest client_message;
@@ -367,7 +367,7 @@ namespace pbop
     }
 
     // Run the method
-    Status status = service->DispatchMessage(index, client_message.request_buffer(), output);
+    Status status = service->InvokeMethod(index, client_message.request_buffer(), output);
     return status;
   }
 
@@ -392,7 +392,7 @@ namespace pbop
     connection->Assign(hPipe);
 
     // Continue with the server for processing messages
-    Server::ClientContext context;
+    Server::ClientThreadContext context;
     context.server = server;
     context.connection = connection;
     context.connection_id = connection_id;
@@ -400,7 +400,7 @@ namespace pbop
     return context.run();
   }
 
-  DWORD Server::ProcessIncommingMessages(Server::ClientContext * context)
+  DWORD Server::RunMessageProcessingLoop(Server::ClientThreadContext * context)
   {
     BOOL fSuccess = FALSE;
     HANDLE hPipe = NULL;
@@ -455,7 +455,7 @@ namespace pbop
       // Parse and delegate message to a service
       // This will actually call a method of a service.
       std::string * function_call_result = new std::string();
-      status = this->DispatchMessage(read_buffer, *function_call_result);
+      status = this->RouteMessageToServiceMethod(read_buffer, *function_call_result);
       if (!status.Success())
       {
         delete function_call_result;
@@ -473,7 +473,7 @@ namespace pbop
       // Build server response for the client.
       StatusMessage * status_message = new StatusMessage();
       status_message->set_code(status.GetCode());
-      status_message->set_allocated_description(new std::string(status.GetMessage()));
+      status_message->set_description(status.GetMessage());
 
       ServerResponse server_response;
       server_response.set_allocated_status(status_message);
