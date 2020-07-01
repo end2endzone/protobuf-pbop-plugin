@@ -75,8 +75,8 @@ bool PluginCodeGenerator::GenerateHeader(const google::protobuf::FileDescriptor 
   ss << "\n";
   ss << "#include <string>\n";
   ss << "\n";
-  ss << "namespace " << file->package() << "\n";
-  ss << "{\n";
+  ss << "namespace " << file->package() << " {\n";
+
 
   //for each services
   int num_services = file->service_count();
@@ -86,11 +86,12 @@ bool PluginCodeGenerator::GenerateHeader(const google::protobuf::FileDescriptor 
     const std::string service_fullname = service->full_name();
     const std::string & service_name = service->name();
 
-    ss << "namespace " << service_name << "\n";
-    ss << "{\n";
-    ss << "  class " << service_name << "\n";
-    ss << "  {\n";
-    ss << "  public:\n";
+    ss << "  class " << service_name << " {\n";
+    ss << "    public:\n";
+    ss << "    \n";
+    ss << "    class StubInterface {\n";
+    ss << "    public:\n";
+    ss << "      virtual ~StubInterface() {}\n";
 
     //for each methods
     int num_methods = service->method_count();
@@ -108,16 +109,15 @@ bool PluginCodeGenerator::GenerateHeader(const google::protobuf::FileDescriptor 
       const std::string method_output_fullname = method_output->full_name();
       const std::string & method_output_name = method_output->name();
 
-      ss << "    virtual pbop::Status " << method_name << "(const " << method_input_name << " & request, " << method_output_name << " & response) = 0;\n";
+      ss << "      virtual pbop::Status " << method_name << "(const " << method_input_name << " & request, " << method_output_name << " & response) = 0;\n";
     }
 
-    ss << "  };\n";
+    ss << "    }; // class StubInterface\n";
     ss << "  \n";
-    ss << "  class Client : public virtual " << service_name << "\n";
-    ss << "  {\n";
-    ss << "  public:\n";
-    ss << "    Client(pbop::Connection * connection);\n";
-    ss << "    virtual ~Client();\n";
+    ss << "    class Client : public virtual StubInterface {\n";
+    ss << "    public:\n";
+    ss << "      Client(pbop::Connection * connection);\n";
+    ss << "      virtual ~Client();\n";
 
     //for each methods
     for(int j=0; j<num_methods; j++)
@@ -134,23 +134,22 @@ bool PluginCodeGenerator::GenerateHeader(const google::protobuf::FileDescriptor 
       const std::string method_output_fullname = method_output->full_name();
       const std::string & method_output_name = method_output->name();
 
-      ss << "    virtual pbop::Status " << method_name << "(const " << method_input_name << " & request, " << method_output_name << " & response);\n";
+      ss << "      virtual pbop::Status " << method_name << "(const " << method_input_name << " & request, " << method_output_name << " & response);\n";
     }
 
-    ss << "  private:\n";
-    ss << "    pbop::Status ProcessCall(const char * name, const ::google::protobuf::Message & request, ::google::protobuf::Message & response);\n";
-    ss << "    pbop::Connection * connection_;\n";
-    ss << "  };\n";
-    ss << "  \n";
-    ss << "  class ServerStub : public virtual " << service_name << ", public virtual pbop::Service\n";
-    ss << "  {\n";
-    ss << "  public:\n";
-    ss << "    ServerStub();\n";
-    ss << "    virtual ~ServerStub();\n";
-    ss << "    virtual const char * GetPackageName() const;\n";
-    ss << "    virtual const char * GetServiceName() const;\n";
-    ss << "    virtual const char ** GetFunctionIdentifiers() const;\n";
-    ss << "    virtual pbop::Status InvokeMethod(const size_t & index, const std::string & input, std::string & output);\n";
+    ss << "    private:\n";
+    ss << "      pbop::Status ProcessCall(const char * name, const ::google::protobuf::Message & request, ::google::protobuf::Message & response);\n";
+    ss << "      pbop::Connection * connection_;\n";
+    ss << "    }; // class Client\n";
+    ss << "    \n";
+    ss << "    class Service : public virtual StubInterface, public virtual pbop::Service {\n";
+    ss << "    public:\n";
+    ss << "      Service();\n";
+    ss << "      virtual ~Service();\n";
+    ss << "      virtual const char * GetPackageName() const;\n";
+    ss << "      virtual const char * GetServiceName() const;\n";
+    ss << "      virtual const char ** GetFunctionIdentifiers() const;\n";
+    ss << "      virtual pbop::Status InvokeMethod(const size_t & index, const std::string & input, std::string & output);\n";
 
     //for each methods
     for(int j=0; j<num_methods; j++)
@@ -167,12 +166,12 @@ bool PluginCodeGenerator::GenerateHeader(const google::protobuf::FileDescriptor 
       const std::string method_output_fullname = method_output->full_name();
       const std::string & method_output_name = method_output->name();
 
-      ss << "    inline pbop::Status " << method_name << "(const " << method_input_name << " & request, " << method_output_name << " & response) { return pbop::Status::Factory::NotImplemented(__FUNCTION__); }\n";
+      ss << "      inline pbop::Status " << method_name << "(const " << method_input_name << " & request, " << method_output_name << " & response) { return pbop::Status::Factory::NotImplemented(__FUNCTION__); }\n";
     }
 
-    ss << "  };\n";
-    ss << "\n";
-    ss << "}; //namespace " << service_name << "\n";
+    ss << "    };  // class Service\n";
+    ss << "  \n";
+    ss << "  }; // class " << service_name << "\n";
   }
 
   ss << "}; //namespace " << file->package() << "\n";
@@ -208,8 +207,7 @@ bool PluginCodeGenerator::GenerateSource(const google::protobuf::FileDescriptor 
   ss << "\n";
   ss << "using namespace ::pbop;\n";
   ss << "\n";
-  ss << "namespace " << file->package() << "\n";
-  ss << "{\n";
+  ss << "namespace " << file->package() << " {\n";
 
   //for each services
   int num_services = file->service_count();
@@ -219,17 +217,11 @@ bool PluginCodeGenerator::GenerateSource(const google::protobuf::FileDescriptor 
     const std::string service_fullname = service->full_name();
     const std::string & service_name = service->name();
     
-    ss << "namespace " << service_name << "\n";
-    ss << "{\n";
-    ss << "  static const std::string kPackage = \"" << file->package() << "\";\n";
-    ss << "  static const std::string kService = \"" << service_name << "\";\n";
     ss << "\n";
-    ss << "  Client::Client(Connection * connection) : connection_(connection)\n";
-    ss << "  {\n";
+    ss << "  " << service_name << "::Client::Client(Connection * connection) : connection_(connection) {\n";
     ss << "  }\n";
     ss << "  \n";
-    ss << "  Client::~Client()\n";
-    ss << "  {\n";
+    ss << "  " << service_name << "::Client::~Client() {\n";
     ss << "    if (connection_)\n";
     ss << "      delete connection_;\n";
     ss << "    connection_ = NULL;\n";
@@ -252,7 +244,7 @@ bool PluginCodeGenerator::GenerateSource(const google::protobuf::FileDescriptor 
       const std::string method_output_fullname = method_output->full_name();
       const std::string & method_output_name = method_output->name();
 
-      ss << "  Status Client::" << method_name << "(const " << method_input_name << " & request, " << method_output_name << " & response)\n";
+      ss << "  Status " << service_name << "::Client::" << method_name << "(const " << method_input_name << " & request, " << method_output_name << " & response)\n";
       ss << "  {\n";
       ss << "    Status status = ProcessCall(\"" << method_name << "\", request, response);\n";
       ss << "    return status;\n";
@@ -260,13 +252,13 @@ bool PluginCodeGenerator::GenerateSource(const google::protobuf::FileDescriptor 
       ss << "  \n";
     }
 
-    ss << "  Status Client::ProcessCall(const char * name, const ::google::protobuf::Message & request, ::google::protobuf::Message & response)\n";
+    ss << "  Status " << service_name << "::Client::ProcessCall(const char * name, const ::google::protobuf::Message & request, ::google::protobuf::Message & response)\n";
     ss << "  {\n";
     ss << "    ClientRequest client_message;\n";
     ss << "    \n";
     ss << "    //function_identifier\n";
-    ss << "    client_message.mutable_function_identifier()->set_package(kPackage.c_str());\n";
-    ss << "    client_message.mutable_function_identifier()->set_service(kService.c_str());\n";
+    ss << "    client_message.mutable_function_identifier()->set_package(\"" << file->package() << "\");\n";
+    ss << "    client_message.mutable_function_identifier()->set_service(\"" << service_name << "\");\n";
     ss << "    client_message.mutable_function_identifier()->set_function_name(name);\n";
     ss << "    \n";
     ss << "    // Serialize the request message into ClientRequest\n";
@@ -316,26 +308,21 @@ bool PluginCodeGenerator::GenerateSource(const google::protobuf::FileDescriptor 
     ss << "    return Status::OK;\n";
     ss << "  }\n";
     ss << "  \n";
-    ss << "  ServerStub::ServerStub()\n";
-    ss << "  {\n";
+    ss << "  " << service_name << "::Service::Service() {\n";
     ss << "  }\n";
     ss << "  \n";
-    ss << "  ServerStub::~ServerStub()\n";
-    ss << "  {\n";
+    ss << "  " << service_name << "::Service::~Service() {\n";
     ss << "  }\n";
     ss << "  \n";
-    ss << "  const char * ServerStub::GetPackageName() const\n";
-    ss << "  {\n";
-    ss << "    return kPackage.c_str();\n";
+    ss << "  const char * " << service_name << "::Service::GetPackageName() const {\n";
+    ss << "    return \"" << file->package() << "\";\n";
     ss << "  }\n";
     ss << "  \n";
-    ss << "  const char * ServerStub::GetServiceName() const\n";
-    ss << "  {\n";
-    ss << "    return kService.c_str();\n";
+    ss << "  const char * " << service_name << "::Service::GetServiceName() const {\n";
+    ss << "    return \"" << service_name << "\";\n";
     ss << "  }\n";
     ss << "  \n";
-    ss << "  const char ** ServerStub::GetFunctionIdentifiers() const\n";
-    ss << "  {\n";
+    ss << "  const char ** " << service_name << "::Service::GetFunctionIdentifiers() const {\n";
     ss << "    static const char * identifiers[] = {\n";
 
     //for each methods
@@ -360,8 +347,7 @@ bool PluginCodeGenerator::GenerateSource(const google::protobuf::FileDescriptor 
     ss << "    return identifiers;\n";
     ss << "  }\n";
     ss << "  \n";
-    ss << "  pbop::Status ServerStub::InvokeMethod(const size_t & index, const std::string & input, std::string & output)\n";
-    ss << "  {\n";
+    ss << "  pbop::Status " << service_name << "::Service::InvokeMethod(const size_t & index, const std::string & input, std::string & output) {\n";
     ss << "    switch(index)\n";
     ss << "    {\n";
 
@@ -405,7 +391,6 @@ bool PluginCodeGenerator::GenerateSource(const google::protobuf::FileDescriptor 
     ss << "    return Status::OK;\n";
     ss << "  }\n";
     ss << "  \n";
-    ss << "}; //namespace " << service_name << "\n";
   }
   ss << "}; //namespace " << file->package() << "\n";
 

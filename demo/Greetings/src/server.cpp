@@ -20,7 +20,7 @@ __pragma( warning(pop) )
 
 static const char * kPipeName = "\\\\.\\pipe\\greetings.pipe";
 
-class GreeterServiceImpl : public greetings::Greeter::ServerStub
+class GreeterServiceImpl : public greetings::Greeter::Service
 {
 public:
   GreeterServiceImpl() {}

@@ -80,12 +80,11 @@ Another good resource is the section [Working with Protocol Buffers](https://grp
 
 When invoked, the plugin will generate c++ code for each [service](https://developers.google.com/protocol-buffers/docs/style#services) defined in your _proto_ file.
 
-For each service, the following will be generated:
+For each service, a class matching the service name will be generated with the following :
 
-1) A unique namespace, matching the service name, will be assigned to the generated code.
-2) An interface that defines all the service methods. The name of the interface matches the name of the service in the _proto_ file.
-3) A `Client` class that implements the service interface and have all the required functionality to establish and handle a pipe connection to a `pbop::Server`.
-4) A `ServerStub` class that implements the service interface and `pbop::Service` interface. This service class can be assigned to a `pbop::Server` which listens for incoming pipe connections.
+1) An interface called `StubInterface` that defines all the service methods.
+2) A `Client` class that implements the service interface and have all the required functionality to establish and handle a pipe connection to a `pbop::Server`.
+3) A `Service` class that implements the `StubInterface` and `pbop::Service` interface. This service class can be assigned to a `pbop::Server` which listens for incoming pipe connections.
 
 See the example section for details.
 
@@ -262,7 +261,7 @@ With the following, one can create a server that listens for a connection from a
 
 static const char * kPipeName = "\\\\.\\pipe\\greetings.pipe";
 
-class GreeterServiceImpl : public greetings::Greeter::ServerStub
+class GreeterServiceImpl : public greetings::Greeter::Service
 {
 public:
   GreeterServiceImpl() {}
