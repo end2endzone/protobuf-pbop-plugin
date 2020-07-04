@@ -35,6 +35,8 @@ namespace pbop
   class Service
   {
   public:
+    virtual ~Service() {}
+
     /// <summary>
     /// Provides the package name of the service.
     /// </summary>

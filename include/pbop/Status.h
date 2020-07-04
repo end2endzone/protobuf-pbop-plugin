@@ -53,7 +53,7 @@ namespace pbop
     Status();
     Status(const Status & other);
     Status(const StatusCode & code, const std::string & message);
-    ~Status();
+    virtual ~Status();
 
     void SetCode(const StatusCode & c);
     const StatusCode & GetCode() const;

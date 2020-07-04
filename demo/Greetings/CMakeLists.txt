@@ -110,11 +110,6 @@ message("PROTOC_LOCATION=" ${PROTOC_LOCATION})
 get_property(PROTOBUF_PBOP_PLUGIN_LOCATION TARGET protobuf-pbop-plugin PROPERTY LOCATION)
 message("PROTOBUF_PBOP_PLUGIN_LOCATION=" ${PROTOBUF_PBOP_PLUGIN_LOCATION})
 
-# Define the *.proto files and their outputs
-set(PROTO_FILES
-  ${CMAKE_CURRENT_SOURCE_DIR}/greetings.proto
-)
-
 # Execute 'greetings.proto' and output to CMAKE_CURRENT_BINARY_DIR
 add_custom_command(
   OUTPUT ${PROTO_GENERATED_FILES}
