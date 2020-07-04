@@ -71,13 +71,13 @@ std::string GetErrorDesription(DWORD code)
 
 bool IsThreadAlive(HANDLE hThread)
 {
-  ////Validate if the thread handle is valid.
-  ////If the referenced thread was terminated for too long, WaitForSingleObject() always return WAIT_TIMEOUT
-  //DWORD dwThreadId = GetThreadId(hThread);
-  //DWORD dwInformation = 0;
-  //BOOL wInformationSuccess = GetHandleInformation(hThread, &dwInformation);
-  //if (wInformationSuccess != 0 && dwInformation == 0 && dwThreadId == 0)
-  //  return false;
+  //Validate if the thread handle is valid.
+  //If the referenced thread was terminated for too long, WaitForSingleObject() always return WAIT_TIMEOUT
+  DWORD dwThreadId = GetThreadId(hThread);
+  DWORD dwInformation = 0;
+  BOOL wInformationSuccess = GetHandleInformation(hThread, &dwInformation);
+  if (wInformationSuccess != 0 && dwInformation == 0 && dwThreadId == 0)
+    return false;
 
   // https://stackoverflow.com/questions/301054/how-can-i-determine-if-a-win32-thread-has-terminated
   DWORD result = WaitForSingleObject(hThread, 0);
@@ -153,7 +153,7 @@ TEST_F(TestServer, testShutdown)
     0,                  // not suspended
     &dwThreadId);       // returns thread ID
   ASSERT_FALSE(hThread == NULL);
-  //CloseHandle(hThread);
+  CloseHandle(hThread);
 
   printf("Starting server in blocking mode.\n");
   printf("Waiting for server function to return...\n");
@@ -284,7 +284,7 @@ TEST_F(TestServer, testEventsBasic)
     0,                  // not suspended
     &dwThreadId);       // returns thread ID
   ASSERT_FALSE(hThread == NULL);
-  //CloseHandle(hThread);
+  CloseHandle(hThread);
 
   // Allow time for the server to start listening for connections
   while(!server.IsRunning())
@@ -350,7 +350,7 @@ TEST_F(TestServer, testEventsConnection)
     0,                  // not suspended
     &dwThreadId);       // returns thread ID
   ASSERT_FALSE(hThread == NULL);
-  //CloseHandle(hThread);
+  CloseHandle(hThread);
 
   // Allow time for the server to start listening for connections
   while(!server.IsRunning())

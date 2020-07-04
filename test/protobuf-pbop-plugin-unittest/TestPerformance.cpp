@@ -180,7 +180,7 @@ TEST_F(TestPerformance, testCallPerformance)
     0,                  // not suspended
     &dwThreadId);       // returns thread ID
   ASSERT_FALSE(hThread == NULL);
-  //CloseHandle(hThread);
+  CloseHandle(hThread);
 
   // Allow time for the server to start listening for connections
   while(!server.IsRunning())
@@ -225,7 +225,7 @@ TEST_F(TestPerformance, testCallPerformance)
       0,                  // not suspended
       &dwThreadId);       // returns thread ID
     ASSERT_FALSE(hThread == NULL);
-    //CloseHandle(hThread);
+    CloseHandle(hThread);
 
     printf("Thread index=%d, handle=0x%x, id=0x%x created.\n", i, hThread, dwThreadId);
 
