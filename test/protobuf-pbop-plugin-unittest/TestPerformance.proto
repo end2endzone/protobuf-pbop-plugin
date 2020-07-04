@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package performance;
+
+message BarRequest {
+}
+
+message BarResponse {
+}
+
+service Foo {
+  rpc Bar (BarRequest) returns (BarResponse);
+}
