@@ -52,7 +52,15 @@ namespace pbop
   PipeConnection::~PipeConnection()
   {
     if (hPipe_ != INVALID_HANDLE_VALUE)
+    {
+      // Flush the pipe to allow the client to read the pipe's contents 
+      // before disconnecting. Then disconnect the pipe, and close the 
+      // handle to this pipe instance.
+      FlushFileBuffers(hPipe_); 
+      DisconnectNamedPipe(hPipe_); 
+
       CloseHandle(hPipe_);
+    }
     hPipe_ = INVALID_HANDLE_VALUE;
   }
 

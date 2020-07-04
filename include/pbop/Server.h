@@ -95,7 +95,7 @@ namespace pbop
     bool shutdown_processed_;
   protected:
     std::vector<Service *> services_;
-    std::vector<HANDLE> pipe_handles_;
+    std::vector<Connection*> connections;
     std::vector<HANDLE> threads_;
   };
 

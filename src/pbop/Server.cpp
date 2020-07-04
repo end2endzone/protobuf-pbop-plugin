@@ -78,7 +78,7 @@ namespace pbop
   {
     Server * server;
     connection_id_t connection_id;
-    HANDLE pipe;
+    Connection * connection;
   };
 
   Server::Server() : 
@@ -217,13 +217,17 @@ namespace pbop
           OnEvent(&event_connection);
         }
 
+        // Create a connection for this pipe
+        PipeConnection * connection = new PipeConnection();
+        connection->Assign(hPipe);
+
         ThreadParams * thread_params = new ThreadParams();
         thread_params->connection_id = next_connection_id_;
-        thread_params->pipe = hPipe;
+        thread_params->connection = connection;
         thread_params->server = this;
 
-        // Remember this pipe
-        pipe_handles_.push_back(hPipe);
+        // Remember this connection
+        connections.push_back(connection);
 
         // Create a thread for this client. 
         hThread = CreateThread( 
@@ -253,12 +257,12 @@ namespace pbop
     } 
 
     // At this point, the server loop is closed.
-    // There will be no new pipe_handles_.
+    // There will be no new pipes/connections.
     // Close the existing one to force each thread to exit
-    for(size_t i=0; i<pipe_handles_.size(); i++)
+    for(size_t i=0; i<connections.size(); i++)
     {
-      HANDLE hPipe = pipe_handles_[i];
-      CloseHandle(hPipe);
+      Connection * connection = connections[i];
+      delete connection;
     }
 
     // At this point, the listening threads should leave their loop
@@ -384,12 +388,8 @@ namespace pbop
     // Copy ThreadParams locally
     connection_id_t connection_id = thread_params->connection_id;
     Server * server = thread_params->server;
-    HANDLE hPipe = thread_params->pipe;
+    Connection * connection = thread_params->connection;
     delete thread_params;
-
-    // Create a connection for this thread
-    PipeConnection * connection = new PipeConnection();
-    connection->Assign(hPipe);
 
     // Continue with the server for processing messages
     Server::ClientThreadContext context;
@@ -403,7 +403,6 @@ namespace pbop
   DWORD Server::RunMessageProcessingLoop(Server::ClientThreadContext * context)
   {
     BOOL fSuccess = FALSE;
-    HANDLE hPipe = NULL;
 
     if (!shutdown_request_)
     {
@@ -508,17 +507,6 @@ namespace pbop
       }
     }
 
-    // Flush the pipe to allow the client to read the pipe's contents 
-    // before disconnecting. Then disconnect the pipe, and close the 
-    // handle to this pipe instance. 
-
-    FlushFileBuffers(hPipe); 
-    DisconnectNamedPipe(hPipe); 
-    //CloseHandle(hPipe); will be processed by PipeConnection destructor
-
-    delete context->connection;
-    context->connection = NULL;
-
     if (!shutdown_request_)
     {
       // Process events
@@ -527,7 +515,7 @@ namespace pbop
       OnEvent(&event_destroy);
     }
 
-    return 1;
+    return 0;
   }
 
   bool Server::IsRunning() const
