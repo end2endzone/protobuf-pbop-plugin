@@ -43,6 +43,8 @@ add_executable(protobuf-pbop-plugin_unittest
   TestServer.h
   TestStatus.cpp
   TestStatus.h
+  TestThread.cpp
+  TestThread.h
   TestUtils.cpp
   TestUtils.h
 )

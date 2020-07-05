@@ -20,6 +20,7 @@ set(LIBPROTOBUFPBOPPLUGIN_INCLUDE_FILES
   ${LIB_PBOP_INCLUDE_DIR}/pbop/Server.h
   ${LIB_PBOP_INCLUDE_DIR}/pbop/Service.h
   ${LIB_PBOP_INCLUDE_DIR}/pbop/Status.h
+  ${LIB_PBOP_INCLUDE_DIR}/pbop/Thread.h
   ${LIB_PBOP_INCLUDE_DIR}/pbop/Types.h
 )
 
