@@ -23,15 +23,17 @@
  *********************************************************************************/
 
 #include "TestServer.h"
+
+#include <Windows.h>
+#undef GetMessage
+
 #include "pbop/Server.h"
 #include "pbop/PipeConnection.h"
+#include "pbop/Thread.h"
 #include "rapidassist/testing.h"
 #include "rapidassist/timing.h"
 
 #include <time.h>       /* clock_t, clock, CLOCKS_PER_SEC */
-
-#include <Windows.h>
-#undef GetMessage
 
 using namespace pbop;
 
@@ -54,136 +56,50 @@ void TestServer::TearDown()
 {
 }
 
-std::string GetErrorDesription(DWORD code)
+class TestShutdown
 {
-  const DWORD error_buffer_size = 10240;
-  char error_buffer[error_buffer_size] = { 0 };
-  ::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
-    NULL,
-    code,
-    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-    error_buffer,
-    error_buffer_size - 1,
-    NULL);
-  std::string error_desc = error_buffer;
-  return error_desc;
-}
+public:
+  Server server;
 
-bool IsThreadAlive(HANDLE hThread)
-{
-  //Validate if the thread handle is valid.
-  //If the referenced thread was terminated for too long, WaitForSingleObject() always return WAIT_TIMEOUT
-  DWORD dwThreadId = GetThreadId(hThread);
-  DWORD dwInformation = 0;
-  BOOL wInformationSuccess = GetHandleInformation(hThread, &dwInformation);
-  if (wInformationSuccess != 0 && dwInformation == 0 && dwThreadId == 0)
-    return false;
+  TestShutdown() {}
+  ~TestShutdown() {}
 
-  // https://stackoverflow.com/questions/301054/how-can-i-determine-if-a-win32-thread-has-terminated
-  DWORD result = WaitForSingleObject(hThread, 0);
-  DWORD dwLastError = 0;
-  std::string desc;
-  switch(result)
+  DWORD Run()
   {
-  case WAIT_OBJECT_0:
-    // the thread handle is signaled - the thread has terminated
-    return false;
-  case WAIT_TIMEOUT:
-    // the thread handle is not signaled - the thread is still alive
-    return true;
-  case WAIT_FAILED:
-    dwLastError = GetLastError();
-    if (dwLastError == ERROR_INVALID_HANDLE)
+    // Allow time for the server to start listening for connections
+    while(!server.IsRunning())
     {
-      // the handle is no longer associated with a thread - the thread has terminated
-      return false;
+      ra::timing::Millisleep(500);
     }
-    else
-      return true;
-  default:
-    return false;
-  };
-}
-
-void WaitThreadExit(HANDLE hThread)
-{
-  bool alive = IsThreadAlive(hThread);
-  while(alive)
-  {
-    // Wait a little more
-    Sleep(100);
-
-    // And check again
-    alive = IsThreadAlive(hThread);
-  }
-}
-
-DWORD WINAPI TestShutdownThread(LPVOID lpvParam)
-{
-  // Read the thread's parameters
-  Server * server = static_cast<Server*>(lpvParam);
-
-  // Allow time for the server to start listening for connections
-  while(!server->IsRunning())
-  {
     ra::timing::Millisleep(500);
+
+    // Initiate shutdown process
+    server.Shutdown();
+
+    return 0;
   }
-  ra::timing::Millisleep(500);
-
-  // Initiate shutdown process
-  server->Shutdown();
-
-  return 1;
-}
+};
 
 TEST_F(TestServer, testShutdown)
 {
   std::string pipe_name = GetPipeNameFromTestName();
 
-  Server server;
+  TestShutdown object;
 
-  // Create a thread that will shutdown this server.
-  HANDLE hThread = NULL;
-  DWORD  dwThreadId = 0;
-  hThread = CreateThread(
-    NULL,               // no security attribute
-    0,                  // default stack size
-    TestShutdownThread, // thread proc
-    &server,            // thread parameter
-    0,                  // not suspended
-    &dwThreadId);       // returns thread ID
-  ASSERT_FALSE(hThread == NULL);
-  CloseHandle(hThread);
+  Thread<TestShutdown> thread(&object, &TestShutdown::Run);
+
+  // Start the thread
+  ASSERT_TRUE( thread.Start() );
 
   printf("Starting server in blocking mode.\n");
   printf("Waiting for server function to return...\n");
-  Status status = server.Run(pipe_name.c_str());
+  Status status = object.server.Run(pipe_name.c_str());
   printf("Server returned. Test is successful\n");
 
   // Wait for the shutdown thread to complete
-  WaitThreadExit(hThread);
+  thread.Join();
 
   int a = 0;
-}
-
-struct ServerThreadProcParams
-{
-  Server * server;
-  std::string pipe_name;
-};
-
-DWORD WINAPI ServerThreadProc(LPVOID lpvParam)
-{
-  // Read the thread's parameters
-  ServerThreadProcParams * params = static_cast<ServerThreadProcParams*>(lpvParam);
-  Server * server = params->server;
-  std::string pipe_name = params->pipe_name;
-
-  printf("Starting server in blocking mode.\n");
-  Status status = server->Run(pipe_name.c_str());
-  printf("Server returned.\n");
-
-  return 1;
 }
 
 class MyEventLoggingServer : public Server
@@ -265,62 +181,90 @@ public:
   }
 };
 
+class TestEventsBasic
+{
+public:
+  MyEventLoggingServer server;
+  std::string pipe_name;
+
+  TestEventsBasic() {}
+  ~TestEventsBasic() {}
+
+  DWORD Run()
+  {
+    printf("Starting server in blocking mode.\n");
+    Status status = server.Run(pipe_name.c_str());
+    printf("Server returned.\n");
+
+    return 0;
+  }
+};
+
 TEST_F(TestServer, testEventsBasic)
 {
-  MyEventLoggingServer server;
+  TestEventsBasic object;
 
-  ServerThreadProcParams params;
-  params.server = &server;
-  params.pipe_name = GetPipeNameFromTestName();
+  object.pipe_name = GetPipeNameFromTestName();
 
-  // Create a thread that will shutdown this server.
-  HANDLE hThread = NULL;
-  DWORD  dwThreadId = 0;
-  hThread = CreateThread(
-    NULL,               // no security attribute
-    0,                  // default stack size
-    ServerThreadProc,   // thread proc
-    &params,            // thread parameter
-    0,                  // not suspended
-    &dwThreadId);       // returns thread ID
-  ASSERT_FALSE(hThread == NULL);
-  CloseHandle(hThread);
+  Thread<TestEventsBasic> thread(&object, &TestEventsBasic::Run);
+
+  // Start the thread
+  ASSERT_TRUE( thread.Start() );
 
   // Allow time for the server to start listening for connections
-  while(!server.IsRunning())
+  while(!object.server.IsRunning())
   {
     ra::timing::Millisleep(100);
   }
   ra::timing::Millisleep(100);
 
   // Initiate shutdown process
-  server.Shutdown();
-
-  ASSERT_EQ(1, server.num_EventStartup           ); 
-  ASSERT_EQ(1, server.num_EventShutdown          ); 
-  ASSERT_EQ(1, server.num_EventListening         ); 
-  ASSERT_EQ(0, server.num_EventConnection        ); 
-  ASSERT_EQ(0, server.num_EventClientCreate      ); 
-  ASSERT_EQ(0, server.num_EventClientDisconnected); 
-  ASSERT_EQ(0, server.num_EventClientDestroy     ); 
-  ASSERT_EQ(0, server.num_EventClientError       ); 
+  object.server.Shutdown();
 
   // Wait for the shutdown thread to complete
-  WaitThreadExit(hThread);
+  thread.Join();
 
-  server.PrintCounts();
-  server.PrintCallLogs();
+  object.server.PrintCounts();
+  object.server.PrintCallLogs();
+
+  ASSERT_EQ(1, object.server.num_EventStartup           ); 
+  ASSERT_EQ(1, object.server.num_EventShutdown          ); 
+  ASSERT_EQ(1, object.server.num_EventListening         ); 
+  ASSERT_EQ(0, object.server.num_EventConnection        ); 
+  ASSERT_EQ(0, object.server.num_EventClientCreate      ); 
+  ASSERT_EQ(0, object.server.num_EventClientDisconnected); 
+  ASSERT_EQ(0, object.server.num_EventClientDestroy     ); 
+  ASSERT_EQ(0, object.server.num_EventClientError       ); 
 
   int a = 0;
 }
 
+class TestEventsConnection
+{
+public:
+  MyEventLoggingServer server;
+  std::string pipe_name;
+
+  TestEventsConnection() {}
+  ~TestEventsConnection() {}
+
+  DWORD Run()
+  {
+    printf("Starting server in blocking mode.\n");
+    Status status = server.Run(pipe_name.c_str());
+    printf("Server returned.\n");
+
+    return 0;
+  }
+};
+
 TEST_F(TestServer, testEventsConnection)
 {
-  MyEventLoggingServer server;
+  TestEventsConnection object;
 
-  ServerThreadProcParams params;
-  params.server = &server;
-  params.pipe_name = GetPipeNameFromTestName();
+  object.pipe_name = GetPipeNameFromTestName();
+
+  Thread<TestEventsConnection> thread(&object, &TestEventsConnection::Run);
 
   int expected_EventStartup            = 0;
   int expected_EventShutdown           = 0;
@@ -330,30 +274,20 @@ TEST_F(TestServer, testEventsConnection)
   int expected_EventClientDisconnected = 0;
   int expected_EventClientDestroy      = 0;
   int expected_EventClientError        = 0;
-  ASSERT_EQ(expected_EventStartup           , server.num_EventStartup           );
-  ASSERT_EQ(expected_EventShutdown          , server.num_EventShutdown          );
-  ASSERT_EQ(expected_EventListening         , server.num_EventListening         );
-  ASSERT_EQ(expected_EventConnection        , server.num_EventConnection        );
-  ASSERT_EQ(expected_EventClientCreate      , server.num_EventClientCreate      );
-  ASSERT_EQ(expected_EventClientDisconnected, server.num_EventClientDisconnected);
-  ASSERT_EQ(expected_EventClientDestroy     , server.num_EventClientDestroy     );
-  ASSERT_EQ(expected_EventClientError       , server.num_EventClientError       );
+  ASSERT_EQ(expected_EventStartup           , object.server.num_EventStartup           );
+  ASSERT_EQ(expected_EventShutdown          , object.server.num_EventShutdown          );
+  ASSERT_EQ(expected_EventListening         , object.server.num_EventListening         );
+  ASSERT_EQ(expected_EventConnection        , object.server.num_EventConnection        );
+  ASSERT_EQ(expected_EventClientCreate      , object.server.num_EventClientCreate      );
+  ASSERT_EQ(expected_EventClientDisconnected, object.server.num_EventClientDisconnected);
+  ASSERT_EQ(expected_EventClientDestroy     , object.server.num_EventClientDestroy     );
+  ASSERT_EQ(expected_EventClientError       , object.server.num_EventClientError       );
 
-  // Create a thread that will shutdown this server.
-  HANDLE hThread = NULL;
-  DWORD  dwThreadId = 0;
-  hThread = CreateThread(
-    NULL,               // no security attribute
-    0,                  // default stack size
-    ServerThreadProc,   // thread proc
-    &params,            // thread parameter
-    0,                  // not suspended
-    &dwThreadId);       // returns thread ID
-  ASSERT_FALSE(hThread == NULL);
-  CloseHandle(hThread);
+  // Start the thread
+  ASSERT_TRUE( thread.Start() );
 
   // Allow time for the server to start listening for connections
-  while(!server.IsRunning())
+  while(!object.server.IsRunning())
   {
     ra::timing::Millisleep(100);
   }
@@ -362,20 +296,20 @@ TEST_F(TestServer, testEventsConnection)
   // At this point, the server should be started and listening
   expected_EventStartup++;
   expected_EventListening++;
-  ASSERT_EQ(expected_EventStartup           , server.num_EventStartup           );
-  ASSERT_EQ(expected_EventShutdown          , server.num_EventShutdown          );
-  ASSERT_EQ(expected_EventListening         , server.num_EventListening         );
-  ASSERT_EQ(expected_EventConnection        , server.num_EventConnection        );
-  ASSERT_EQ(expected_EventClientCreate      , server.num_EventClientCreate      );
-  ASSERT_EQ(expected_EventClientDisconnected, server.num_EventClientDisconnected);
-  ASSERT_EQ(expected_EventClientDestroy     , server.num_EventClientDestroy     );
-  ASSERT_EQ(expected_EventClientError       , server.num_EventClientError       );
+  ASSERT_EQ(expected_EventStartup           , object.server.num_EventStartup           );
+  ASSERT_EQ(expected_EventShutdown          , object.server.num_EventShutdown          );
+  ASSERT_EQ(expected_EventListening         , object.server.num_EventListening         );
+  ASSERT_EQ(expected_EventConnection        , object.server.num_EventConnection        );
+  ASSERT_EQ(expected_EventClientCreate      , object.server.num_EventClientCreate      );
+  ASSERT_EQ(expected_EventClientDisconnected, object.server.num_EventClientDisconnected);
+  ASSERT_EQ(expected_EventClientDestroy     , object.server.num_EventClientDestroy     );
+  ASSERT_EQ(expected_EventClientError       , object.server.num_EventClientError       );
 
   // Run 2 connection loops
   for(size_t i=0; i<2; i++)
   {
     PipeConnection * pipe = new PipeConnection;
-    Status s = pipe->Connect(params.pipe_name.c_str());
+    Status s = pipe->Connect(object.pipe_name.c_str());
     ASSERT_TRUE( s.Success() ) << s.GetMessage();
 
     //Wait for the server to process this connection
@@ -386,14 +320,14 @@ TEST_F(TestServer, testEventsConnection)
     expected_EventConnection++;
     expected_EventClientCreate++;
     expected_EventListening++;
-    ASSERT_EQ(expected_EventStartup           , server.num_EventStartup           );
-    ASSERT_EQ(expected_EventShutdown          , server.num_EventShutdown          );
-    ASSERT_EQ(expected_EventListening         , server.num_EventListening         );
-    ASSERT_EQ(expected_EventConnection        , server.num_EventConnection        );
-    ASSERT_EQ(expected_EventClientCreate      , server.num_EventClientCreate      );
-    ASSERT_EQ(expected_EventClientDisconnected, server.num_EventClientDisconnected);
-    ASSERT_EQ(expected_EventClientDestroy     , server.num_EventClientDestroy     );
-    ASSERT_EQ(expected_EventClientError       , server.num_EventClientError       );
+    ASSERT_EQ(expected_EventStartup           , object.server.num_EventStartup           );
+    ASSERT_EQ(expected_EventShutdown          , object.server.num_EventShutdown          );
+    ASSERT_EQ(expected_EventListening         , object.server.num_EventListening         );
+    ASSERT_EQ(expected_EventConnection        , object.server.num_EventConnection        );
+    ASSERT_EQ(expected_EventClientCreate      , object.server.num_EventClientCreate      );
+    ASSERT_EQ(expected_EventClientDisconnected, object.server.num_EventClientDisconnected);
+    ASSERT_EQ(expected_EventClientDestroy     , object.server.num_EventClientDestroy     );
+    ASSERT_EQ(expected_EventClientError       , object.server.num_EventClientError       );
 
     // Disconnect from the server
     delete pipe;
@@ -405,21 +339,21 @@ TEST_F(TestServer, testEventsConnection)
     // At this point, the server should have noticed the closed connection
     expected_EventClientDisconnected++;
     expected_EventClientDestroy++;
-    ASSERT_EQ(expected_EventStartup           , server.num_EventStartup           );
-    ASSERT_EQ(expected_EventShutdown          , server.num_EventShutdown          );
-    ASSERT_EQ(expected_EventListening         , server.num_EventListening         );
-    ASSERT_EQ(expected_EventConnection        , server.num_EventConnection        );
-    ASSERT_EQ(expected_EventClientCreate      , server.num_EventClientCreate      );
-    ASSERT_EQ(expected_EventClientDisconnected, server.num_EventClientDisconnected);
-    ASSERT_EQ(expected_EventClientDestroy     , server.num_EventClientDestroy     );
-    ASSERT_EQ(expected_EventClientError       , server.num_EventClientError       );
+    ASSERT_EQ(expected_EventStartup           , object.server.num_EventStartup           );
+    ASSERT_EQ(expected_EventShutdown          , object.server.num_EventShutdown          );
+    ASSERT_EQ(expected_EventListening         , object.server.num_EventListening         );
+    ASSERT_EQ(expected_EventConnection        , object.server.num_EventConnection        );
+    ASSERT_EQ(expected_EventClientCreate      , object.server.num_EventClientCreate      );
+    ASSERT_EQ(expected_EventClientDisconnected, object.server.num_EventClientDisconnected);
+    ASSERT_EQ(expected_EventClientDestroy     , object.server.num_EventClientDestroy     );
+    ASSERT_EQ(expected_EventClientError       , object.server.num_EventClientError       );
   }
 
   // Initiate shutdown process
-  server.Shutdown();
+  object.server.Shutdown();
 
   // Allow time for the server to shutdown
-  while(server.IsRunning())
+  while(object.server.IsRunning())
   {
     ra::timing::Millisleep(100);
   }
@@ -427,20 +361,20 @@ TEST_F(TestServer, testEventsConnection)
 
   // The server has shutdown
   expected_EventShutdown++;
-  ASSERT_EQ(expected_EventStartup           , server.num_EventStartup           );
-  ASSERT_EQ(expected_EventShutdown          , server.num_EventShutdown          );
-  ASSERT_EQ(expected_EventListening         , server.num_EventListening         );
-  ASSERT_EQ(expected_EventConnection        , server.num_EventConnection        );
-  ASSERT_EQ(expected_EventClientCreate      , server.num_EventClientCreate      );
-  ASSERT_EQ(expected_EventClientDisconnected, server.num_EventClientDisconnected);
-  ASSERT_EQ(expected_EventClientDestroy     , server.num_EventClientDestroy     );
-  ASSERT_EQ(expected_EventClientError       , server.num_EventClientError       );
+  ASSERT_EQ(expected_EventStartup           , object.server.num_EventStartup           );
+  ASSERT_EQ(expected_EventShutdown          , object.server.num_EventShutdown          );
+  ASSERT_EQ(expected_EventListening         , object.server.num_EventListening         );
+  ASSERT_EQ(expected_EventConnection        , object.server.num_EventConnection        );
+  ASSERT_EQ(expected_EventClientCreate      , object.server.num_EventClientCreate      );
+  ASSERT_EQ(expected_EventClientDisconnected, object.server.num_EventClientDisconnected);
+  ASSERT_EQ(expected_EventClientDestroy     , object.server.num_EventClientDestroy     );
+  ASSERT_EQ(expected_EventClientError       , object.server.num_EventClientError       );
 
   // Wait for the shutdown thread to complete
-  WaitThreadExit(hThread);
+  thread.Join();
 
-  server.PrintCounts();
-  server.PrintCallLogs();
+  object.server.PrintCounts();
+  object.server.PrintCallLogs();
 
   int a = 0;
 }

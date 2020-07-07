@@ -23,7 +23,12 @@
  *********************************************************************************/
 
 #include "TestPerformance.h"
+
+#include <Windows.h>
+#undef GetMessage
+
 #include "pbop/Server.h"
+#include "pbop/Thread.h"
 #include "pbop/PipeConnection.h"
 #include "rapidassist/testing.h"
 #include "rapidassist/timing.h"
@@ -46,9 +51,6 @@ __pragma( warning(disable: 4146))
 __pragma( warning(pop) )
 #endif //_WIN32
 
-#include <Windows.h>
-#undef GetMessage
-
 using namespace pbop;
 
 void TestPerformance::SetUp()
@@ -60,9 +62,6 @@ void TestPerformance::TearDown()
 }
 
 extern std::string GetPipeNameFromTestName();
-extern std::string GetErrorDesription(DWORD code);
-extern bool IsThreadAlive(HANDLE hThread);
-extern void WaitThreadExit(HANDLE hThread);
 
 class FooServiceImpl : public performance::Foo::Service
 {
@@ -76,160 +75,153 @@ public:
   }
 };
 
-struct PerformanceServerThreadProcParams
+class TestPerformanceServer
 {
-  Server * server;
+public:
+  Server server;
   std::string pipe_name;
+
+  TestPerformanceServer()
+  {
+  }
+
+  ~TestPerformanceServer()
+  {
+  }
+
+  DWORD Run()
+  {
+    printf("Starting server in blocking mode.\n");
+    Status status = server.Run(pipe_name.c_str());
+    printf("Server returned.\n");
+
+    return 0;
+  }
 };
 
-DWORD WINAPI PerformanceServerThreadProc(LPVOID lpvParam)
+class TestPerformanceClient
 {
-  // Read the thread's parameters
-  PerformanceServerThreadProcParams * params = static_cast<PerformanceServerThreadProcParams*>(lpvParam);
-  Server * server = params->server;
-  std::string pipe_name = params->pipe_name;
-
-  printf("Starting server in blocking mode.\n");
-  Status status = server->Run(pipe_name.c_str());
-  printf("Server returned.\n");
-
-  return 0;
-}
-
-struct PerformanceClientThreadProcParams
-{
+public:
   std::string pipe_name;
   bool * ready_flag;
   bool completed;
   double runtime_seconds;
   size_t num_calls;
-};
+  Thread<TestPerformanceClient> * thread_;
 
-DWORD WINAPI PerformanceClientThreadProc(LPVOID lpvParam)
-{
-  // Read the thread's parameters
-  PerformanceClientThreadProcParams * params = static_cast<PerformanceClientThreadProcParams*>(lpvParam);
-  params->completed = false;
-  params->runtime_seconds = 0.0;
-
-  double start_time_seconds = ra::timing::GetMillisecondsTimer();
-
-  //Create connection to the server and client
-  pbop::PipeConnection * connection = new pbop::PipeConnection();
-  pbop::Status status = connection->Connect(params->pipe_name.c_str());
-  if (!status.Success())
+  TestPerformanceClient() :
+    thread_(NULL)
   {
-    printf("Error in %s(): %d, %s\n", __FUNCTION__, status.GetCode(), status.GetMessage().c_str());
-    return status.GetCode();
+    thread_ = new Thread<TestPerformanceClient>(this, &TestPerformanceClient::Run);
+  }
+  ~TestPerformanceClient()
+  {
+    delete thread_;
   }
 
-  performance::Foo::Client client(connection);
-
-  performance::BarRequest request;
-  performance::BarResponse response;
-
-  //Wait for the start signal
-  while(!params->ready_flag)
+  DWORD Run()
   {
-    ra::timing::Millisleep(0);
-  }
+    completed = false;
+    runtime_seconds = 0.0;
 
-  //execute num_calls
-  for(size_t i=0; i<params->num_calls; i++)
-  {
-    status = client.Bar(request, response);
+    double start_time_seconds = ra::timing::GetMillisecondsTimer();
+
+    //Create connection to the server and client
+    pbop::PipeConnection * connection = new pbop::PipeConnection();
+    pbop::Status status = connection->Connect(pipe_name.c_str());
     if (!status.Success())
     {
       printf("Error in %s(): %d, %s\n", __FUNCTION__, status.GetCode(), status.GetMessage().c_str());
       return status.GetCode();
     }
+
+    performance::Foo::Client client(connection);
+
+    performance::BarRequest request;
+    performance::BarResponse response;
+
+    //Wait for the start signal
+    while(!ready_flag)
+    {
+      ra::timing::Millisleep(0);
+    }
+
+    //execute num_calls
+    for(size_t i=0; i<num_calls; i++)
+    {
+      status = client.Bar(request, response);
+      if (!status.Success())
+      {
+        printf("Error in %s(): %d, %s\n", __FUNCTION__, status.GetCode(), status.GetMessage().c_str());
+        return status.GetCode();
+      }
+    }
+
+    //compute elapsed time
+    double end_time_seconds = ra::timing::GetMillisecondsTimer();
+    double elapsed_time_seconds = end_time_seconds - start_time_seconds;
+    runtime_seconds = elapsed_time_seconds;
+
+    //notify the execution is complete
+    completed = true;
+
+    return 0;
   }
-
-  //compute elapsed time
-  double end_time_seconds = ra::timing::GetMillisecondsTimer();
-  double elapsed_time_seconds = end_time_seconds - start_time_seconds;
-  params->runtime_seconds = elapsed_time_seconds;
-
-  //notify the execution is complete
-  params->completed = true;
-
-  return 0;
-}
+};
 
 TEST_F(TestPerformance, testCallPerformance)
 {
-  pbop::Server server;
+  TestPerformanceServer object;
 
   //assign the foo service implementation to the server
   FooServiceImpl * impl = new FooServiceImpl();
   ASSERT_TRUE(impl != NULL);
-  server.RegisterService(impl);
+  object.server.RegisterService(impl);
 
-  PerformanceServerThreadProcParams params;
-  params.server = &server;
-  params.pipe_name = GetPipeNameFromTestName();
+  object.pipe_name = GetPipeNameFromTestName();
 
-  // Create a thread that will run this server.
-  HANDLE hThread = NULL;
-  DWORD  dwThreadId = 0;
-  hThread = CreateThread(
-    NULL,               // no security attribute
-    0,                  // default stack size
-    PerformanceServerThreadProc,   // thread proc
-    &params,            // thread parameter
-    0,                  // not suspended
-    &dwThreadId);       // returns thread ID
-  ASSERT_FALSE(hThread == NULL);
-  CloseHandle(hThread);
+  Thread<TestPerformanceServer> thread(&object, &TestPerformanceServer::Run);
+
+  // Start the thread
+  ASSERT_TRUE( thread.Start() );
 
   // Allow time for the server to start listening for connections
-  while(!server.IsRunning())
+  while(!object.server.IsRunning())
   {
     ra::timing::Millisleep(100);
   }
   ra::timing::Millisleep(100);
 
-  //Define a start signal for the threads to start calling the server.
+  //Define a start signal for the client threads to start calling the server.
   bool ready_flag = false;
 
-  //Create 8 threads
+  //Create many threads
   static const size_t num_clients = 4;
   static const size_t num_calls = 10000;
-  std::vector<PerformanceClientThreadProcParams> client_params;
+  std::vector<TestPerformanceClient> clients;
   for(size_t i=0; i<num_clients; i++)
   {
-    PerformanceClientThreadProcParams params;
-    params.pipe_name = GetPipeNameFromTestName();
-    params.ready_flag = &ready_flag;
-    params.completed = false;
-    params.runtime_seconds = 0.0;
-    params.num_calls = num_calls;
-    client_params.push_back(params);
+    TestPerformanceClient performance_client;
+    performance_client.pipe_name = GetPipeNameFromTestName();
+    performance_client.ready_flag = &ready_flag;
+    performance_client.completed = false;
+    performance_client.runtime_seconds = 0.0;
+    performance_client.num_calls = num_calls;
+    clients.push_back(performance_client);
   }
 
   //Start the threads
   printf("Creating %d threads.\n", num_clients);
-  std::vector<HANDLE> client_threads;
   for(size_t i=0; i<num_clients; i++)
   {
-    PerformanceClientThreadProcParams & params = client_params[i];
+    TestPerformanceClient & performance_client = clients[i];
 
-    // Create a client thread that will run this server.
-    HANDLE hThread = NULL;
-    DWORD  dwThreadId = 0;
-    hThread = CreateThread(
-      NULL,               // no security attribute
-      0,                  // default stack size
-      PerformanceClientThreadProc,   // thread proc
-      &params,            // thread parameter
-      0,                  // not suspended
-      &dwThreadId);       // returns thread ID
-    ASSERT_FALSE(hThread == NULL);
-    CloseHandle(hThread);
+    bool started = performance_client.thread_->Start();
+    ASSERT_TRUE( started );
 
+    HANDLE hThread = performance_client.thread_->GetHandle();
+    DWORD dwThreadId = performance_client.thread_->GetId();
     printf("Thread index=%d, handle=0x%x, id=0x%x created.\n", i, hThread, dwThreadId);
-
-    client_threads.push_back(hThread);
   }
 
   // Initiate all threads to start calling the server
@@ -240,9 +232,9 @@ TEST_F(TestPerformance, testCallPerformance)
   printf("Waiting for all threads to complete.\n");
   for(size_t i=0; i<num_clients; i++)
   {
-    PerformanceClientThreadProcParams & params = client_params[i];
+    TestPerformanceClient & performance_client = clients[i];
 
-    while(!params.completed)
+    while(!performance_client.completed)
     {
       ra::timing::Millisleep(100);
     }
@@ -252,29 +244,28 @@ TEST_F(TestPerformance, testCallPerformance)
   printf("Waiting for all threads to exit.\n");
   for(size_t i=0; i<num_clients; i++)
   {
-    HANDLE hThread = client_threads[i];
-    WaitThreadExit(hThread);
+    TestPerformanceClient & performance_client = clients[i];
+    performance_client.thread_->Join();
   }
 
   // Ready to shutdown the server
   printf("Shutting down server.\n");
-  Status s = server.Shutdown();
+  Status s = object.server.Shutdown();
   ASSERT_TRUE( s.Success() ) << s.GetMessage();
 
   // Wait for the shutdown thread to complete
-  printf("Waiting for server to exit.\n");
-  WaitThreadExit(hThread);
+  thread.Join();
 
   // Print performance of each threads
   for(size_t i=0; i<num_clients; i++)
   {
-    PerformanceClientThreadProcParams & params = client_params[i];
+    TestPerformanceClient & performance_client = clients[i];
 
-    double calls_per_seconds = double(num_calls) / params.runtime_seconds;
+    double calls_per_seconds = double(num_calls) / performance_client.runtime_seconds;
     double seconds_per_call = 1.0 / calls_per_seconds;
     double ms_per_call = seconds_per_call * 1000.0;
     double us_per_call = ms_per_call * 1000.0;
 
-    printf("Thread %02d made %d calls in %f seconds. In average, that makes %.1f calls/second or %.1f microseconds for each call\n", i, num_calls, params.runtime_seconds, calls_per_seconds, us_per_call);
+    printf("Thread %02d made %d calls in %f seconds. In average, that makes %.1f calls/second or %.1f microseconds for each call\n", i, num_calls, performance_client.runtime_seconds, calls_per_seconds, us_per_call);
   }
 }
