@@ -25,7 +25,7 @@
 #ifndef LIB_PBOP_SERVICE
 #define LIB_PBOP_SERVICE
 
-#include "Status.h"
+#include "pbop/Status.h"
 
 #include <string>
 
