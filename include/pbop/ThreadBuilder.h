@@ -49,8 +49,8 @@ namespace pbop
     ///<summary>Thread id of the thread. The value 0 means invalid.</summary>
     DWORD dwThreadID_;
 
-    ///<summary>Mutex to signal an interrupt via ReleaseSemaphore().</summary>
-    HANDLE hInterrupt_;
+    ///<summary>An interrupt request flag .</summary>
+    volatile bool bInterrupt_;
 
     ///<summary>Force that only one thread allowed to call start() mutex.</summary>
     HANDLE hSingleStart_;
@@ -91,7 +91,7 @@ namespace pbop
       this->object_        = object;
       this->lpMethod_      = lpMethod;
       this->dwThreadID_    = 0;
-      this->hInterrupt_    = CreateSemaphore(NULL, 1, 1, NULL);
+      this->bInterrupt_    = false;
       this->hSingleStart_  = CreateMutex(NULL, FALSE, NULL);
     }
 
@@ -99,8 +99,6 @@ namespace pbop
     {
       Join();
 
-      if (hInterrupt_)
-        CloseHandle(hInterrupt_);
       if (hSingleStart_)
         CloseHandle(hSingleStart_);
       if (hThread_)
@@ -157,8 +155,8 @@ namespace pbop
         dwThreadID_ = 0;
       }
 
-      // Set or reset the 'not interrupted' semaphore state
-      WaitForSingleObject(hInterrupt_, 0);
+      // Set or reset the 'not interrupted' state
+      bInterrupt_ = false;
 
       hThread_ = CreateThread(
         NULL,
@@ -183,33 +181,14 @@ namespace pbop
       WaitForSingleObject(hThread_, INFINITE);
     }
 
-    inline Status SetInterrupt()
+    inline void SetInterrupt()
     {
-      if (hInterrupt_ == NULL)
-        return Status(STATUS_CODE_CANCELLED, "SetInterrupt failed. Interrupt lock invalid");
-
-      if (ReleaseSemaphore(hInterrupt_, 1, NULL) == FALSE)
-      {
-        std::string error_description = std::string("SetInterrupt failed: ") + GetErrorDesription(GetLastError());
-        return Status(STATUS_CODE_CANCELLED, error_description);
-      }
-      else
-        return Status::OK;
+      bInterrupt_ = true;
     }
 
     inline bool IsInterrupted() const
     {
-      return this->IsInterrupted(0);
-    }
-
-    inline bool IsInterrupted(DWORD delay) const
-    {
-      if (WaitForSingleObject(hInterrupt_, delay) == WAIT_TIMEOUT)
-      {
-        return false;
-      }
-      ReleaseSemaphore(hInterrupt_, 1, NULL);  // keep interrupted state
-      return true;
+      return bInterrupt_;
     }
 
     inline bool IsRunning() const

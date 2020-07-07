@@ -70,24 +70,15 @@ namespace pbop
     virtual void Join() = 0;
 
     /// <summary>
-    /// Asks the thread to exit nicely.
+    /// Set an interrupt request flag to tell the thread to exit nicely.
     /// </summary>
-    /// <returns>Returns a Status instance which code is set to STATUS_CODE_SUCCESS when the operation is successful.</returns>
-    virtual Status SetInterrupt() = 0;
+    virtual void SetInterrupt() = 0;
 
     /// <summary>
     /// Returns true if an interrupt request was set. Returns false otherwise.
     /// </summary>
     /// <returns>Returns true if an interrupt request was set. Returns false otherwise.</returns>
     virtual bool IsInterrupted() const = 0;
-
-    /// <summary>
-    /// Returns true if an interrupt request was set. Returns false otherwise.
-    /// Waits for delay milliseconds for the interrupt to take place.
-    /// </summary>
-    /// <param name="delay">The maximum waiting time in milliseconds for the interrupt to take place.</param>
-    /// <returns>Returns true if an interrupt request was set. Returns false otherwise.</returns>
-    virtual bool IsInterrupted(unsigned long delay) const = 0;
 
     /// <summary>
     /// Returns true if the thread is running.

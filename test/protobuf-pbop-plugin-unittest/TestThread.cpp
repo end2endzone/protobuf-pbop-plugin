@@ -232,8 +232,7 @@ TEST_F(TestThread, testInterruption)
   ASSERT_FALSE( thread.IsInterrupted() );
 
   // Tell the thread to exit gracefully.
-  s = thread.SetInterrupt();
-  ASSERT_TRUE( s.Success() ) << s.GetMessage();
+  thread.SetInterrupt();
   ASSERT_TRUE( thread.IsInterrupted() );
 
   // Wait for thread to terminate
