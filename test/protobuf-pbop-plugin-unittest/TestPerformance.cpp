@@ -24,12 +24,9 @@
 
 #include "TestPerformance.h"
 
-#include <Windows.h>
-#undef GetMessage
-
 #include "pbop/Server.h"
-#include "pbop/Thread.h"
 #include "pbop/PipeConnection.h"
+
 #include "rapidassist/testing.h"
 #include "rapidassist/timing.h"
 
@@ -45,7 +42,12 @@ __pragma( warning(disable: 4146))
 
 #include "TestPerformance.pb.h"
 #include "TestPerformance.pbop.pb.h"
-#include "pbop/Server.h"
+
+#include <Windows.h>
+#undef GetMessage
+
+#include "pbop/Thread.h"
+#include "pbop/ThreadBuilder.h"
 
 #ifdef _WIN32
 __pragma( warning(pop) )
@@ -107,12 +109,12 @@ public:
   bool completed;
   double runtime_seconds;
   size_t num_calls;
-  Thread<TestPerformanceClient> * thread_;
+  Thread * thread_;
 
   TestPerformanceClient() :
     thread_(NULL)
   {
-    thread_ = new Thread<TestPerformanceClient>(this, &TestPerformanceClient::Run);
+    thread_ = new ThreadBuilder<TestPerformanceClient>(this, &TestPerformanceClient::Run);
   }
   ~TestPerformanceClient()
   {
@@ -180,7 +182,7 @@ TEST_F(TestPerformance, testCallPerformance)
 
   object.pipe_name = GetPipeNameFromTestName();
 
-  Thread<TestPerformanceServer> thread(&object, &TestPerformanceServer::Run);
+  ThreadBuilder<TestPerformanceServer> thread(&object, &TestPerformanceServer::Run);
 
   // Start the thread
   ASSERT_TRUE( thread.Start() );

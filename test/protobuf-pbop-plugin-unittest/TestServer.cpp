@@ -24,16 +24,19 @@
 
 #include "TestServer.h"
 
-#include <Windows.h>
-#undef GetMessage
-
 #include "pbop/Server.h"
 #include "pbop/PipeConnection.h"
-#include "pbop/Thread.h"
+
 #include "rapidassist/testing.h"
 #include "rapidassist/timing.h"
 
 #include <time.h>       /* clock_t, clock, CLOCKS_PER_SEC */
+
+#include <Windows.h>
+#undef GetMessage
+
+#include "pbop/Thread.h"
+#include "pbop/ThreadBuilder.h"
 
 using namespace pbop;
 
@@ -86,7 +89,7 @@ TEST_F(TestServer, testShutdown)
 
   TestShutdown object;
 
-  Thread<TestShutdown> thread(&object, &TestShutdown::Run);
+  ThreadBuilder<TestShutdown> thread(&object, &TestShutdown::Run);
 
   // Start the thread
   ASSERT_TRUE( thread.Start() );
@@ -206,7 +209,7 @@ TEST_F(TestServer, testEventsBasic)
 
   object.pipe_name = GetPipeNameFromTestName();
 
-  Thread<TestEventsBasic> thread(&object, &TestEventsBasic::Run);
+  ThreadBuilder<TestEventsBasic> thread(&object, &TestEventsBasic::Run);
 
   // Start the thread
   ASSERT_TRUE( thread.Start() );
@@ -264,7 +267,7 @@ TEST_F(TestServer, testEventsConnection)
 
   object.pipe_name = GetPipeNameFromTestName();
 
-  Thread<TestEventsConnection> thread(&object, &TestEventsConnection::Run);
+  ThreadBuilder<TestEventsConnection> thread(&object, &TestEventsConnection::Run);
 
   int expected_EventStartup            = 0;
   int expected_EventShutdown           = 0;

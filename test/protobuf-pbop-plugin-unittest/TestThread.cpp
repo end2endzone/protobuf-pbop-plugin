@@ -28,6 +28,8 @@
 #include <Windows.h>
 
 #include "pbop/Thread.h"
+#include "pbop/ThreadBuilder.h"
+
 #include "rapidassist/testing.h"
 #include "rapidassist/timing.h"
 
@@ -68,7 +70,7 @@ public:
     return 0;
   }
 
-  void SetThread(Thread<SleepObject> * thread)
+  void SetThread(Thread * thread)
   {
     thread_ = thread;
   }
@@ -84,14 +86,14 @@ public:
 
 private:
   DWORD sleep_time_;
-  Thread<SleepObject> * thread_;
+  Thread * thread_;
 };
 
 TEST_F(TestThread, testBase)
 {
   SleepObject object(2000);
 
-  Thread<SleepObject> thread(&object, &SleepObject::Run);
+  ThreadBuilder<SleepObject> thread(&object, &SleepObject::Run);
 
   double time_start_sec = ra::timing::GetMillisecondsTimer();
 
@@ -116,7 +118,7 @@ TEST_F(TestThread, testIsRunning)
 {
   SleepObject object(0);
 
-  Thread<SleepObject> thread(&object, &SleepObject::Run);
+  ThreadBuilder<SleepObject> thread(&object, &SleepObject::Run);
 
   // Start the thread
   ASSERT_TRUE( thread.Start() );
@@ -131,7 +133,7 @@ TEST_F(TestThread, testQuickTerminate)
 {
   SleepObject object(0);
 
-  Thread<SleepObject> thread(&object, &SleepObject::Run);
+  ThreadBuilder<SleepObject> thread(&object, &SleepObject::Run);
 
   double time_start_sec = ra::timing::GetMillisecondsTimer();
 
@@ -152,7 +154,7 @@ TEST_F(TestThread, testRunTwice)
 {
   SleepObject object(1000);
 
-  Thread<SleepObject> thread(&object, &SleepObject::Run);
+  ThreadBuilder<SleepObject> thread(&object, &SleepObject::Run);
 
   // Start the thread
   ASSERT_TRUE( thread.Start() );
@@ -206,7 +208,7 @@ TEST_F(TestThread, testInterruption)
 {
   SleepObject object(2000);
 
-  Thread<SleepObject> thread(&object, &SleepObject::Run);
+  ThreadBuilder<SleepObject> thread(&object, &SleepObject::Run);
 
   object.SetThread(&thread);
 
@@ -253,7 +255,7 @@ TEST_F(TestThread, testJoin)
 {
   SleepObject object(200);
 
-  Thread<SleepObject> thread(&object, &SleepObject::Run);
+  ThreadBuilder<SleepObject> thread(&object, &SleepObject::Run);
 
   // Call join. Expect the call to be non-clocking since the thread is not running
   thread.Join();
