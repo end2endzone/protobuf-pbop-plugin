@@ -37,6 +37,10 @@ namespace pbop
     Mutex * mutex_;
     CriticalSection * cs_;
 
+  private:
+    ScopeLock(const ScopeLock & copy); //disable copy constructor.
+    ScopeLock & operator =(const ScopeLock & other); //disable assignment operator.
+
   public:
     ScopeLock(Mutex * mutex);
     ScopeLock(CriticalSection * cs);

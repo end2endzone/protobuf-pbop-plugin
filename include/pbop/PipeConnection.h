@@ -46,6 +46,9 @@ namespace pbop
 
   class PipeConnection : public Connection
   {
+  private:
+    PipeConnection(const PipeConnection & copy); //disable copy constructor.
+    PipeConnection & operator =(const PipeConnection & other); //disable assignment operator.
   public:
     PipeConnection();
     virtual ~PipeConnection();
@@ -81,8 +84,6 @@ namespace pbop
     /// </summary>
     virtual void ForceClose();
 
-  private:
-    PipeConnection(const PipeConnection & c);
   private:
     std::string name_;
     HANDLE hPipe_;

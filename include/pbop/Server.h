@@ -41,6 +41,10 @@ namespace pbop
 
   class Server
   {
+  private:
+    Server(const Server & copy); //disable copy constructor.
+    Server & operator =(const Server & other); //disable assignment operator.
+
   public:
     Server();
     virtual ~Server();

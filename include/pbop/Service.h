@@ -34,7 +34,12 @@ namespace pbop
 
   class Service
   {
+  private:
+    Service(const Service & copy); //disable copy constructor.
+    Service & operator =(const Service & other); //disable assignment operator.
+
   public:
+    Service() {}
     virtual ~Service() {}
 
     /// <summary>
