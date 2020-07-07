@@ -30,22 +30,10 @@
 #include "pbop/Connection.h"
 #include "pbop/Types.h"
 #include "pbop/Events.h"
+#include "pbop/Thread.h"
 
 #include <string>
 #include <vector>
-
-//Define `HANDLE` ourselve to prevent a dependency on <Windows.h>.
-//Using `#include <WinNT.h>` to only get the definition of `HANDLE` results in multiple errors:
-//  WinNT.h(351): error C2146: syntax error : missing ';' before identifier 'WCHAR'
-//  WinNT.h(351): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
-//  WinNT.h(355): error C2143: syntax error : missing ';' before '*'
-//  WinNT.h(355): error C2040: 'PWSTR' : 'CONST' differs in levels of indirection from 'WCHAR *'
-//  WinNT.h(355): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
-//  WinNT.h(357): error C2143: syntax error : missing ';' before '*'
-//  WinNT.h(357): error C2371: 'WCHAR' : redefinition; different basic types
-//Maybe because its missing include/header guards.
-typedef void *PVOID;
-typedef PVOID HANDLE;
 
 namespace pbop
 {
@@ -65,10 +53,10 @@ namespace pbop
     virtual void RegisterService(Service * service);
 
     // Threads support for client connections
-    class ClientThreadContext;
+    class ClientSession;
   private:
-    friend class ClientThreadContext;
-    virtual unsigned long RunMessageProcessingLoop(ClientThreadContext * context);
+    friend class ClientSession;
+    virtual unsigned long RunMessageProcessingLoop(ClientSession * context);
   public:
 
     virtual bool IsRunning() const;
@@ -95,8 +83,7 @@ namespace pbop
     bool shutdown_processed_;
   protected:
     std::vector<Service *> services_;
-    std::vector<Connection*> connections;
-    std::vector<HANDLE> threads_;
+    std::vector<ClientSession *> client_sessions_;
   };
 
 }; //namespace pbop

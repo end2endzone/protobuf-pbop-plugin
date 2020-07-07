@@ -44,42 +44,67 @@ __pragma( warning(pop) )
 
 #include <Windows.h>
 #undef GetMessage
-#undef RouteMessageToServiceMethod
+
+#include "pbop/ThreadBuilder.h"
 
 //https://docs.microsoft.com/en-us/windows/win32/ipc/multithreaded-pipe-server
 
 namespace pbop
 {
-  class Server::ClientThreadContext
+  class Server::ClientSession
   {
   public:
-    ClientThreadContext()
-    {
-      connection = NULL;
-      connection_id = 0;
-      server = NULL;
-    }
-    ~ClientThreadContext() {}
+    Server * server_;
+    PipeConnection * connection_; //owned by the session
+    connection_id_t connection_id_;
+    Thread * thread_; //owned by the session
 
-    unsigned long run()
+  public:
+    ClientSession(Server * server,
+                  connection_id_t connection_id)
     {
-      return server->RunMessageProcessingLoop(this);
+      connection_ = new PipeConnection();
+      connection_id_ = connection_id;
+      server_ = server;
+      thread_ = new ThreadBuilder<ClientSession>(this, &ClientSession::Run);
     }
 
-    Connection * connection;
-    connection_id_t connection_id;
-    Server * server;
+    ~ClientSession()
+    {
+      // ForceClose the connection to force session thread to exit
+      if (connection_)
+        connection_->ForceClose();
+
+      if (thread_)
+      {
+        //make sure the thread is completed before deleting this object
+        thread_->Join();
+
+        delete thread_;
+      }
+      thread_ = NULL;
+
+      if (connection_)
+        delete connection_;
+      connection_ = NULL;
+    }
+
+    // This routine is a thread processing function to read from and reply to a client
+    // via the open pipe connection passed from the server listening loop. Note this allows
+    // the main loop to continue executing, potentially creating more threads of
+    // of this procedure to run concurrently, depending on the number of incoming
+    // client connections.
+    DWORD Run()
+    {
+      return server_->RunMessageProcessingLoop(this);
+    }
+
+  private:
+    ClientSession(const ClientSession & copy); //disable copy constructor.
+    ClientSession & operator =(const ClientSession & other); //disable assignment operator.
   };
 
-  DWORD WINAPI InstanceThread(LPVOID lpvParam);
   std::string GetErrorDesription(DWORD code);
-
-  struct ThreadParams
-  {
-    Server * server;
-    connection_id_t connection_id;
-    Connection * connection;
-  };
 
   Server::Server() : 
     buffer_size_(10240),
@@ -114,47 +139,6 @@ namespace pbop
   const char * Server::GetPipeName() const
   {
     return pipe_name_.c_str();
-  }
-
-  bool IsThreadAlive(HANDLE hThread)
-  {
-    // https://stackoverflow.com/questions/301054/how-can-i-determine-if-a-win32-thread-has-terminated
-    DWORD result = WaitForSingleObject(hThread, 0);
-    DWORD dwLastError = 0;
-    std::string desc;
-    switch(result)
-    {
-    case WAIT_OBJECT_0:
-      // the thread handle is signaled - the thread has terminated
-      return false;
-    case WAIT_TIMEOUT:
-      // the thread handle is not signaled - the thread is still alive
-      return true;
-    case WAIT_FAILED:
-      dwLastError = GetLastError();
-      if (dwLastError == ERROR_INVALID_HANDLE)
-      {
-        // the handle is no longer associated with a thread - the thread has terminated
-        return false;
-      }
-      else
-        return true;
-    default:
-      return false;
-    };
-  }
-
-  void WaitThreadExit(HANDLE hThread)
-  {
-    bool alive = IsThreadAlive(hThread);
-    while(alive)
-    {
-      // Wait a little more
-      Sleep(100);
-
-      // And check again
-      alive = IsThreadAlive(hThread);
-    }
   }
 
   Status Server::Run(const char * pipe_name) 
@@ -217,38 +201,22 @@ namespace pbop
           OnEvent(&event_connection);
         }
 
-        // Create a connection for this pipe
-        PipeConnection * connection = new PipeConnection();
-        connection->Assign(hPipe);
+        // Build a session for this client
+        ClientSession * session = new ClientSession(this, next_connection_id_);
+        session->connection_->Assign(hPipe);
 
-        ThreadParams * thread_params = new ThreadParams();
-        thread_params->connection_id = next_connection_id_;
-        thread_params->connection = connection;
-        thread_params->server = this;
+        // Remember this session
+        client_sessions_.push_back(session);
 
-        // Remember this connection
-        connections.push_back(connection);
-
-        // Create a thread for this client. 
-        hThread = CreateThread( 
-          NULL,              // no security attribute 
-          0,                 // default stack size 
-          InstanceThread,    // thread proc
-          thread_params,     // thread parameter 
-          0,                 // not suspended 
-          &dwThreadId);      // returns thread ID 
-
-        if (hThread == NULL) 
+        // Start this session's thread.
+        Status status = session->thread_->Start();
+        if (!status.Success())
         {
-          std::string error_description = std::string("CreateThread failed: ") + GetErrorDesription(GetLastError());
-          return Status(STATUS_CODE_PIPE_ERROR, error_description);
+          //Force a pipe error but keep the same error message
+          status.SetCode(STATUS_CODE_PIPE_ERROR);
+          return status;
         }
-        else
-        {
-          // Remember this thread
-          threads_.push_back(hThread);
-        }
-      } 
+      }
       else
       {
         // The client could not connect, so close the pipe. 
@@ -257,31 +225,30 @@ namespace pbop
     } 
 
     // At this point, the server loop is closed.
-    // There will be no new pipes/connections.
-    // Close the existing one to force each thread to exit
-    for(size_t i=0; i<connections.size(); i++)
+    // There will be no new incomming pipe/connection/session.
+    // Close the connections to force each session thread to exit
+    for(size_t i=0; i<client_sessions_.size(); i++)
     {
-      Connection * connection = connections[i];
-      delete connection;
+      ClientSession * session = client_sessions_[i];
+      session->connection_->Close();
     }
 
-    // At this point, the listening threads should leave their loop
+    // At this point, the listening threads should be leaving their loop.
     // There will be no new threads_.
     // Wait for all the threads to complete.
-    for(size_t i=0; i<threads_.size(); i++)
+    for(size_t i=0; i<client_sessions_.size(); i++)
     {
-      HANDLE hThread = threads_[i];
-
-      // Wait for the theads to exit
-      WaitThreadExit(hThread);
+      ClientSession * session = client_sessions_[i];
+      session->thread_->Join();
     }
 
-    // Close each threads
-    for(size_t i=0; i<threads_.size(); i++)
+    // Destroy each sessions
+    for(size_t i=0; i<client_sessions_.size(); i++)
     {
-      HANDLE hThread = threads_[i];
-      CloseHandle(hThread);
+      ClientSession * session = client_sessions_[i];
+      delete session;
     }
+    client_sessions_.clear();
 
     // The shutdown process is completed.
     shutdown_processed_ = true;
@@ -375,32 +342,7 @@ namespace pbop
     return status;
   }
 
-  // This routine is a thread processing function to read from and reply to a client
-  // via the open pipe connection passed from the main loop. Note this allows
-  // the main loop to continue executing, potentially creating more threads of
-  // of this procedure to run concurrently, depending on the number of incoming
-  // client connections.
-  DWORD WINAPI InstanceThread(LPVOID lpvParam)
-  {
-    // Read the thread's parameters
-    ThreadParams * thread_params = static_cast<ThreadParams*>(lpvParam);
-
-    // Copy ThreadParams locally
-    connection_id_t connection_id = thread_params->connection_id;
-    Server * server = thread_params->server;
-    Connection * connection = thread_params->connection;
-    delete thread_params;
-
-    // Continue with the server for processing messages
-    Server::ClientThreadContext context;
-    context.server = server;
-    context.connection = connection;
-    context.connection_id = connection_id;
-
-    return context.run();
-  }
-
-  DWORD Server::RunMessageProcessingLoop(Server::ClientThreadContext * context)
+  DWORD Server::RunMessageProcessingLoop(Server::ClientSession * context)
   {
     BOOL fSuccess = FALSE;
 
@@ -408,7 +350,7 @@ namespace pbop
     {
       // Process events
       EventClientCreate event_create;
-      event_create.SetConnectionId(context->connection_id);
+      event_create.SetConnectionId(context->connection_id_);
       OnEvent(&event_create);
     }
 
@@ -417,7 +359,7 @@ namespace pbop
     { 
       // Read client requests from the pipe.
       std::string read_buffer;
-      Status status = context->connection->Read(read_buffer);
+      Status status = context->connection_->Read(read_buffer);
 
       // Leave the loop if a shutdown was requested 
       if (shutdown_request_)
@@ -434,7 +376,7 @@ namespace pbop
           {
             // Process events
             EventClientDisconnected event_disconnected;
-            event_disconnected.SetConnectionId(context->connection_id);
+            event_disconnected.SetConnectionId(context->connection_id_);
             OnEvent(&event_disconnected);
           }
         }
@@ -444,7 +386,7 @@ namespace pbop
 
           // Process events
           EventClientError event_error;
-          event_error.SetConnectionId(context->connection_id);
+          event_error.SetConnectionId(context->connection_id_);
           event_error.SetStatus(status);
           OnEvent(&event_error);
         }
@@ -462,7 +404,7 @@ namespace pbop
 
         // Process events
         EventClientError event_error;
-        event_error.SetConnectionId(context->connection_id);
+        event_error.SetConnectionId(context->connection_id_);
         event_error.SetStatus(status);
         OnEvent(&event_error);
 
@@ -486,7 +428,7 @@ namespace pbop
 
         // Process events
         EventClientError event_error;
-        event_error.SetConnectionId(context->connection_id);
+        event_error.SetConnectionId(context->connection_id_);
         event_error.SetStatus(status);
         OnEvent(&event_error);
 
@@ -494,12 +436,12 @@ namespace pbop
       }
 
       // Send response to client through the pipe connection.
-      status = context->connection->Write(write_buffer);
+      status = context->connection_->Write(write_buffer);
       if (!status.Success())
       {
         // Process events
         EventClientError event_error;
-        event_error.SetConnectionId(context->connection_id);
+        event_error.SetConnectionId(context->connection_id_);
         event_error.SetStatus(status);
         OnEvent(&event_error);
 
@@ -511,7 +453,7 @@ namespace pbop
     {
       // Process events
       EventClientDestroy event_destroy;
-      event_destroy.SetConnectionId(context->connection_id);
+      event_destroy.SetConnectionId(context->connection_id_);
       OnEvent(&event_destroy);
     }
 

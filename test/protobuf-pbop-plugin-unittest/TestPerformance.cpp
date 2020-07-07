@@ -105,9 +105,9 @@ class TestPerformanceClient
 {
 public:
   std::string pipe_name;
-  bool * ready_flag;
-  bool completed;
-  double runtime_seconds;
+  volatile bool * ready_flag;
+  volatile bool completed;
+  volatile double runtime_seconds;
   size_t num_calls;
   Thread * thread_;
 
@@ -201,15 +201,15 @@ TEST_F(TestPerformance, testCallPerformance)
   //Create many threads
   static const size_t num_clients = 4;
   static const size_t num_calls = 10000;
-  std::vector<TestPerformanceClient> clients;
+  std::vector<TestPerformanceClient *> clients;
   for(size_t i=0; i<num_clients; i++)
   {
-    TestPerformanceClient performance_client;
-    performance_client.pipe_name = GetPipeNameFromTestName();
-    performance_client.ready_flag = &ready_flag;
-    performance_client.completed = false;
-    performance_client.runtime_seconds = 0.0;
-    performance_client.num_calls = num_calls;
+    TestPerformanceClient * performance_client = new TestPerformanceClient();
+    performance_client->pipe_name = GetPipeNameFromTestName();
+    performance_client->ready_flag = &ready_flag;
+    performance_client->completed = false;
+    performance_client->runtime_seconds = 0.0;
+    performance_client->num_calls = num_calls;
     clients.push_back(performance_client);
   }
 
@@ -217,13 +217,13 @@ TEST_F(TestPerformance, testCallPerformance)
   printf("Creating %d threads.\n", num_clients);
   for(size_t i=0; i<num_clients; i++)
   {
-    TestPerformanceClient & performance_client = clients[i];
+    TestPerformanceClient * performance_client = clients[i];
 
-    Status s = performance_client.thread_->Start();
+    Status s = performance_client->thread_->Start();
     ASSERT_TRUE( s.Success() ) << s.GetMessage();
 
-    HANDLE hThread = performance_client.thread_->GetHandle();
-    DWORD dwThreadId = performance_client.thread_->GetId();
+    HANDLE hThread = performance_client->thread_->GetHandle();
+    DWORD dwThreadId = performance_client->thread_->GetId();
     printf("Thread index=%d, handle=0x%x, id=0x%x created.\n", i, hThread, dwThreadId);
   }
 
@@ -235,9 +235,9 @@ TEST_F(TestPerformance, testCallPerformance)
   printf("Waiting for all threads to complete.\n");
   for(size_t i=0; i<num_clients; i++)
   {
-    TestPerformanceClient & performance_client = clients[i];
+    TestPerformanceClient * performance_client = clients[i];
 
-    while(!performance_client.completed)
+    while(!performance_client->completed)
     {
       ra::timing::Millisleep(100);
     }
@@ -247,8 +247,8 @@ TEST_F(TestPerformance, testCallPerformance)
   printf("Waiting for all threads to exit.\n");
   for(size_t i=0; i<num_clients; i++)
   {
-    TestPerformanceClient & performance_client = clients[i];
-    performance_client.thread_->Join();
+    TestPerformanceClient * performance_client = clients[i];
+    performance_client->thread_->Join();
   }
 
   // Ready to shutdown the server
@@ -262,13 +262,21 @@ TEST_F(TestPerformance, testCallPerformance)
   // Print performance of each threads
   for(size_t i=0; i<num_clients; i++)
   {
-    TestPerformanceClient & performance_client = clients[i];
+    TestPerformanceClient * performance_client = clients[i];
 
-    double calls_per_seconds = double(num_calls) / performance_client.runtime_seconds;
+    double calls_per_seconds = double(num_calls) / performance_client->runtime_seconds;
     double seconds_per_call = 1.0 / calls_per_seconds;
     double ms_per_call = seconds_per_call * 1000.0;
     double us_per_call = ms_per_call * 1000.0;
 
-    printf("Thread %02d made %d calls in %f seconds. In average, that makes %.1f calls/second or %.1f microseconds for each call\n", i, num_calls, performance_client.runtime_seconds, calls_per_seconds, us_per_call);
+    printf("Thread %02d made %d calls in %f seconds. In average, that makes %.1f calls/second or %.1f microseconds for each call\n", i, num_calls, performance_client->runtime_seconds, calls_per_seconds, us_per_call);
   }
+
+  // Destroy all clients
+  for(size_t i=0; i<num_clients; i++)
+  {
+    TestPerformanceClient * performance_client = clients[i];
+    delete performance_client;
+  }
+  clients.clear();
 }
