@@ -35,6 +35,7 @@ __pragma( warning(disable: 4146))
 #include "pbop/Server.h"
 #include "pbop/Status.h"
 #include "pbop/PipeConnection.h"
+#include "pbop/ScopeLock.h"
 
 #include "pbop.pb.h"
 
@@ -43,7 +44,6 @@ __pragma( warning(pop) )
 #endif //_WIN32
 
 #include <Windows.h>
-#undef GetMessage
 
 #include "pbop/ThreadBuilder.h"
 
@@ -117,6 +117,9 @@ namespace pbop
 
   Server::~Server()
   {
+    // Prevent other threads from manipulating services while we process this function.
+    ScopeLock scope_lock(&services_cs_);
+
     for(size_t i=0; i<services_.size(); i++)
     {
       Service * service = services_[i];
@@ -263,11 +266,17 @@ namespace pbop
 
   void Server::RegisterService(Service * service)
   {
+    // Prevent other threads from manipulating services while we process this function.
+    ScopeLock scope_lock(&services_cs_);
+
     services_.push_back(service);
   }
 
   Status Server::RouteMessageToServiceMethod(const std::string & input, std::string & output)
   {
+    // Prevent other threads from manipulating services while we process this function.
+    ScopeLock scope_lock(&services_cs_);
+
     // Process the incoming message.
     ClientRequest client_message;
     bool success = client_message.ParseFromString(input);

@@ -31,6 +31,7 @@
 #include "pbop/Types.h"
 #include "pbop/Events.h"
 #include "pbop/Thread.h"
+#include "pbop/CriticalSection.h"
 
 #include <string>
 #include <vector>
@@ -57,6 +58,7 @@ namespace pbop
   private:
     friend class ClientSession;
     virtual unsigned long RunMessageProcessingLoop(ClientSession * context);
+    virtual Status RouteMessageToServiceMethod(const std::string & input, std::string & output);
   public:
 
     virtual bool IsRunning() const;
@@ -73,8 +75,6 @@ namespace pbop
     virtual void OnEvent(EventClientError * e) {};
 
   private:
-    virtual Status RouteMessageToServiceMethod(const std::string & input, std::string & output);
-  private:
     std::string pipe_name_;
     unsigned int buffer_size_;
     connection_id_t next_connection_id_;
@@ -84,6 +84,7 @@ namespace pbop
   protected:
     std::vector<Service *> services_;
     std::vector<ClientSession *> client_sessions_;
+    CriticalSection services_cs_;
   };
 
 }; //namespace pbop
