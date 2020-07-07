@@ -14,9 +14,12 @@ set(PROTO_FILES
 set(LIBPROTOBUFPBOPPLUGIN_INCLUDE_FILES
   ${LIB_PBOP_INCLUDE_DIR}/pbop/BufferedConnection.h
   ${LIB_PBOP_INCLUDE_DIR}/pbop/Connection.h
+  ${LIB_PBOP_INCLUDE_DIR}/pbop/CriticalSection.h
   ${LIB_PBOP_INCLUDE_DIR}/pbop/Events.h
+  ${LIB_PBOP_INCLUDE_DIR}/pbop/Mutex.h
   ${LIB_PBOP_INCLUDE_DIR}/pbop/pbop.proto
   ${LIB_PBOP_INCLUDE_DIR}/pbop/PipeConnection.h
+  ${LIB_PBOP_INCLUDE_DIR}/pbop/ScopeLock.h
   ${LIB_PBOP_INCLUDE_DIR}/pbop/Server.h
   ${LIB_PBOP_INCLUDE_DIR}/pbop/Service.h
   ${LIB_PBOP_INCLUDE_DIR}/pbop/Status.h
@@ -37,10 +40,13 @@ add_library(pbop
   ${PROTO_GENERATED_FILES}
   ${LIBPROTOBUFPBOPPLUGIN_INCLUDE_FILES}
   BufferedConnection.cpp
+  CriticalSection.cpp
   Events.cpp
+  Mutex.cpp
   pbop.cpp
   pbop.h
   PipeConnection.cpp
+  ScopeLock.cpp
   Server.cpp
   Status.cpp
 )
