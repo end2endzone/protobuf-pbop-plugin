@@ -34,6 +34,9 @@ namespace pbop
     struct PImpl;
     PImpl * impl_;
 
+  private:
+    Mutex(const Mutex & copy); //disable copy constructor.
+    Mutex & operator =(const Mutex & other); //disable assignment operator.
   public:
     Mutex();
     ~Mutex();

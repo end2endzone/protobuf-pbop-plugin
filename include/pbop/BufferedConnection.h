@@ -43,7 +43,8 @@ namespace pbop
     virtual Status Read(std::string & buffer);
 
   private:
-    BufferedConnection(const BufferedConnection & c);
+    BufferedConnection(const BufferedConnection & copy); //disable copy constructor.
+    BufferedConnection & operator =(const BufferedConnection & other); //disable assignment operator.
   private:
     std::string * buffer_read_;
     std::string * buffer_write_;

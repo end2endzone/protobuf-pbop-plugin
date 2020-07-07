@@ -34,10 +34,13 @@ namespace pbop
     struct PImpl;
     PImpl * impl_;
 
+  private:
+    CriticalSection(const CriticalSection & copy); //disable copy constructor.
+    CriticalSection & operator =(const CriticalSection & other); //disable assignment operator.
   public:
     CriticalSection();
     ~CriticalSection();
-
+  public:
     /// <summary>
     /// Enter the critical section. Blocks other threads until a Leave() call is processed.
     /// </summary>
