@@ -33,7 +33,6 @@
 #include <time.h>       /* clock_t, clock, CLOCKS_PER_SEC */
 
 #include <Windows.h>
-#undef GetMessage
 
 #include "pbop/Thread.h"
 #include "pbop/ThreadBuilder.h"
@@ -93,7 +92,7 @@ TEST_F(TestServer, testShutdown)
 
   // Start the thread
   Status s = thread.Start();
-  ASSERT_TRUE( s.Success() ) << s.GetMessage();
+  ASSERT_TRUE( s.Success() ) << s.GetDescription();
 
   printf("Starting server in blocking mode.\n");
   printf("Waiting for server function to return...\n");
@@ -214,7 +213,7 @@ TEST_F(TestServer, testEventsBasic)
 
   // Start the thread
   Status s = thread.Start();
-  ASSERT_TRUE( s.Success() ) << s.GetMessage();
+  ASSERT_TRUE( s.Success() ) << s.GetDescription();
 
   // Allow time for the server to start listening for connections
   while(!object.server.IsRunning())
@@ -290,7 +289,7 @@ TEST_F(TestServer, testEventsConnection)
 
   // Start the thread
   Status s = thread.Start();
-  ASSERT_TRUE( s.Success() ) << s.GetMessage();
+  ASSERT_TRUE( s.Success() ) << s.GetDescription();
 
   // Allow time for the server to start listening for connections
   while(!object.server.IsRunning())
@@ -316,7 +315,7 @@ TEST_F(TestServer, testEventsConnection)
   {
     PipeConnection * pipe = new PipeConnection;
     Status s = pipe->Connect(object.pipe_name.c_str());
-    ASSERT_TRUE( s.Success() ) << s.GetMessage();
+    ASSERT_TRUE( s.Success() ) << s.GetDescription();
 
     //Wait for the server to process this connection
     ra::timing::Millisleep(500);

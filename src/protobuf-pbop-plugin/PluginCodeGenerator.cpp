@@ -295,7 +295,7 @@ bool PluginCodeGenerator::GenerateSource(const google::protobuf::FileDescriptor 
     ss << "    \n";
     ss << "    // Convert StatusMessage to Status\n";
     ss << "    status.SetCode( static_cast<StatusCode>(server_response.status().code()) );\n";
-    ss << "    status.SetMessage(server_response.status().description());\n";
+    ss << "    status.SetDescription(server_response.status().description());\n";
     ss << "    if (!status.Success())\n";
     ss << "      return status;\n";
     ss << "    \n";

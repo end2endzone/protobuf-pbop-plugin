@@ -44,7 +44,6 @@ __pragma( warning(disable: 4146))
 #include "TestPerformance.pbop.pb.h"
 
 #include <Windows.h>
-#undef GetMessage
 
 #include "pbop/Thread.h"
 #include "pbop/ThreadBuilder.h"
@@ -133,7 +132,7 @@ public:
     pbop::Status status = connection->Connect(pipe_name.c_str());
     if (!status.Success())
     {
-      printf("Error in %s(): %d, %s\n", __FUNCTION__, status.GetCode(), status.GetMessage().c_str());
+      printf("Error in %s(): %d, %s\n", __FUNCTION__, status.GetCode(), status.GetDescription().c_str());
       return status.GetCode();
     }
 
@@ -154,7 +153,7 @@ public:
       status = client.Bar(request, response);
       if (!status.Success())
       {
-        printf("Error in %s(): %d, %s\n", __FUNCTION__, status.GetCode(), status.GetMessage().c_str());
+        printf("Error in %s(): %d, %s\n", __FUNCTION__, status.GetCode(), status.GetDescription().c_str());
         return status.GetCode();
       }
     }
@@ -186,7 +185,7 @@ TEST_F(TestPerformance, testCallPerformance)
 
   // Start the thread
   Status s = thread.Start();
-  ASSERT_TRUE( s.Success() ) << s.GetMessage();
+  ASSERT_TRUE( s.Success() ) << s.GetDescription();
 
   // Allow time for the server to start listening for connections
   while(!object.server.IsRunning())
@@ -220,7 +219,7 @@ TEST_F(TestPerformance, testCallPerformance)
     TestPerformanceClient * performance_client = clients[i];
 
     Status s = performance_client->thread_->Start();
-    ASSERT_TRUE( s.Success() ) << s.GetMessage();
+    ASSERT_TRUE( s.Success() ) << s.GetDescription();
 
     HANDLE hThread = performance_client->thread_->GetHandle();
     DWORD dwThreadId = performance_client->thread_->GetId();
@@ -254,7 +253,7 @@ TEST_F(TestPerformance, testCallPerformance)
   // Ready to shutdown the server
   printf("Shutting down server.\n");
   s = object.server.Shutdown();
-  ASSERT_TRUE( s.Success() ) << s.GetMessage();
+  ASSERT_TRUE( s.Success() ) << s.GetDescription();
 
   // Wait for the shutdown thread to complete
   thread.Join();

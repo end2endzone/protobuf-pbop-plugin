@@ -58,13 +58,13 @@ TEST_F(TestStatus, testGetSetMessage)
 
   //test default is empty string
   std::string expected_message = "";
-  std::string default_message = s.GetMessage();
+  std::string default_message = s.GetDescription();
   ASSERT_EQ(expected_message, default_message);
 
   //test setter & getter
   expected_message = "foobar";
-  s.SetMessage(expected_message);
-  std::string actual_message = s.GetMessage();
+  s.SetDescription(expected_message);
+  std::string actual_message = s.GetDescription();
   ASSERT_EQ(expected_message, actual_message);
 }
 
@@ -77,7 +77,7 @@ TEST_F(TestStatus, testSuccess)
 
   //success code is Success
   s.SetCode(pbop::STATUS_CODE_SUCCESS);
-  ASSERT_TRUE( s.Success() ) << s.GetMessage();
+  ASSERT_TRUE( s.Success() ) << s.GetDescription();
 
   //test all other codes are failures.
   for(int i = 1; i <= 10; i++)  
@@ -96,28 +96,28 @@ TEST_F(TestStatus, testOperatorEquals)
   Status s1;
 
   s1.SetCode(code);
-  s1.SetMessage(message);
+  s1.SetDescription(message);
 
   //test operator =
   {
     Status s2;
     s2 = s1;
     ASSERT_EQ(s1.GetCode(), s2.GetCode());
-    ASSERT_EQ(s1.GetMessage(), s2.GetMessage());
+    ASSERT_EQ(s1.GetDescription(), s2.GetDescription());
   }
 
   //test assignment =
   {
     Status s2 = s1;
     ASSERT_EQ(s1.GetCode(), s2.GetCode());
-    ASSERT_EQ(s1.GetMessage(), s2.GetMessage());
+    ASSERT_EQ(s1.GetDescription(), s2.GetDescription());
   }
 
   //test copy ctor
   {
     Status s2(s1);
     ASSERT_EQ(s1.GetCode(), s2.GetCode());
-    ASSERT_EQ(s1.GetMessage(), s2.GetMessage());
+    ASSERT_EQ(s1.GetDescription(), s2.GetDescription());
   }
 }
 
@@ -129,7 +129,7 @@ TEST_F(TestStatus, testOperatorEqualsEquals)
   Status s1;
 
   s1.SetCode(code);
-  s1.SetMessage(message);
+  s1.SetDescription(message);
 
   //test both element are equals
   {
@@ -149,7 +149,7 @@ TEST_F(TestStatus, testOperatorEqualsEquals)
   //test message different
   {
     Status s2 = s1;
-    s2.SetMessage("foobar");
+    s2.SetDescription("foobar");
     ASSERT_FALSE(s1 == s2);
     ASSERT_TRUE (s1 != s2);
   }
@@ -158,7 +158,7 @@ TEST_F(TestStatus, testOperatorEqualsEquals)
   {
     Status s2;
     s2.SetCode(pbop::STATUS_CODE_OUT_OF_MEMORY);
-    s2.SetMessage("foobar");
+    s2.SetDescription("foobar");
     ASSERT_FALSE(s1 == s2);
     ASSERT_TRUE (s1 != s2);
   }

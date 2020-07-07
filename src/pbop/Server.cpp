@@ -423,7 +423,7 @@ namespace pbop
       // Build server response for the client.
       StatusMessage * status_message = new StatusMessage();
       status_message->set_code(status.GetCode());
-      status_message->set_description(status.GetMessage());
+      status_message->set_description(status.GetDescription());
 
       ServerResponse server_response;
       server_response.set_allocated_status(status_message);

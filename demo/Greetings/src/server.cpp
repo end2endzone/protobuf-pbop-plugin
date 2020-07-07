@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
   pbop::Status status = server.Run(kPipeName);
   if (!status.Success())
   {
-    printf("Error in main(): %d, %s\n", status.GetCode(), status.GetMessage().c_str());
+    printf("Error in main(): %d, %s\n", status.GetCode(), status.GetDescription().c_str());
     return status.GetCode();
   }
   return 0;

@@ -58,8 +58,8 @@ namespace pbop
     void SetCode(const StatusCode & c);
     const StatusCode & GetCode() const;
 
-    void SetMessage(const std::string & m);
-    const std::string & GetMessage() const;
+    void SetDescription(const std::string & m);
+    const std::string & GetDescription() const;
 
     bool Success();
 
@@ -84,7 +84,7 @@ namespace pbop
 
   private:
     StatusCode code_;
-    std::string message_;
+    std::string description_;
   };
 
 }; //namespace pbop

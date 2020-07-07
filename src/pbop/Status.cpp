@@ -34,13 +34,13 @@ namespace pbop
 
   Status::Status(const Status & other) :
     code_(other.code_),
-    message_(other.message_)
+    description_(other.description_)
   {
   }
 
   Status::Status(const StatusCode & code, const std::string & message) :
     code_(code),
-    message_(message)
+    description_(message)
   {
   }
 
@@ -58,14 +58,14 @@ namespace pbop
     return code_;
   }
 
-  void Status::SetMessage(const std::string & m)
+  void Status::SetDescription(const std::string & m)
   {
-    message_ = m;
+    description_ = m;
   }
 
-  const std::string & Status::GetMessage() const
+  const std::string & Status::GetDescription() const
   {
-    return message_;
+    return description_;
   }
 
   bool Status::Success()
@@ -80,7 +80,7 @@ namespace pbop
     //https://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom
     using std::swap; 
     swap(first.code_, second.code_);
-    swap(first.message_, second.message_);
+    swap(first.description_, second.description_);
   }
 
   Status & Status::operator=(Status other)
@@ -92,7 +92,7 @@ namespace pbop
 
   bool Status::operator==(const Status & other)
   {
-    if (this == &other || (this->code_ == other.code_ && this->message_ == other.message_))
+    if (this == &other || (this->code_ == other.code_ && this->description_ == other.description_))
       return true;
     return false;
   }
