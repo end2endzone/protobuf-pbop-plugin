@@ -92,7 +92,8 @@ TEST_F(TestServer, testShutdown)
   ThreadBuilder<TestShutdown> thread(&object, &TestShutdown::Run);
 
   // Start the thread
-  ASSERT_TRUE( thread.Start() );
+  Status s = thread.Start();
+  ASSERT_TRUE( s.Success() ) << s.GetMessage();
 
   printf("Starting server in blocking mode.\n");
   printf("Waiting for server function to return...\n");
@@ -212,7 +213,8 @@ TEST_F(TestServer, testEventsBasic)
   ThreadBuilder<TestEventsBasic> thread(&object, &TestEventsBasic::Run);
 
   // Start the thread
-  ASSERT_TRUE( thread.Start() );
+  Status s = thread.Start();
+  ASSERT_TRUE( s.Success() ) << s.GetMessage();
 
   // Allow time for the server to start listening for connections
   while(!object.server.IsRunning())
@@ -287,7 +289,8 @@ TEST_F(TestServer, testEventsConnection)
   ASSERT_EQ(expected_EventClientError       , object.server.num_EventClientError       );
 
   // Start the thread
-  ASSERT_TRUE( thread.Start() );
+  Status s = thread.Start();
+  ASSERT_TRUE( s.Success() ) << s.GetMessage();
 
   // Allow time for the server to start listening for connections
   while(!object.server.IsRunning())

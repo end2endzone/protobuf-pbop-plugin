@@ -26,6 +26,7 @@
 #define LIB_PBOP_THREADBUILDER
 
 #include "pbop/Thread.h"
+#include <string>
 
 namespace pbop
 {
@@ -106,43 +107,75 @@ namespace pbop
         CloseHandle(hThread_);
     }
 
-    bool Start()
+    std::string GetErrorDesription(DWORD code)
     {
-      __try {
-        if (WaitForSingleObject(hSingleStart_, 0) != WAIT_OBJECT_0)
-          return false;
-        if (hThread_) // The thread had been started sometime in the past
-        {
-          // Is the thread still running?
-          if (WaitForSingleObject(hThread_, 0) == WAIT_TIMEOUT)
-          {
-            return false; // Deny a thread start
-          }
+      const DWORD error_buffer_size = 10240;
+      char error_buffer[error_buffer_size] = { 0 };
+      ::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
+        NULL,
+        code,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        error_buffer,
+        error_buffer_size - 1,
+        NULL);
+      std::string error_desc = error_buffer;
+      return error_desc;
+    }
 
-          // Close the handle of the previous running thread.
-          CloseHandle(hThread_);
-          hThread_ = NULL;
-          dwThreadID_ = 0;
+    class ScopeReleaseMutex
+    {
+    public:
+      HANDLE hMutex_;
+
+    public:
+      ScopeReleaseMutex(HANDLE hMutex) : hMutex_(hMutex) {}
+      ~ScopeReleaseMutex()
+      {
+        ReleaseMutex(hMutex_);
+      }
+    };
+
+    Status Start()
+    {
+      ScopeReleaseMutex scope_release(hSingleStart_);
+
+      if (WaitForSingleObject(hSingleStart_, 0) != WAIT_OBJECT_0)
+      {
+        return Status(STATUS_CODE_CANCELLED, "Another thread is already starting this thread.");
+      }
+      if (hThread_) // The thread had been started sometime in the past
+      {
+        // Is the thread still running?
+        if (WaitForSingleObject(hThread_, 0) == WAIT_TIMEOUT)
+        {
+          return Status(STATUS_CODE_CANCELLED, "The thread is already running.");
         }
 
-        // Set or reset the 'not interrupted' semaphore state
-        WaitForSingleObject(hInterrupt_, 0);
+        // Close the handle of the previous running thread.
+        CloseHandle(hThread_);
+        hThread_ = NULL;
+        dwThreadID_ = 0;
+      }
 
-        hThread_ = CreateThread(
-          NULL,
-          0,
-          (LPTHREAD_START_ROUTINE) ThreadBuilder<T>::Run,
-          this,
-          0,
-          &this->dwThreadID_);
-        if (hThread_)
-          return true;
-        return false;
-      }
-      __finally
+      // Set or reset the 'not interrupted' semaphore state
+      WaitForSingleObject(hInterrupt_, 0);
+
+      hThread_ = CreateThread(
+        NULL,
+        0,
+        (LPTHREAD_START_ROUTINE) ThreadBuilder<T>::Run,
+        this,
+        0,
+        &this->dwThreadID_);
+
+      if (hThread_)
       {
-        ReleaseMutex(hSingleStart_);
+        return Status::OK;
       }
+
+      // CreateThread has failed.
+      std::string error_description = std::string("CreateThread failed: ") + GetErrorDesription(GetLastError());
+      return Status(STATUS_CODE_CANCELLED, error_description);
     }
 
     inline void Join()
@@ -150,13 +183,18 @@ namespace pbop
       WaitForSingleObject(hThread_, INFINITE);
     }
 
-    inline bool SetInterrupt()
+    inline Status SetInterrupt()
     {
-      if (hInterrupt_)
+      if (hInterrupt_ == NULL)
+        return Status(STATUS_CODE_CANCELLED, "SetInterrupt failed. Interrupt lock invalid");
+
+      if (ReleaseSemaphore(hInterrupt_, 1, NULL) == FALSE)
       {
-        return ((ReleaseSemaphore(hInterrupt_, 1, NULL) == FALSE) ? false : true);
+        std::string error_description = std::string("SetInterrupt failed: ") + GetErrorDesription(GetLastError());
+        return Status(STATUS_CODE_CANCELLED, error_description);
       }
-      return false;
+      else
+        return Status::OK;
     }
 
     inline bool IsInterrupted() const

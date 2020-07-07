@@ -185,7 +185,8 @@ TEST_F(TestPerformance, testCallPerformance)
   ThreadBuilder<TestPerformanceServer> thread(&object, &TestPerformanceServer::Run);
 
   // Start the thread
-  ASSERT_TRUE( thread.Start() );
+  Status s = thread.Start();
+  ASSERT_TRUE( s.Success() ) << s.GetMessage();
 
   // Allow time for the server to start listening for connections
   while(!object.server.IsRunning())
@@ -218,8 +219,8 @@ TEST_F(TestPerformance, testCallPerformance)
   {
     TestPerformanceClient & performance_client = clients[i];
 
-    bool started = performance_client.thread_->Start();
-    ASSERT_TRUE( started );
+    Status s = performance_client.thread_->Start();
+    ASSERT_TRUE( s.Success() ) << s.GetMessage();
 
     HANDLE hThread = performance_client.thread_->GetHandle();
     DWORD dwThreadId = performance_client.thread_->GetId();
@@ -252,7 +253,7 @@ TEST_F(TestPerformance, testCallPerformance)
 
   // Ready to shutdown the server
   printf("Shutting down server.\n");
-  Status s = object.server.Shutdown();
+  s = object.server.Shutdown();
   ASSERT_TRUE( s.Success() ) << s.GetMessage();
 
   // Wait for the shutdown thread to complete

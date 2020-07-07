@@ -38,6 +38,8 @@
 typedef void *PVOID;
 typedef PVOID HANDLE;
 
+#include "pbop/Status.h"
+
 namespace pbop
 {
 
@@ -59,8 +61,8 @@ namespace pbop
     /// <summary>
     /// Starts the threads by executing the method pointer of the object in a concurrent thread.
     /// </summary>
-    /// <returns>Returns true if the thread was started successfully. Returns false otherwise.</returns>
-    virtual bool Start() = 0;
+    /// <returns>Returns a Status instance which code is set to STATUS_CODE_SUCCESS when the operation is successful.</returns>
+    virtual Status Start() = 0;
 
     /// <summary>
     /// Blocks the calling thread until this thread has stopped.
@@ -68,13 +70,10 @@ namespace pbop
     virtual void Join() = 0;
 
     /// <summary>
-    /// Asks the thread to exit nicely. Thread function must implement checks.
+    /// Asks the thread to exit nicely.
     /// </summary>
-    /// <remarks>
-    /// The return value indicates if the interrupt could be placed not if the thread reacts on the interrupt.
-    /// </remarks>
-    /// <returns>Returns true if the interrupt could be placed. Returns false otherwise.</returns>
-    virtual bool SetInterrupt() = 0;
+    /// <returns>Returns a Status instance which code is set to STATUS_CODE_SUCCESS when the operation is successful.</returns>
+    virtual Status SetInterrupt() = 0;
 
     /// <summary>
     /// Returns true if an interrupt request was set. Returns false otherwise.

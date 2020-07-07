@@ -77,7 +77,7 @@ TEST_F(TestStatus, testSuccess)
 
   //success code is Success
   s.SetCode(pbop::STATUS_CODE_SUCCESS);
-  ASSERT_TRUE(s.Success());
+  ASSERT_TRUE( s.Success() ) << s.GetMessage();
 
   //test all other codes are failures.
   for(int i = 1; i <= 10; i++)  

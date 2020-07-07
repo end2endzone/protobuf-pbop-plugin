@@ -98,7 +98,8 @@ TEST_F(TestThread, testBase)
   double time_start_sec = ra::timing::GetMillisecondsTimer();
 
   // Start the thread
-  ASSERT_TRUE( thread.Start() );
+  Status s = thread.Start();
+  ASSERT_TRUE( s.Success() ) << s.GetMessage();
 
   ASSERT_TRUE( thread.IsRunning() );
 
@@ -121,7 +122,8 @@ TEST_F(TestThread, testIsRunning)
   ThreadBuilder<SleepObject> thread(&object, &SleepObject::Run);
 
   // Start the thread
-  ASSERT_TRUE( thread.Start() );
+  Status s = thread.Start();
+  ASSERT_TRUE( s.Success() ) << s.GetMessage();
 
   Sleep(300);
 
@@ -138,7 +140,8 @@ TEST_F(TestThread, testQuickTerminate)
   double time_start_sec = ra::timing::GetMillisecondsTimer();
 
   // Start the thread
-  ASSERT_TRUE( thread.Start() );
+  Status s = thread.Start();
+  ASSERT_TRUE( s.Success() ) << s.GetMessage();
 
   // Wait for thread to terminate
   thread.Join();
@@ -157,7 +160,8 @@ TEST_F(TestThread, testRunTwice)
   ThreadBuilder<SleepObject> thread(&object, &SleepObject::Run);
 
   // Start the thread
-  ASSERT_TRUE( thread.Start() );
+  Status s = thread.Start();
+  ASSERT_TRUE( s.Success() ) << s.GetMessage();
 
   // Wait for the thread to be running
   Sleep(300);
@@ -172,7 +176,8 @@ TEST_F(TestThread, testRunTwice)
   ASSERT_NE( 0, dwThreadId1 );
 
   // Try to start the thread again (expect a failure)
-  ASSERT_FALSE( thread.Start() );
+  s = thread.Start();
+  ASSERT_FALSE( s.Success() ) << s.GetMessage();
 
   // Wait for thread to terminate
   thread.Join();
@@ -187,7 +192,8 @@ TEST_F(TestThread, testRunTwice)
   ASSERT_EQ( dwThreadId2, dwThreadId1 );
 
   // Try to start the thread again (expect a success)
-  ASSERT_TRUE( thread.Start() );
+  s = thread.Start();
+  ASSERT_TRUE( s.Success() ) << s.GetMessage();
 
   // Wait for the thread to be running
   Sleep(300);
@@ -215,7 +221,8 @@ TEST_F(TestThread, testInterruption)
   double time_start_sec = ra::timing::GetMillisecondsTimer();
 
   // Start the thread
-  ASSERT_TRUE( thread.Start() );
+  Status s = thread.Start();
+  ASSERT_TRUE( s.Success() ) << s.GetMessage();
 
   ASSERT_TRUE( thread.IsRunning() );
 
@@ -225,8 +232,8 @@ TEST_F(TestThread, testInterruption)
   ASSERT_FALSE( thread.IsInterrupted() );
 
   // Tell the thread to exit gracefully.
-  thread.SetInterrupt();
-
+  s = thread.SetInterrupt();
+  ASSERT_TRUE( s.Success() ) << s.GetMessage();
   ASSERT_TRUE( thread.IsInterrupted() );
 
   // Wait for thread to terminate
@@ -242,7 +249,8 @@ TEST_F(TestThread, testInterruption)
   ASSERT_NEAR(300, elapsed_time_ms, 50);
 
   // Try to start the thread again (expect a success)
-  ASSERT_TRUE( thread.Start() );
+  s = thread.Start();
+  ASSERT_TRUE( s.Success() ) << s.GetMessage();
 
   // Assert the interruption flag was reset
   ASSERT_FALSE( thread.IsInterrupted() );
@@ -261,7 +269,8 @@ TEST_F(TestThread, testJoin)
   thread.Join();
 
   // Start the thread
-  ASSERT_TRUE( thread.Start() );
+  Status s = thread.Start();
+  ASSERT_TRUE( s.Success() ) << s.GetMessage();
 
   // Wait for thread to terminate
   thread.Join();
