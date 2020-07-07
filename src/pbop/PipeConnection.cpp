@@ -26,6 +26,7 @@
 
 //https://docs.microsoft.com/en-us/windows/win32/ipc/named-pipe-client
 
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
 namespace pbop
@@ -51,33 +52,22 @@ namespace pbop
 
   PipeConnection::~PipeConnection()
   {
-    if (hPipe_ != INVALID_HANDLE_VALUE)
-    {
-      // Flush the pipe to allow the client to read the pipe's contents 
-      // before disconnecting. Then disconnect the pipe, and close the 
-      // handle to this pipe instance.
-      FlushFileBuffers(hPipe_); 
-      DisconnectNamedPipe(hPipe_); 
-
-      CloseHandle(hPipe_);
-    }
-    hPipe_ = INVALID_HANDLE_VALUE;
+    Close();
   }
 
   void PipeConnection::Assign(HANDLE hPipe)
   {
     //Close existing connection
-    if (hPipe_ != INVALID_HANDLE_VALUE)
-    {
-      CloseHandle(hPipe);
-      hPipe = INVALID_HANDLE_VALUE;
-    }
+    Close();
 
     hPipe_ = hPipe;
   }
 
   Status PipeConnection::Connect(const char * pipe_name)
   {
+    // Disconnect from any previous pipe
+    Close();
+
     HANDLE hPipe = NULL;
     BOOL fSuccess = FALSE; 
 
@@ -196,6 +186,40 @@ namespace pbop
     }
 
     return Status::OK;
+  }
+
+  void PipeConnection::Close()
+  {
+    if (hPipe_ != INVALID_HANDLE_VALUE)
+    {
+      // Flush the pipe to allow the client to read the pipe's contents 
+      // before disconnecting. Then disconnect the pipe, and close the 
+      // handle to this pipe instance.
+      FlushFileBuffers(hPipe_); 
+      DisconnectNamedPipe(hPipe_); 
+
+      CloseHandle(hPipe_);
+    }
+    hPipe_ = INVALID_HANDLE_VALUE;
+  }
+
+  void PipeConnection::ForceClose()
+  {
+    // Make this instance forget about its internal pipe handle
+    HANDLE hPipe = hPipe_;
+    hPipe_ = INVALID_HANDLE_VALUE; // This should be an atomic call
+
+    // Close the handle. This should unblock a Read() call. ReadFile() function should return an error.
+    if (hPipe != INVALID_HANDLE_VALUE)
+    {
+      // Flush the pipe to allow the client to read the pipe's contents 
+      // before disconnecting. Then disconnect the pipe, and close the 
+      // handle to this pipe instance.
+      FlushFileBuffers(hPipe); 
+      DisconnectNamedPipe(hPipe); 
+
+      CloseHandle(hPipe);
+    }
   }
 
 }; //namespace pbop

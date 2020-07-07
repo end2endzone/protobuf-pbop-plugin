@@ -94,6 +94,8 @@ namespace pbop
 
     virtual ~Thread(void)
     {
+      Join();
+
       if (hInterrupt_)
         CloseHandle(hInterrupt_);
       if (hSingleStart_)

@@ -69,6 +69,18 @@ namespace pbop
     /// <returns>Returns a Status instance which code is set to STATUS_CODE_SUCCESS when the operation is successful.</returns>
     virtual Status Connect(const char * name);
 
+    /// <summary>
+    /// Close the connection.
+    /// </summary>
+    virtual void Close();
+
+    /// <summary>
+    /// Force closes the connection.
+    /// This is required if a process is blocked in a Read() call
+    /// but the connection must be closed.
+    /// </summary>
+    virtual void ForceClose();
+
   private:
     PipeConnection(const PipeConnection & c);
   private:
