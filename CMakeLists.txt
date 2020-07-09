@@ -113,6 +113,13 @@ find_package(rapidassist REQUIRED)
 find_package(protobuf 3.5.1 REQUIRED NO_CMAKE_SYSTEM_PATH NO_CMAKE_PATH NO_CMAKE_SYSTEM_PACKAGE_REGISTRY )
 
 ##############################################################################################################################################
+# Includes
+##############################################################################################################################################
+
+set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(pbop-functions) # define macros and functions for pbop
+
+##############################################################################################################################################
 # Subprojects
 ##############################################################################################################################################
 
@@ -166,6 +173,8 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/pbop-config-version.cmake DESTIN
 # Target config file
 configure_file(${CMAKE_SOURCE_DIR}/cmake/pbop-config.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/cmake/pbop-config.cmake @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/pbop-config.cmake DESTINATION ${PBOP_INSTALL_CMAKE_DIR})
+
+install(FILES ${CMAKE_SOURCE_DIR}/cmake/pbop-functions.cmake DESTINATION ${PBOP_INSTALL_CMAKE_DIR})
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION ${PBOP_INSTALL_INCLUDE_DIR})
 

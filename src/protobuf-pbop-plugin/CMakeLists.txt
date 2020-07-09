@@ -13,9 +13,6 @@ add_executable(protobuf-pbop-plugin
 # Force CMAKE_DEBUG_POSTFIX for executables
 set_target_properties(protobuf-pbop-plugin PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 
-# Manually get the location of include directories for libprotobuf
-get_target_property(PROTOBUF_INCLUDE_DIRS protobuf::libprotobuf INTERFACE_INCLUDE_DIRECTORIES)
-
 # Define include directories for exported code.
 target_include_directories(protobuf-pbop-plugin
   PUBLIC

@@ -1,1 +1,4 @@
 include("${CMAKE_CURRENT_LIST_DIR}/pbop-targets.cmake")
+
+# Force including pbop functions files in all projects that finds for our package: 'find_package(pbop)'
+include("${CMAKE_CURRENT_LIST_DIR}/pbop-functions.cmake")
