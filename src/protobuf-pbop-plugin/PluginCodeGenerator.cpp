@@ -55,7 +55,7 @@ bool PluginCodeGenerator::GenerateHeader(const google::protobuf::FileDescriptor 
   const std::string & proto_filename = file->name();
   const std::string proto_filename_we = pbop::GetFilenameWithoutExtension(proto_filename.c_str());
   const std::string header_filename = proto_filename_we + ".pbop.pb.h";
-  const std::string cpp_filename = proto_filename_we + ".pbop.pb.cpp";
+  const std::string cpp_filename = proto_filename_we + ".pbop.pb.cc";
   const std::string header_guard = "PROTOBUF_" + pbop::Uppercase(proto_filename_we) + "_PBOP_H";
 
   std::stringstream ss;
@@ -193,7 +193,7 @@ bool PluginCodeGenerator::GenerateSource(const google::protobuf::FileDescriptor 
   const std::string & proto_filename = file->name();
   const std::string proto_filename_we = pbop::GetFilenameWithoutExtension(proto_filename.c_str());
   const std::string header_filename = proto_filename_we + ".pbop.pb.h";
-  const std::string cpp_filename = proto_filename_we + ".pbop.pb.cpp";
+  const std::string cpp_filename = proto_filename_we + ".pbop.pb.cc";
   const std::string header_guard = "PROTOBUF_" + pbop::Uppercase(proto_filename_we) + "_PBOP_H";
 
   std::stringstream ss;

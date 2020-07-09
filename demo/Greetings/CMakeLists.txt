@@ -27,7 +27,7 @@ set(PROTO_FILES
 set(PROTO_GENERATED_FILES
   ${CMAKE_CURRENT_BINARY_DIR}/greetings.pb.cc
   ${CMAKE_CURRENT_BINARY_DIR}/greetings.pb.h
-  ${CMAKE_CURRENT_BINARY_DIR}/greetings.pbop.pb.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/greetings.pbop.pb.cc
   ${CMAKE_CURRENT_BINARY_DIR}/greetings.pbop.pb.h
 )
 
@@ -133,6 +133,6 @@ if (WIN32)
   #  google/protobuf/generated_message_util.h(160): warning C4800: 'const google::protobuf::uint32' : forcing value to bool 'true' or 'false' (performance warning)
 
   message("Disabling warning C4146 and warning C4800 on Windows.")
-  set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/greetings.pb.cc       PROPERTIES COMPILE_FLAGS "/wd\"4146\" /wd\"4800\"")
-  set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/greetings.pbop.pb.cpp PROPERTIES COMPILE_FLAGS "/wd\"4146\" /wd\"4800\"")
+  set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/greetings.pb.cc      PROPERTIES COMPILE_FLAGS "/wd\"4146\" /wd\"4800\"")
+  set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/greetings.pbop.pb.cc PROPERTIES COMPILE_FLAGS "/wd\"4146\" /wd\"4800\"")
 endif()
