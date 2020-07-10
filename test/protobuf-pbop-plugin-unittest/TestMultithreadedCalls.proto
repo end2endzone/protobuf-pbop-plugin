@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package multithreaded;
+
+message FastRequest {}
+message FastResponse {
+  bool slow_call_in_process = 1;
+}
+
+message SlowRequest {}
+message SlowResponse {}
+
+service FastSlow {
+  rpc CallFast (FastRequest) returns (FastResponse);
+  rpc CallSlow (SlowRequest) returns (SlowResponse);
+}

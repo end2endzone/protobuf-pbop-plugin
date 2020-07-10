@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package propragation;
+
+message FailCancelledRequest {}
+message FailCancelledResponse {}
+
+message FailNotImplementedRequest {}
+message FailNotImplementedResponse {}
+
+message FailInvArgRequest {}
+message FailInvArgResponse {}
+
+service Propagator {
+  rpc FailCancelled (FailCancelledRequest) returns (FailCancelledResponse);
+  rpc FailNotImplemented (FailNotImplementedRequest) returns (FailNotImplementedResponse);
+  rpc FailInvArg (FailInvArgRequest) returns (FailInvArgResponse);
+}

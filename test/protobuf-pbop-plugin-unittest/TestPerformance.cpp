@@ -43,14 +43,14 @@ __pragma( warning(disable: 4146))
 #include "TestPerformance.pb.h"
 #include "TestPerformance.pbop.pb.h"
 
+#ifdef _WIN32
+__pragma( warning(pop) )
+#endif //_WIN32
+
 #include <Windows.h>
 
 #include "pbop/Thread.h"
 #include "pbop/ThreadBuilder.h"
-
-#ifdef _WIN32
-__pragma( warning(pop) )
-#endif //_WIN32
 
 using namespace pbop;
 
@@ -74,6 +74,30 @@ public:
   {
     return pbop::Status::OK;
   }
+
+  pbop::Status Baz(const performance::BazRequest & request, performance::BazResponse & response)
+  {
+    int baza = request.baza();
+    int bazb = request.bazb();
+
+    int bazsum = baza + bazb;
+
+    response.set_bazsum(bazsum);
+
+    return pbop::Status::OK;
+  }
+
+  pbop::Status Qux(const performance::QuxRequest & request, performance::QuxResponse & response)
+  {
+    const std::string & name = request.name();
+
+    std::string message = "Hello " + name + ".";
+
+    response.set_message(message);
+
+    return pbop::Status::OK;
+  }
+
 };
 
 class TestPerformanceServer
@@ -82,13 +106,8 @@ public:
   Server server;
   std::string pipe_name;
 
-  TestPerformanceServer()
-  {
-  }
-
-  ~TestPerformanceServer()
-  {
-  }
+  TestPerformanceServer() {}
+  ~TestPerformanceServer() {}
 
   DWORD Run()
   {

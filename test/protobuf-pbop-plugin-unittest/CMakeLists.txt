@@ -4,6 +4,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/protobuf_locator.cpp.in ${PROTOBUF_LO
 
 # Define the *.proto files and their outputs
 set(PROTO_FILES
+  ${CMAKE_CURRENT_SOURCE_DIR}/TestErrorPropragation.proto
+  ${CMAKE_CURRENT_SOURCE_DIR}/TestMultithreadedCalls.proto
   ${CMAKE_CURRENT_SOURCE_DIR}/TestPerformance.proto
 )
 pbop_generate_output_files("${PROTO_FILES}" ${CMAKE_CURRENT_BINARY_DIR} PROTO_GENERATED_FILES)
@@ -23,10 +25,16 @@ add_executable(protobuf-pbop-plugin_unittest
   ${TEST_FILES}
   protobuf_locator.cpp.in
   protobuf_locator.h
+  TestPipeConnection.cpp
+  TestPipeConnection.h
   TestPluginRun.cpp
   TestPluginRun.h
   TestBufferedConnection.cpp
   TestBufferedConnection.h
+  TestErrorPropragation.cpp
+  TestErrorPropragation.h
+  TestMultithreadedCalls.cpp
+  TestMultithreadedCalls.h
   TestPerformance.cpp
   TestPerformance.h
   TestProtoFunctions.cpp
