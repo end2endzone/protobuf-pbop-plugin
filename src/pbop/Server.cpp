@@ -195,14 +195,17 @@ namespace pbop
       fConnected = ConnectNamedPipe(hPipe, NULL) ? TRUE : (GetLastError() == ERROR_PIPE_CONNECTED); 
       if (fConnected) 
       { 
-        if (!shutdown_request_)
+        if (shutdown_request_)
         {
-          // Process events
-          next_connection_id_++;
-          EventConnection event_connection;
-          event_connection.SetConnectionId(next_connection_id_);
-          OnEvent(&event_connection);
+          CloseHandle(hPipe);
+          break;
         }
+
+        // Process events
+        next_connection_id_++;
+        EventConnection event_connection;
+        event_connection.SetConnectionId(next_connection_id_);
+        OnEvent(&event_connection);
 
         // Build a session for this client
         ClientSession * session = new ClientSession(this, next_connection_id_);
@@ -229,11 +232,11 @@ namespace pbop
 
     // At this point, the server loop is closed.
     // There will be no new incomming pipe/connection/session.
-    // Close the connections to force each session thread to exit
+    // Force close the connections to trigger each session thread to exit
     for(size_t i=0; i<client_sessions_.size(); i++)
     {
       ClientSession * session = client_sessions_[i];
-      session->connection_->Close();
+      session->connection_->ForceClose();
     }
 
     // At this point, the listening threads should be leaving their loop.
@@ -416,8 +419,6 @@ namespace pbop
         event_error.SetConnectionId(context->connection_id_);
         event_error.SetStatus(status);
         OnEvent(&event_error);
-
-        break;
       }
 
       // Build server response for the client.
@@ -427,7 +428,8 @@ namespace pbop
 
       ServerResponse server_response;
       server_response.set_allocated_status(status_message);
-      server_response.set_allocated_response_buffer(function_call_result);
+      if (function_call_result)
+        server_response.set_allocated_response_buffer(function_call_result);
       
       std::string write_buffer;
       bool success = server_response.SerializeToString(&write_buffer);
