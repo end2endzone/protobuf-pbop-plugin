@@ -41,13 +41,14 @@ namespace pbop
 
   class Server
   {
-  private:
-    Server(const Server & copy); //disable copy constructor.
-    Server & operator =(const Server & other); //disable assignment operator.
 
   public:
     Server();
     virtual ~Server();
+  private:
+    Server(const Server & copy); //disable copy constructor.
+    Server & operator =(const Server & other); //disable assignment operator.
+  public:
 
     virtual void SetBufferSize(unsigned int buffer_size);
     virtual unsigned int GetBufferSize() const;

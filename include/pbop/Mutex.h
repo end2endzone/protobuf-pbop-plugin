@@ -34,12 +34,13 @@ namespace pbop
     struct PImpl;
     PImpl * impl_;
 
+  public:
+    Mutex();
+    ~Mutex();
   private:
     Mutex(const Mutex & copy); //disable copy constructor.
     Mutex & operator =(const Mutex & other); //disable assignment operator.
   public:
-    Mutex();
-    ~Mutex();
 
     /// <summary>
     /// Acquire the mutex. Blocks other threads until a Release() call is processed.

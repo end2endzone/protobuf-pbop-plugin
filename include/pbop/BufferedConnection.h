@@ -38,13 +38,14 @@ namespace pbop
   public:
     BufferedConnection(std::string * buffer_read, std::string * buffer_write);
     virtual ~BufferedConnection();
+  private:
+    BufferedConnection(const BufferedConnection & copy); //disable copy constructor.
+    BufferedConnection & operator =(const BufferedConnection & other); //disable assignment operator.
+  public:
 
     virtual Status Write(const std::string & buffer);
     virtual Status Read(std::string & buffer);
 
-  private:
-    BufferedConnection(const BufferedConnection & copy); //disable copy constructor.
-    BufferedConnection & operator =(const BufferedConnection & other); //disable assignment operator.
   private:
     std::string * buffer_read_;
     std::string * buffer_write_;

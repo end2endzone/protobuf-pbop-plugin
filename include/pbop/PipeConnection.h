@@ -46,12 +46,14 @@ namespace pbop
 
   class PipeConnection : public Connection
   {
+
+  public:
+    PipeConnection();
+    virtual ~PipeConnection();
   private:
     PipeConnection(const PipeConnection & copy); //disable copy constructor.
     PipeConnection & operator =(const PipeConnection & other); //disable assignment operator.
   public:
-    PipeConnection();
-    virtual ~PipeConnection();
 
     /// <summary>The default reading and writing buffer size in bytes.</summary>
     static const unsigned long & DEFAULT_BUFFER_SIZE;

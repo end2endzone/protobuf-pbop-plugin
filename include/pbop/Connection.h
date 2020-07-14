@@ -34,13 +34,14 @@ namespace pbop
 
   class Connection
   {
-  private:
-    Connection(const Connection & copy); //disable copy constructor.
-    Connection & operator =(const Connection & other); //disable assignment operator.
 
   public:
     Connection() {}
     virtual ~Connection() {}
+  private:
+    Connection(const Connection & copy); //disable copy constructor.
+    Connection & operator =(const Connection & other); //disable assignment operator.
+  public:
 
     /// <summary>
     /// Writes the given buffer to the connection.
