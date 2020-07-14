@@ -46,6 +46,8 @@ namespace pbop
     return error_desc;
   }
 
+  const unsigned long & PipeConnection::DEFAULT_BUFFER_SIZE = 10240;
+
   PipeConnection::PipeConnection() : hPipe_(INVALID_HANDLE_VALUE)
   {
   }
@@ -220,6 +222,65 @@ namespace pbop
 
       CloseHandle(hPipe);
     }
+  }
+
+  Status PipeConnection::Listen(const char * pipe_name, PipeConnection ** connection, ListenOptions * options)
+  {
+    if (connection == NULL)
+      return Status(STATUS_CODE_INVALID_ARGUMENT, "Argument 'connection' is NULL");
+    *connection = NULL;
+
+    // Handle buffer size option
+    DWORD dwOutBufferSize = DEFAULT_BUFFER_SIZE;
+    DWORD dwInBufferSize  = DEFAULT_BUFFER_SIZE;
+    if (options)
+    {
+      dwOutBufferSize = options->buffer_size;
+      dwInBufferSize  = options->buffer_size;
+    }
+
+    // Create an instance of the named pipe
+    HANDLE hPipe = INVALID_HANDLE_VALUE;
+    hPipe = CreateNamedPipe(
+      pipe_name,                // pipe name 
+      PIPE_ACCESS_DUPLEX,       // read/write access 
+      PIPE_TYPE_MESSAGE |       // message type pipe 
+      PIPE_READMODE_MESSAGE |   // message-read mode 
+      PIPE_WAIT,                // blocking mode 
+      PIPE_UNLIMITED_INSTANCES, // max. instances  
+      dwOutBufferSize,          // output buffer size 
+      dwInBufferSize,           // input buffer size 
+      0,                        // client time-out 
+      NULL);                    // default security attribute 
+
+    if (hPipe == INVALID_HANDLE_VALUE) 
+    {
+      std::string error_description = std::string("CreateNamedPipe failed: ") + GetErrorDesription(GetLastError());
+      return Status(STATUS_CODE_PIPE_ERROR, error_description);
+    }
+
+    // Wait for the client to connect; if it succeeds, 
+    // the function returns a nonzero value. If the function
+    // returns zero, GetLastError returns ERROR_PIPE_CONNECTED. 
+    BOOL bConnected = ConnectNamedPipe(hPipe, NULL) ? TRUE : (GetLastError() == ERROR_PIPE_CONNECTED); 
+    if (bConnected) 
+    {
+      // Build a PipeConnection that wraps this HANDLE
+      *connection = new PipeConnection();
+      (*connection)->Assign(hPipe);
+    }
+    else
+    {
+      DWORD dwLastError = GetLastError();
+
+      // The client could not connect, so close the pipe. 
+      CloseHandle(hPipe);
+
+      std::string error_description = std::string("ConnectNamedPipe failed: ") + GetErrorDesription(dwLastError);
+      return Status(STATUS_CODE_PIPE_ERROR, error_description);
+    }
+
+    return Status::OK;
   }
 
 }; //namespace pbop

@@ -61,11 +61,12 @@ namespace pbop
 
   public:
     ClientSession(Server * server,
+                  PipeConnection * connection,
                   connection_id_t connection_id)
     {
-      connection_ = new PipeConnection();
-      connection_id_ = connection_id;
       server_ = server;
+      connection_ = connection; //the ClientSession takes ownership
+      connection_id_ = connection_id;
       thread_ = new ThreadBuilder<ClientSession>(this, &ClientSession::Run);
     }
 
@@ -146,9 +147,6 @@ namespace pbop
 
   Status Server::Run(const char * pipe_name) 
   { 
-    BOOL   fConnected = FALSE; 
-    HANDLE hPipe = INVALID_HANDLE_VALUE; 
-
     pipe_name_ = pipe_name;
     running_ = true;
     shutdown_request_ = false;
@@ -158,74 +156,54 @@ namespace pbop
     EventStartup event_startup;
     OnEvent(&event_startup);
 
-    // The main loop creates an instance of the named pipe and 
-    // then waits for a client to connect to it. When the client 
-    // connects, a thread is created to handle communications 
+    // The main loop waits for a client to connect to it.
+    // When the client connects, a thread is created to handle communications 
     // with that client, and this loop is free to wait for the
     // next client connect request. It is an infinite loop until
     // a server shutdown is requested.
     while(!shutdown_request_)
     {
-      hPipe = CreateNamedPipe( 
-        pipe_name,                // pipe name 
-        PIPE_ACCESS_DUPLEX,       // read/write access 
-        PIPE_TYPE_MESSAGE |       // message type pipe 
-        PIPE_READMODE_MESSAGE |   // message-read mode 
-        PIPE_WAIT,                // blocking mode 
-        PIPE_UNLIMITED_INSTANCES, // max. instances  
-        buffer_size_,             // output buffer size 
-        buffer_size_,             // input buffer size 
-        0,                        // client time-out 
-        NULL);                    // default security attribute 
-
-      if (hPipe == INVALID_HANDLE_VALUE) 
-      {
-        std::string error_description = std::string("CreateNamedPipe failed: ") + GetErrorDesription(GetLastError());
-        return Status(STATUS_CODE_PIPE_ERROR, error_description);
-      }
-
       // Process events
       EventListening event_listening;
       OnEvent(&event_listening);
 
-      // Wait for the client to connect; if it succeeds, 
-      // the function returns a nonzero value. If the function
-      // returns zero, GetLastError returns ERROR_PIPE_CONNECTED. 
-      fConnected = ConnectNamedPipe(hPipe, NULL) ? TRUE : (GetLastError() == ERROR_PIPE_CONNECTED); 
-      if (fConnected) 
-      { 
-        if (shutdown_request_)
-        {
-          CloseHandle(hPipe);
-          break;
-        }
+      PipeConnection * connection = NULL;
 
-        // Process events
-        next_connection_id_++;
-        EventConnection event_connection;
-        event_connection.SetConnectionId(next_connection_id_);
-        OnEvent(&event_connection);
+      PipeConnection::ListenOptions options = {0};
+      options.buffer_size = buffer_size_;
 
-        // Build a session for this client
-        ClientSession * session = new ClientSession(this, next_connection_id_);
-        session->connection_->Assign(hPipe);
-
-        // Remember this session
-        client_sessions_.push_back(session);
-
-        // Start this session's thread.
-        Status status = session->thread_->Start();
-        if (!status.Success())
-        {
-          //Force a pipe error but keep the same error message
-          status.SetCode(STATUS_CODE_PIPE_ERROR);
-          return status;
-        }
-      }
-      else
+      // Wait for the client to connect
+      Status status = PipeConnection::Listen(pipe_name, &connection, &options);
+      if (!status.Success())
+        return status;
+      if (connection == NULL)
       {
-        // The client could not connect, so close the pipe. 
-        CloseHandle(hPipe);
+        std::string error_description = std::string("PipeConnection::Listen() failed: connection is NULL");
+        return Status(STATUS_CODE_INVALID_ARGUMENT, error_description);
+      }
+
+      if (shutdown_request_)
+        break;
+
+      // Process events
+      next_connection_id_++;
+      EventConnection event_connection;
+      event_connection.SetConnectionId(next_connection_id_);
+      OnEvent(&event_connection);
+
+      // Build a session for this client
+      ClientSession * session = new ClientSession(this, connection, next_connection_id_);
+
+      // Remember this session
+      client_sessions_.push_back(session);
+
+      // Start this session's thread.
+      status = session->thread_->Start();
+      if (!status.Success())
+      {
+        //Force a pipe error but keep the same error message
+        status.SetCode(STATUS_CODE_PIPE_ERROR);
+        return status;
       }
     } 
 

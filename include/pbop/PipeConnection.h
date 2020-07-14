@@ -53,6 +53,9 @@ namespace pbop
     PipeConnection();
     virtual ~PipeConnection();
 
+    /// <summary>The default reading and writing buffer size in bytes.</summary>
+    static const unsigned long & DEFAULT_BUFFER_SIZE;
+
     virtual Status Write(const std::string & buffer);
     virtual Status Read(std::string & buffer);
 
@@ -83,6 +86,21 @@ namespace pbop
     /// but the connection must be closed.
     /// </summary>
     virtual void ForceClose();
+
+    /// <summary>The list of configuration options while listening for an incomming pipe connection.</summary>
+    struct ListenOptions
+    {
+      unsigned long buffer_size; // Size of the reading and writing buffers in bytes. Set to DEFAULT_BUFFER_SIZE for default value.
+    };
+
+    /// <summary>
+    /// Creates an instance of the named pipe and wait for a client to connect to it.
+    /// </summary>
+    /// <param name="name">A valid pipe name (path). On Windows, pipe names must be in the following format: \\.\pipe\[name] where [name] is an actual file.</param>
+    /// <param name="connection">An output pointer to PipeConnection. On success, the pointer is set to a new PipeConection instance. On failure, the pointer is set to NULL.</param>
+    /// <param name="options">A pointer to a ListenOptions structure for configuring the behavior of the Listen function. Set to NULL for default options.</param>
+    /// <returns>Returns a Status instance which code is set to STATUS_CODE_SUCCESS when the operation is successful.</returns>
+    static Status Listen(const char * pipe_name, PipeConnection ** connection, ListenOptions * options);
 
   private:
     std::string name_;
