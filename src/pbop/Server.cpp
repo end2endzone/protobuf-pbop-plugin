@@ -147,8 +147,7 @@ namespace pbop
   Status Server::Run(const char * pipe_name) 
   { 
     BOOL   fConnected = FALSE; 
-    DWORD  dwThreadId = 0; 
-    HANDLE hPipe = INVALID_HANDLE_VALUE, hThread = NULL; 
+    HANDLE hPipe = INVALID_HANDLE_VALUE; 
 
     pipe_name_ = pipe_name;
     running_ = true;
