@@ -57,7 +57,7 @@ namespace pbop
     virtual Status Read(std::string & buffer);
 
     /// <summary>
-    /// Assigns an alreay connected pipe HANDLE to this connection.
+    /// Assigns an already connected pipe HANDLE to this connection.
     /// This instance takes ownership of the given HANDLE.
     /// If an existing handle is already assigned to the connection, 
     /// the existing connection will be closed and the new handle will be assigned to this connection.
