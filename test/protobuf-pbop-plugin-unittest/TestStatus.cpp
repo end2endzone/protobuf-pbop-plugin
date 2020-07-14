@@ -183,6 +183,7 @@ TEST_F(TestStatus, testToString)
   code = pbop::STATUS_CODE_UNKNOWN          ; str = ToStringLocal(code); ASSERT_FALSE(str.empty());
   code = pbop::STATUS_CODE_SERIALIZE_ERROR  ; str = ToStringLocal(code); ASSERT_FALSE(str.empty());
   code = pbop::STATUS_CODE_DESERIALIZE_ERROR; str = ToStringLocal(code); ASSERT_FALSE(str.empty());
+  code = pbop::STATUS_CODE_TIMED_OUT        ; str = ToStringLocal(code); ASSERT_FALSE(str.empty());
   code = pbop::STATUS_CODE_CANCELLED        ; str = ToStringLocal(code); ASSERT_FALSE(str.empty());
   code = pbop::STATUS_CODE_NOT_IMPLEMENTED  ; str = ToStringLocal(code); ASSERT_FALSE(str.empty());
   code = pbop::STATUS_CODE_INVALID_ARGUMENT ; str = ToStringLocal(code); ASSERT_FALSE(str.empty());
@@ -191,15 +192,45 @@ TEST_F(TestStatus, testToString)
   code = pbop::STATUS_CODE_PIPE_ERROR       ; str = ToStringLocal(code); ASSERT_FALSE(str.empty());
   code = pbop::STATUS_CODE_IMPLEMENTATION   ; str = ToStringLocal(code); ASSERT_FALSE(str.empty());
 
-  //test for defaults
+  //test for new codes
+  {
+    StatusCode code_max = STATUS_CODE_SUCCESS;
+    StatusCode code_min = STATUS_CODE_SUCCESS;
+
+    code = pbop::STATUS_CODE_SUCCESS          ; if (code > code_max) code_max = code; if (code < code_min) code_min = code;
+    code = pbop::STATUS_CODE_UNKNOWN          ; if (code > code_max) code_max = code; if (code < code_min) code_min = code;
+    code = pbop::STATUS_CODE_SERIALIZE_ERROR  ; if (code > code_max) code_max = code; if (code < code_min) code_min = code;
+    code = pbop::STATUS_CODE_DESERIALIZE_ERROR; if (code > code_max) code_max = code; if (code < code_min) code_min = code;
+    code = pbop::STATUS_CODE_TIMED_OUT        ; if (code > code_max) code_max = code; if (code < code_min) code_min = code;
+    code = pbop::STATUS_CODE_CANCELLED        ; if (code > code_max) code_max = code; if (code < code_min) code_min = code;
+    code = pbop::STATUS_CODE_NOT_IMPLEMENTED  ; if (code > code_max) code_max = code; if (code < code_min) code_min = code;
+    code = pbop::STATUS_CODE_INVALID_ARGUMENT ; if (code > code_max) code_max = code; if (code < code_min) code_min = code;
+    code = pbop::STATUS_CODE_OUT_OF_RANGE     ; if (code > code_max) code_max = code; if (code < code_min) code_min = code;
+    code = pbop::STATUS_CODE_OUT_OF_MEMORY    ; if (code > code_max) code_max = code; if (code < code_min) code_min = code;
+    code = pbop::STATUS_CODE_PIPE_ERROR       ; if (code > code_max) code_max = code; if (code < code_min) code_min = code;
+    code = pbop::STATUS_CODE_IMPLEMENTATION   ; if (code > code_max) code_max = code; if (code < code_min) code_min = code;
+
+    //all codes between code_min and code_max should have a value ToString() value
+    for(int i = code_min; i <= code_max; i++)
+    {
+      StatusCode tmp = static_cast<StatusCode>(i);
+      str = ToStringLocal(tmp);
+      ASSERT_FALSE(str.empty()) << "The StatusCode with value " << i << " does not define a value for Status::ToString(). Is this a new value?";
+    }
+  }
+
+  //test for undefined (non existing) status codes
+  //they should be reported as "" (empty string)
   for(int i=0; i<=100; i++)
   {
     StatusCode code = static_cast<StatusCode>(i);
 
+    //ignore known codes already tested above
     if (i == STATUS_CODE_SUCCESS             ||
         i == STATUS_CODE_UNKNOWN             ||
         i == STATUS_CODE_SERIALIZE_ERROR     ||
         i == STATUS_CODE_DESERIALIZE_ERROR   ||
+        i == STATUS_CODE_TIMED_OUT           ||
         i == STATUS_CODE_CANCELLED           ||
         i == STATUS_CODE_NOT_IMPLEMENTED     ||
         i == STATUS_CODE_INVALID_ARGUMENT    ||
@@ -213,6 +244,6 @@ TEST_F(TestStatus, testToString)
     const char * name = Status::ToString(code);
     ASSERT_TRUE(name != NULL);
     std::string str = name;
-    ASSERT_FALSE(str.empty());
+    ASSERT_TRUE(str.empty());
   }
 }

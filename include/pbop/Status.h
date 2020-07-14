@@ -36,8 +36,9 @@ namespace pbop
   {
     STATUS_CODE_SUCCESS,              // Not an error. The operation completed successfully.
     STATUS_CODE_UNKNOWN,              // An unexpected error has occurred.
-    STATUS_CODE_SERIALIZE_ERROR,      // An error occured while the client or the server was serializing a message into a string.
-    STATUS_CODE_DESERIALIZE_ERROR,    // An error occured while the client or the server was deserializing a message from a string.
+    STATUS_CODE_SERIALIZE_ERROR,      // An error occured while serializing a message into a string.
+    STATUS_CODE_DESERIALIZE_ERROR,    // An error occured while deserializing a message from a string.
+    STATUS_CODE_TIMED_OUT,            // The operation has timed out.
     STATUS_CODE_CANCELLED,            // The operation was cancelled by the server.
     STATUS_CODE_NOT_IMPLEMENTED,      // The requested service method is not implemented in the server.
     STATUS_CODE_INVALID_ARGUMENT,     // The specified message argument is invalid.

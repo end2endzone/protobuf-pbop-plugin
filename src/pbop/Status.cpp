@@ -112,6 +112,8 @@ namespace pbop
       return "Serialize Error";
     case STATUS_CODE_DESERIALIZE_ERROR:
       return "Deserialize Error";
+    case STATUS_CODE_TIMED_OUT:
+      return "Timed out";
     case STATUS_CODE_CANCELLED:
       return "Cancelled";
     case STATUS_CODE_NOT_IMPLEMENTED:
@@ -127,8 +129,9 @@ namespace pbop
     case STATUS_CODE_IMPLEMENTATION:
       return "Implementation Error";
     case STATUS_CODE_UNKNOWN:
-    default:
       return "Unknown";
+    default:
+      return "";
     };
   }
 
