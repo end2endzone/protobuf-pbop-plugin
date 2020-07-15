@@ -28,24 +28,14 @@
 #include "pbop/Status.h"
 #include "pbop/Connection.h"
 
-//Define `HANDLE` ourselve to prevent a dependency on <Windows.h>.
-//Using `#include <WinNT.h>` to only get the definition of `HANDLE` results in multiple errors:
-//  WinNT.h(351): error C2146: syntax error : missing ';' before identifier 'WCHAR'
-//  WinNT.h(351): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
-//  WinNT.h(355): error C2143: syntax error : missing ';' before '*'
-//  WinNT.h(355): error C2040: 'PWSTR' : 'CONST' differs in levels of indirection from 'WCHAR *'
-//  WinNT.h(355): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
-//  WinNT.h(357): error C2143: syntax error : missing ';' before '*'
-//  WinNT.h(357): error C2371: 'WCHAR' : redefinition; different basic types
-//Maybe because its missing include/header guards.
-typedef void *PVOID;
-typedef PVOID HANDLE;
-
 namespace pbop
 {
 
   class PipeConnection : public Connection
   {
+  private:
+    struct PImpl;
+    PImpl * impl_;
 
   public:
     PipeConnection();
@@ -60,15 +50,6 @@ namespace pbop
 
     virtual Status Write(const std::string & buffer);
     virtual Status Read(std::string & buffer);
-
-    /// <summary>
-    /// Assigns an already connected pipe HANDLE to this connection.
-    /// This instance takes ownership of the given HANDLE.
-    /// If an existing handle is already assigned to the connection, 
-    /// the existing connection will be closed and the new handle will be assigned to this connection.
-    /// </summary>
-    /// <param name="hPipe">An valid pipe HANDLE.</param>
-    virtual void Assign(HANDLE hPipe);
 
     /// <summary>
     /// Initiate a pipe connection to the given pipe name.
@@ -106,7 +87,6 @@ namespace pbop
 
   private:
     std::string name_;
-    HANDLE hPipe_;
   };
 
 }; //namespace pbop

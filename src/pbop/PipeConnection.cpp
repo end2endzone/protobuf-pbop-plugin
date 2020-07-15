@@ -48,21 +48,28 @@ namespace pbop
 
   const unsigned long & PipeConnection::DEFAULT_BUFFER_SIZE = 10240;
 
-  PipeConnection::PipeConnection() : hPipe_(INVALID_HANDLE_VALUE)
+  struct PipeConnection::PImpl
   {
+    HANDLE hPipe;
+  };
+
+  PipeConnection::PipeConnection() :
+    impl_(new PipeConnection::PImpl())
+  {
+    impl_->hPipe = INVALID_HANDLE_VALUE;
   }
 
   PipeConnection::~PipeConnection()
   {
     Close();
-  }
 
-  void PipeConnection::Assign(HANDLE hPipe)
-  {
-    //Close existing connection
-    Close();
-
-    hPipe_ = hPipe;
+    if (impl_)
+    {
+      if (impl_->hPipe != INVALID_HANDLE_VALUE)
+        CloseHandle(impl_->hPipe);
+      delete impl_;
+    }
+    impl_ = NULL;
   }
 
   Status PipeConnection::Connect(const char * pipe_name)
@@ -71,57 +78,57 @@ namespace pbop
     Close();
 
     HANDLE hPipe = NULL;
-    BOOL fSuccess = FALSE; 
+    BOOL fSuccess = FALSE;
 
     // Try to open a named pipe; wait for it, if necessary. 
-    while (1) 
-    { 
-      hPipe = CreateFile( 
-          pipe_name,      // pipe name 
-          GENERIC_READ |  // read and write access 
-          GENERIC_WRITE, 
-          0,              // no sharing 
+    while (1)
+    {
+      hPipe = CreateFile(
+          pipe_name,      // pipe name
+          GENERIC_READ |  // read and write access
+          GENERIC_WRITE,
+          0,              // no sharing
           NULL,           // default security attributes
-          OPEN_EXISTING,  // opens existing pipe 
-          0,              // default attributes 
-          NULL);          // no template file 
+          OPEN_EXISTING,  // opens existing pipe
+          0,              // default attributes
+          NULL);          // no template file
  
-      // Break if the pipe handle is valid. 
-      if (hPipe != INVALID_HANDLE_VALUE) 
-          break; 
+      // Break if the pipe handle is valid.
+      if (hPipe != INVALID_HANDLE_VALUE)
+          break;
  
-      // Exit if an error other than ERROR_PIPE_BUSY occurs. 
+      // Exit if an error other than ERROR_PIPE_BUSY occurs.
       DWORD wLastError = GetLastError();
-      if (wLastError != ERROR_PIPE_BUSY) 
+      if (wLastError != ERROR_PIPE_BUSY)
       {
         // Error, unable to connect
         std::string error_description = GetErrorDesription(wLastError);
         return Status(STATUS_CODE_PIPE_ERROR, error_description);
       }
  
-      // All pipe instances are busy, so wait for 20 seconds. 
-      if (!WaitNamedPipe(pipe_name, 20000)) 
+      // All pipe instances are busy, so wait for 20 seconds.
+      if (!WaitNamedPipe(pipe_name, 20000))
       {
         std::string error_description = "Could not open pipe: 20 second wait timed out.";
         return Status(STATUS_CODE_PIPE_ERROR, error_description);
-      } 
-    } 
+      }
+    }
  
-    // The pipe connected; change to message-read mode. 
-    DWORD dwMode = PIPE_READMODE_MESSAGE; 
-    fSuccess = SetNamedPipeHandleState( 
-      hPipe,    // pipe handle 
-      &dwMode,  // new pipe mode 
-      NULL,     // don't set maximum bytes 
-      NULL);    // don't set maximum time 
-    if ( !fSuccess) 
+    // The pipe connected; change to message-read mode.
+    DWORD dwMode = PIPE_READMODE_MESSAGE;
+    fSuccess = SetNamedPipeHandleState(
+      hPipe,    // pipe handle
+      &dwMode,  // new pipe mode
+      NULL,     // don't set maximum bytes
+      NULL);    // don't set maximum time
+    if ( !fSuccess)
     {
       std::string error_description = std::string("SetNamedPipeHandleState failed: ") + GetErrorDesription(GetLastError());
       return Status(STATUS_CODE_PIPE_ERROR, error_description);
     }
 
     // Connection succesful
-    hPipe_ = hPipe;
+    impl_->hPipe = hPipe;
     name_ = pipe_name;
 
     return Status::OK;
@@ -129,16 +136,16 @@ namespace pbop
 
   Status PipeConnection::Write(const std::string & buffer)
   {
-    if (hPipe_ == INVALID_HANDLE_VALUE)
+    if (impl_->hPipe == INVALID_HANDLE_VALUE)
       return Status(STATUS_CODE_PIPE_ERROR, "Pipe is invalid.");
 
     DWORD wBytesWritten = 0;
-    BOOL fSuccess = WriteFile( 
-      hPipe_,                 // pipe handle 
-      buffer.data(),          // message 
-      buffer.size(),          // message length 
-      &wBytesWritten,         // bytes written 
-      NULL);                  // not overlapped 
+    BOOL fSuccess = WriteFile(
+      impl_->hPipe,                 // pipe handle
+      buffer.data(),          // message
+      buffer.size(),          // message length
+      &wBytesWritten,         // bytes written
+      NULL);                  // not overlapped
 
     if (!fSuccess || wBytesWritten != buffer.size())
     {
@@ -153,7 +160,7 @@ namespace pbop
   {
     buffer.clear();
 
-    if (hPipe_ == INVALID_HANDLE_VALUE)
+    if (impl_->hPipe == INVALID_HANDLE_VALUE)
       return Status(STATUS_CODE_PIPE_ERROR, "Pipe is invalid.");
 
     BOOL fSuccess = FALSE;
@@ -164,7 +171,7 @@ namespace pbop
       // Read from the pipe.
       DWORD wBytesReaded = 0;
       fSuccess = ReadFile( 
-          hPipe_,       // pipe handle 
+          impl_->hPipe,       // pipe handle 
           tmp,          // buffer to receive reply 
           BUFFER_SIZE,  // size of buffer 
           &wBytesReaded,// number of bytes read 
@@ -192,24 +199,24 @@ namespace pbop
 
   void PipeConnection::Close()
   {
-    if (hPipe_ != INVALID_HANDLE_VALUE)
+    if (impl_->hPipe != INVALID_HANDLE_VALUE)
     {
       // Flush the pipe to allow the client to read the pipe's contents 
       // before disconnecting. Then disconnect the pipe, and close the 
       // handle to this pipe instance.
-      FlushFileBuffers(hPipe_); 
-      DisconnectNamedPipe(hPipe_); 
+      FlushFileBuffers(impl_->hPipe); 
+      DisconnectNamedPipe(impl_->hPipe); 
 
-      CloseHandle(hPipe_);
+      CloseHandle(impl_->hPipe);
     }
-    hPipe_ = INVALID_HANDLE_VALUE;
+    impl_->hPipe = INVALID_HANDLE_VALUE;
   }
 
   void PipeConnection::ForceClose()
   {
     // Make this instance forget about its internal pipe handle
-    HANDLE hPipe = hPipe_;
-    hPipe_ = INVALID_HANDLE_VALUE; // This should be an atomic call
+    HANDLE hPipe = impl_->hPipe;
+    impl_->hPipe = INVALID_HANDLE_VALUE; // This should be an atomic call
 
     // Close the handle. This should unblock a Read() call. ReadFile() function should return an error.
     if (hPipe != INVALID_HANDLE_VALUE)
@@ -267,7 +274,7 @@ namespace pbop
     {
       // Build a PipeConnection that wraps this HANDLE
       *connection = new PipeConnection();
-      (*connection)->Assign(hPipe);
+      (*connection)->impl_->hPipe = hPipe;
     }
     else
     {
