@@ -50,6 +50,12 @@ namespace pbop
     Server & operator =(const Server & other); //disable assignment operator.
   public:
 
+    /// <summary>The default reading and writing buffer size in bytes.</summary>
+    static const unsigned long & DEFAULT_BUFFER_SIZE;
+
+    /// <summary>The default reading timeout time in milliseconds.</summary>
+    static const unsigned long & DEFAULT_TIMEOUT_TIME;
+
     virtual void SetBufferSize(unsigned int buffer_size);
     virtual unsigned int GetBufferSize() const;
 
@@ -84,8 +90,8 @@ namespace pbop
     unsigned int buffer_size_;
     connection_id_t next_connection_id_;
     bool running_;
-    bool shutdown_request_;
-    bool shutdown_processed_;
+    volatile bool shutdown_request_;
+    volatile bool shutdown_processed_;
   protected:
     std::vector<Service *> services_;
     std::vector<ClientSession *> client_sessions_;

@@ -59,18 +59,6 @@ namespace pbop
     /// <returns>Returns a Status instance which code is set to STATUS_CODE_SUCCESS when the operation is successful.</returns>
     virtual Status Connect(const char * name);
 
-    /// <summary>
-    /// Close the connection.
-    /// </summary>
-    virtual void Close();
-
-    /// <summary>
-    /// Force closes the connection.
-    /// This is required if a process is blocked in a Read() call
-    /// but the connection must be closed.
-    /// </summary>
-    virtual void ForceClose();
-
     /// <summary>The list of configuration options while listening for an incomming pipe connection.</summary>
     struct ListenOptions
     {
@@ -85,6 +73,12 @@ namespace pbop
     /// <param name="options">A pointer to a ListenOptions structure for configuring the behavior of the Listen function. Set to NULL for default options.</param>
     /// <returns>Returns a Status instance which code is set to STATUS_CODE_SUCCESS when the operation is successful.</returns>
     static Status Listen(const char * pipe_name, PipeConnection ** connection, ListenOptions * options);
+
+  private:
+    /// <summary>
+    /// Close the connection.
+    /// </summary>
+    virtual void Close();
 
   private:
     std::string name_;

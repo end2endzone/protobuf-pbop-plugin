@@ -72,10 +72,6 @@ namespace pbop
 
     ~ClientSession()
     {
-      // ForceClose the connection to force session thread to exit
-      if (connection_)
-        connection_->ForceClose();
-
       if (thread_)
       {
         //make sure the thread is completed before deleting this object
@@ -107,8 +103,11 @@ namespace pbop
 
   std::string GetErrorDesription(DWORD code);
 
+  const unsigned long & Server::DEFAULT_BUFFER_SIZE = 10240;
+  const unsigned long & Server::DEFAULT_TIMEOUT_TIME = 5000;
+
   Server::Server() : 
-    buffer_size_(10240),
+    buffer_size_(DEFAULT_BUFFER_SIZE),
     next_connection_id_(0),
     running_(false),
     shutdown_request_(false),
@@ -205,27 +204,22 @@ namespace pbop
         status.SetCode(STATUS_CODE_PIPE_ERROR);
         return status;
       }
-    } 
-
-    // At this point, the server loop is closed.
-    // There will be no new incomming pipe/connection/session.
-    // Force close the connections to trigger each session thread to exit
-    for(size_t i=0; i<client_sessions_.size(); i++)
-    {
-      ClientSession * session = client_sessions_[i];
-      session->connection_->ForceClose();
     }
 
-    // At this point, the listening threads should be leaving their loop.
-    // There will be no new threads_.
-    // Wait for all the threads to complete.
+    // At this point, the listening loop has exited.
+    // There will be no new incomming pipe/connection/session.
+    // Because the shutdown_request_ flag is set, the session threads will 
+    // eventually exit the RunMessageProcessingLoop() loop for the following:
+    // 1) after processing their next message from a client or
+    // 2) after having a Connection::Read() timeout because no message is received.
+    // Wait for all the ClientSession threads to complete.
     for(size_t i=0; i<client_sessions_.size(); i++)
     {
       ClientSession * session = client_sessions_[i];
       session->thread_->Join();
     }
 
-    // Destroy each sessions
+    // Destroy each session
     for(size_t i=0; i<client_sessions_.size(); i++)
     {
       ClientSession * session = client_sessions_[i];
@@ -242,7 +236,7 @@ namespace pbop
     OnEvent(&event_shutdown);
 
     return Status::OK; 
-  } 
+  }
 
   void Server::RegisterService(Service * service)
   {
@@ -347,8 +341,18 @@ namespace pbop
     while(!shutdown_request_)
     { 
       // Read client requests from the pipe.
+      // Timeout after each 5 seconds.
+      // Loop until we receive an actual message (not a timeout results).
       std::string read_buffer;
-      Status status = context->connection_->Read(read_buffer);
+      Status status;
+      do
+      {
+        status = context->connection_->Read(read_buffer, DEFAULT_TIMEOUT_TIME);
+
+        // Leave the loop if a shutdown was requested 
+        if (shutdown_request_)
+          break;
+      } while (status.GetCode() == STATUS_CODE_TIMED_OUT);
 
       // Leave the loop if a shutdown was requested 
       if (shutdown_request_)
@@ -455,19 +459,20 @@ namespace pbop
 
   Status Server::Shutdown()
   {
-    // Prevent the Run() loop to start again
+    // Set flags to prevent the Run() loop to start again
     shutdown_processed_ = false;
     shutdown_request_ = true;
 
-    // Force a connection to the server. This will force the 
-    // listening loop to verify the shutdown_request_ flag and leave.
+    // Make a dummy connection to the server. This will force the listening loop to exit the
+    // blocking Listen() function. On Listen() return, the shutdown_request_ flag is 
+    // read and the function stops looping.
     PipeConnection connection;
     Status status = connection.Connect(pipe_name_.c_str());
     if (!status.Success())
       return status;
 
-    // Allow up to 5 seconds to detect the shutdown_processed_ flag
-    static const size_t timeout_ms = 5000;
+    // Allow up to DEFAULT_TIMEOUT_TIME+2 seconds to detect the shutdown_processed_ flag
+    static const size_t timeout_ms = DEFAULT_TIMEOUT_TIME+2000;
     for(size_t i=0; i<(timeout_ms/100) && shutdown_processed_ == false; i++)
     {
       Sleep(100);
@@ -475,7 +480,7 @@ namespace pbop
 
     // Validate if server loop has shutdown
     if (shutdown_processed_ == false)
-      return Status(STATUS_CODE_CANCELLED, "The server shutdown was not verified. The server might still be running.");
+      return Status(STATUS_CODE_UNKNOWN, "The server shutdown was not verified. The server might still be running.");
 
     return Status::OK;
   }
