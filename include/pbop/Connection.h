@@ -51,11 +51,22 @@ namespace pbop
     virtual Status Write(const std::string & buffer) = 0;
 
     /// <summary>
-    /// Reads an unspecified amount data from the connection.
+    /// Reads an unspecified amount of data from the connection.
     /// </summary>
     /// <param name="buffer">The buffer that contains the readed data.</param>
     /// <returns>Returns a Status instance which code is set to STATUS_CODE_SUCCESS when the operation is successful.</returns>
     virtual Status Read(std::string & buffer) = 0;
+
+    /// <summary>
+    /// Reads an unspecified amount of data from the connection in the maximum given time.
+    /// </summary>
+    /// <param name="buffer">The buffer that contains the readed data.</param>
+    /// <param name="timeout">The maximum time allowed for the operation in milliseconds.</param>
+    /// <returns>
+    /// Returns a Status instance which code is set to STATUS_CODE_SUCCESS when the operation is successful.
+    /// If no data is received in the allowed time, the returned status code is STATUS_CODE_TIMED_OUT.
+    /// </returns>
+    virtual Status Read(std::string & buffer, unsigned long timeout) = 0;
   };
 
 }; //namespace pbop

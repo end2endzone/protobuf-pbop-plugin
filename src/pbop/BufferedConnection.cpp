@@ -62,4 +62,10 @@ namespace pbop
     return Status::OK;
   }
 
+  Status BufferedConnection::Read(std::string & buffer, unsigned long timeout)
+  {
+    return Read(buffer);
+  }
+
+
 }; //namespace pbop

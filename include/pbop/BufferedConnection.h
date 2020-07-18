@@ -45,6 +45,7 @@ namespace pbop
 
     virtual Status Write(const std::string & buffer);
     virtual Status Read(std::string & buffer);
+    virtual Status Read(std::string & buffer, unsigned long timeout);
 
   private:
     std::string * buffer_read_;
