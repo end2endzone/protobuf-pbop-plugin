@@ -18,6 +18,7 @@ set(LIBPROTOBUFPBOPPLUGIN_INCLUDE_FILES
   ${LIB_PBOP_INCLUDE_DIR}/pbop/Mutex.h
   ${LIB_PBOP_INCLUDE_DIR}/pbop/pbop.proto
   ${LIB_PBOP_INCLUDE_DIR}/pbop/PipeConnection.h
+  ${LIB_PBOP_INCLUDE_DIR}/pbop/ReadWriteLock.h
   ${LIB_PBOP_INCLUDE_DIR}/pbop/ScopeLock.h
   ${LIB_PBOP_INCLUDE_DIR}/pbop/Server.h
   ${LIB_PBOP_INCLUDE_DIR}/pbop/Service.h
@@ -41,6 +42,7 @@ add_library(pbop
   pbop.cpp
   pbop.h
   PipeConnection.cpp
+  ReadWriteLock.cpp
   ScopeLock.cpp
   Server.cpp
   Status.cpp

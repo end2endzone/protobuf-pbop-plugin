@@ -22,72 +22,47 @@
  * SOFTWARE.
  *********************************************************************************/
 
-#include "pbop/ScopeLock.h"
-#include <stdio.h>
+#ifndef LIB_PBOP_READ_WRITE_LOCK
+#define LIB_PBOP_READ_WRITE_LOCK
 
 namespace pbop
 {
 
-  ScopeLock::ScopeLock(Mutex * mutex) :
-    mutex_(mutex),
-    cs_(NULL),
-    rw_(NULL)
+  class ReadWriteLock
   {
-    mutex_->Lock();
-  }
+  private:
+    struct PImpl;
+    PImpl * impl_;
 
-  ScopeLock::ScopeLock(CriticalSection * cs) :
-    mutex_(NULL),
-    cs_(cs),
-    rw_(NULL)
-  {
-    cs->Lock();
-  }
+  public:
+    ReadWriteLock();
+    ~ReadWriteLock();
+  private:
+    ReadWriteLock(const ReadWriteLock & copy); //disable copy constructor.
+    ReadWriteLock & operator =(const ReadWriteLock & other); //disable assignment operator.
+  public:
 
-  ScopeLock::ScopeLock(ReadWriteLock * rw, Mode mode) :
-    mutex_(NULL),
-    cs_(NULL),
-    rw_(rw),
-    mode_(mode)
-  {
-    switch(mode_)
-    {
-    case READING:
-      rw_->LockRead();
-      break;
-    case WRITING:
-    default:
-      rw_->LockWrite();
-      break;
-    };
-  }
+    /// <summary>
+    /// Enter the reading critical section. Blocks other writing threads but not other reading thread until a UnlockRead() call is processed.
+    /// </summary>
+    void LockRead();
 
-  ScopeLock::~ScopeLock()
-  {
-    if (mutex_)
-    {
-      mutex_->Unlock();
-    }
-    if (cs_)
-    {
-      cs_->Unlock();
-    }
-    if (rw_)
-    {
-      switch(mode_)
-      {
-      case READING:
-        rw_->UnlockRead();
-        break;
-      case WRITING:
-      default:
-        rw_->UnlockWrite();
-        break;
-      };
-    }
+    /// <summary>
+    /// Leave the reading critical section.
+    /// </summary>
+    void UnlockRead();
 
-    mutex_ = NULL;
-    cs_ = NULL;
-  }
+    /// <summary>
+    /// Enter the writing critical section. Blocks other reading and writing threads until a UnlockWrite() call is processed.
+    /// </summary>
+    void LockWrite();
+
+    /// <summary>
+    /// Leave the writing critical section.
+    /// </summary>
+    void UnlockWrite();
+  };
 
 }; //namespace pbop
+
+#endif //LIB_PBOP_READ_WRITE_LOCK

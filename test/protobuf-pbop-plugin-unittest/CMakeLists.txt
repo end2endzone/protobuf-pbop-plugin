@@ -39,6 +39,8 @@ add_executable(protobuf-pbop-plugin_unittest
   TestPerformance.h
   TestProtoFunctions.cpp
   TestProtoFunctions.h
+  TestReadWriteLock.cpp
+  TestReadWriteLock.h
   TestServer.cpp
   TestServer.h
   TestStatus.cpp

@@ -27,19 +27,30 @@
 
 #include "pbop/Mutex.h"
 #include "pbop/CriticalSection.h"
+#include "pbop/ReadWriteLock.h"
 
 namespace pbop
 {
 
   class ScopeLock
   {
+  public:
+    enum Mode
+    {
+      READING,
+      WRITING,
+    };
+
   private:
     Mutex * mutex_;
     CriticalSection * cs_;
+    ReadWriteLock * rw_;
+    Mode mode_;
 
   public:
     ScopeLock(Mutex * mutex);
     ScopeLock(CriticalSection * cs);
+    ScopeLock(ReadWriteLock * rw, Mode mode);
   private:
     ScopeLock(const ScopeLock & copy); //disable copy constructor.
     ScopeLock & operator =(const ScopeLock & other); //disable assignment operator.

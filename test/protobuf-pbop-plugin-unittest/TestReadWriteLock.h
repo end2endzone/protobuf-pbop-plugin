@@ -22,72 +22,16 @@
  * SOFTWARE.
  *********************************************************************************/
 
-#include "pbop/ScopeLock.h"
-#include <stdio.h>
+#ifndef TEST_PBOP_PIPECONNECTION_H
+#define TEST_PBOP_PIPECONNECTION_H
 
-namespace pbop
+#include <gtest/gtest.h>
+
+class TestReadWriteLock : public ::testing::Test
 {
+public:
+  virtual void SetUp();
+  virtual void TearDown();
+};
 
-  ScopeLock::ScopeLock(Mutex * mutex) :
-    mutex_(mutex),
-    cs_(NULL),
-    rw_(NULL)
-  {
-    mutex_->Lock();
-  }
-
-  ScopeLock::ScopeLock(CriticalSection * cs) :
-    mutex_(NULL),
-    cs_(cs),
-    rw_(NULL)
-  {
-    cs->Lock();
-  }
-
-  ScopeLock::ScopeLock(ReadWriteLock * rw, Mode mode) :
-    mutex_(NULL),
-    cs_(NULL),
-    rw_(rw),
-    mode_(mode)
-  {
-    switch(mode_)
-    {
-    case READING:
-      rw_->LockRead();
-      break;
-    case WRITING:
-    default:
-      rw_->LockWrite();
-      break;
-    };
-  }
-
-  ScopeLock::~ScopeLock()
-  {
-    if (mutex_)
-    {
-      mutex_->Unlock();
-    }
-    if (cs_)
-    {
-      cs_->Unlock();
-    }
-    if (rw_)
-    {
-      switch(mode_)
-      {
-      case READING:
-        rw_->UnlockRead();
-        break;
-      case WRITING:
-      default:
-        rw_->UnlockWrite();
-        break;
-      };
-    }
-
-    mutex_ = NULL;
-    cs_ = NULL;
-  }
-
-}; //namespace pbop
+#endif //TEST_PBOP_PIPECONNECTION_H
