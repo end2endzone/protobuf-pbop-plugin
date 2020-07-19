@@ -43,7 +43,7 @@ namespace pbop
   public:
 
     /// <summary>
-    /// Acquire the mutex. Blocks other threads until a Release() call is processed.
+    /// Acquire the mutex. Blocks other threads until a Unlock() call is processed.
     /// </summary>
     void Lock();
 

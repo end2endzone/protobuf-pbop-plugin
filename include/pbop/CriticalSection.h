@@ -43,7 +43,7 @@ namespace pbop
   public:
 
     /// <summary>
-    /// Enter the critical section. Blocks other threads until a Leave() call is processed.
+    /// Enter the critical section. Blocks other threads until a Unlock() call is processed.
     /// </summary>
     void Lock();
 
