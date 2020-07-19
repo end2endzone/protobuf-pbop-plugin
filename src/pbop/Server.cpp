@@ -118,7 +118,7 @@ namespace pbop
   Server::~Server()
   {
     // Prevent other threads from manipulating services while we process this function.
-    ScopeLock scope_lock(&services_cs_);
+    ScopeLock scope_lock(&services_lock_, ScopeLock::WRITING);
 
     for(size_t i=0; i<services_.size(); i++)
     {
@@ -241,7 +241,7 @@ namespace pbop
   void Server::RegisterService(Service * service)
   {
     // Prevent other threads from manipulating services while we process this function.
-    ScopeLock scope_lock(&services_cs_);
+    ScopeLock scope_lock(&services_lock_, ScopeLock::WRITING);
 
     services_.push_back(service);
   }
@@ -249,7 +249,7 @@ namespace pbop
   Status Server::RouteMessageToServiceMethod(const std::string & input, std::string & output)
   {
     // Prevent other threads from manipulating services while we process this function.
-    ScopeLock scope_lock(&services_cs_);
+    ScopeLock scope_lock(&services_lock_, ScopeLock::READING);
 
     // Process the incoming message.
     ClientRequest client_message;

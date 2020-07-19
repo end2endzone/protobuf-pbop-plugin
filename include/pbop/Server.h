@@ -31,7 +31,7 @@
 #include "pbop/Types.h"
 #include "pbop/Events.h"
 #include "pbop/Thread.h"
-#include "pbop/CriticalSection.h"
+#include "pbop/ReadWriteLock.h"
 
 #include <string>
 #include <vector>
@@ -95,7 +95,7 @@ namespace pbop
   protected:
     std::vector<Service *> services_;
     std::vector<ClientSession *> client_sessions_;
-    CriticalSection services_cs_;
+    ReadWriteLock services_lock_;
   };
 
 }; //namespace pbop
