@@ -63,6 +63,7 @@ void TestErrorPropragation::TearDown()
 }
 
 extern std::string GetPipeNameFromTestName();
+extern std::string GetThreadPrintPrefix();
 
 class PropagatorImpl : public propragation::Propagator::Service
 {
@@ -90,28 +91,46 @@ public:
 
 };
 
-class TestPropragationServer
+class TestPropragationPlainServer
 {
 public:
   Server server;
   std::string pipe_name;
+  Thread * thread;
+  Status status;
 
-  TestPropragationServer() {}
-  ~TestPropragationServer() {}
+  TestPropragationPlainServer()
+  {
+    thread = new ThreadBuilder<TestPropragationPlainServer>(this, &TestPropragationPlainServer::Run);
+  }
+  ~TestPropragationPlainServer()
+  {
+    thread->SetInterrupt();
+    thread->Join();
+    delete thread;
+  }
 
   DWORD Run()
   {
-    printf("Starting server in blocking mode.\n");
-    Status status = server.Run(pipe_name.c_str());
-    printf("Server returned.\n");
+    std::string prefix = GetThreadPrintPrefix();
+    status = Status::OK;
+
+    printf("%s: Starting server in blocking mode.\n", prefix.c_str());
+    status = server.Run(pipe_name.c_str());
+    if (!status.Success())
+    {
+      printf("%s: Error in %s(): %d, %s\n", prefix.c_str(), __FUNCTION__, status.GetCode(), status.GetDescription().c_str());
+      return status.GetCode();
+    }
+    printf("%s: Server returned.\n", prefix.c_str());
 
     return 0;
   }
 };
 
-TEST_F(TestErrorPropragation, DISABLED_testBase)
+TEST_F(TestErrorPropragation, testBase)
 {
-  TestPropragationServer object;
+  TestPropragationPlainServer object;
 
   //assign the service implementation to the server
   PropagatorImpl * impl = new PropagatorImpl();
@@ -120,10 +139,8 @@ TEST_F(TestErrorPropragation, DISABLED_testBase)
 
   object.pipe_name = GetPipeNameFromTestName();
 
-  ThreadBuilder<TestPropragationServer> thread(&object, &TestPropragationServer::Run);
-
   // Start the thread
-  Status s = thread.Start();
+  Status s = object.thread->Start();
   ASSERT_TRUE( s.Success() ) << s.GetDescription();
 
   // Allow time for the server to start listening for connections
@@ -173,6 +190,9 @@ TEST_F(TestErrorPropragation, DISABLED_testBase)
   s = object.server.Shutdown();
   ASSERT_TRUE( s.Success() ) << s.GetDescription();
 
-  // Wait for the shutdown thread to complete
-  thread.Join();
+  // Wait for the thread to complete
+  object.thread->Join();
+
+  // Assert no error found in the thread
+  ASSERT_TRUE( object.status.Success() ) << object.status.GetDescription();
 }

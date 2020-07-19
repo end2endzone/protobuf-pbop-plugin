@@ -138,7 +138,7 @@ public:
     Status status = server.Run(pipe_name.c_str());
     if (!status.Success())
     {
-      printf("Error in %s(): %d, %s\n", __FUNCTION__, status.GetCode(), status.GetDescription().c_str());
+      printf("%s: Error in %s(): %d, %s\n", prefix.c_str(), __FUNCTION__, status.GetCode(), status.GetDescription().c_str());
       return status.GetCode();
     }
     printf("%s: Server returned.\n", prefix.c_str());
@@ -255,7 +255,7 @@ public:
     status = connection.Connect(pipe_name.c_str());
     if (!status.Success())
     {
-      printf("Error in %s(): %d, %s\n", __FUNCTION__, status.GetCode(), status.GetDescription().c_str());
+      printf("%s: Error in %s(): %d, %s\n", prefix.c_str(), __FUNCTION__, status.GetCode(), status.GetDescription().c_str());
       return status.GetCode();
     }
     printf("%s: Connected!\n", prefix.c_str());
@@ -273,7 +273,7 @@ public:
       status = connection.Write(buffer);
       if (!status.Success())
       {
-        printf("Error in %s(): %d, %s\n", __FUNCTION__, status.GetCode(), status.GetDescription().c_str());
+        printf("%s: Error in %s(): %d, %s\n", prefix.c_str(), __FUNCTION__, status.GetCode(), status.GetDescription().c_str());
         return status.GetCode();
       }
     }
@@ -431,7 +431,7 @@ public:
     status = PipeConnection::Listen(pipe_name.c_str(), &connection, NULL);
     if (!status.Success())
     {
-      printf("Error in %s(): %d, %s\n", __FUNCTION__, status.GetCode(), status.GetDescription().c_str());
+      printf("%s: Error in %s(): %d, %s\n", prefix.c_str(), __FUNCTION__, status.GetCode(), status.GetDescription().c_str());
       return status.GetCode();
     }
     printf("%s: Received connection.\n", prefix.c_str());

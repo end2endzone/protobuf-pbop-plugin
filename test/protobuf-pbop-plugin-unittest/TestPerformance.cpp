@@ -63,6 +63,7 @@ void TestPerformance::TearDown()
 }
 
 extern std::string GetPipeNameFromTestName();
+extern std::string GetThreadPrintPrefix();
 
 class FooServiceImpl : public performance::Foo::Service
 {
@@ -118,6 +119,7 @@ public:
 
   DWORD Run()
   {
+    std::string prefix = GetThreadPrintPrefix();
     completed = false;
     runtime_seconds = 0.0;
 
@@ -128,7 +130,7 @@ public:
     pbop::Status status = connection->Connect(pipe_name.c_str());
     if (!status.Success())
     {
-      printf("Error in %s(): %d, %s\n", __FUNCTION__, status.GetCode(), status.GetDescription().c_str());
+      printf("%s: Error in %s(): %d, %s\n", prefix.c_str(), __FUNCTION__, status.GetCode(), status.GetDescription().c_str());
       return status.GetCode();
     }
 
@@ -149,7 +151,7 @@ public:
       status = client.Bar(request, response);
       if (!status.Success())
       {
-        printf("Error in %s(): %d, %s\n", __FUNCTION__, status.GetCode(), status.GetDescription().c_str());
+        printf("%s: Error in %s(): %d, %s\n", prefix.c_str(), __FUNCTION__, status.GetCode(), status.GetDescription().c_str());
         return status.GetCode();
       }
     }

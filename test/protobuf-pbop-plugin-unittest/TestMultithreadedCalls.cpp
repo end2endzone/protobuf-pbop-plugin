@@ -63,6 +63,7 @@ void TestMultithreadedCalls::TearDown()
 }
 
 extern std::string GetPipeNameFromTestName();
+extern std::string GetThreadPrintPrefix();
 
 class FastSlowImpl : public multithreaded::FastSlow::Service
 {
@@ -95,15 +96,33 @@ class TestMultithreadServer
 public:
   Server server;
   std::string pipe_name;
+  Thread * thread;
+  Status status;
 
-  TestMultithreadServer() {}
-  ~TestMultithreadServer() {}
+  TestMultithreadServer()
+  {
+    thread = new ThreadBuilder<TestMultithreadServer>(this, &TestMultithreadServer::Run);
+  }
+  ~TestMultithreadServer()
+  {
+    thread->SetInterrupt();
+    thread->Join();
+    delete thread;
+  }
 
   DWORD Run()
   {
-    printf("Starting server in blocking mode.\n");
-    Status status = server.Run(pipe_name.c_str());
-    printf("Server returned.\n");
+    std::string prefix = GetThreadPrintPrefix();
+    status = Status::OK;
+
+    printf("%s: Starting server in blocking mode.\n", prefix.c_str());
+    status = server.Run(pipe_name.c_str());
+    if (!status.Success())
+    {
+      printf("%s: Error in %s(): %d, %s\n", prefix.c_str(), __FUNCTION__, status.GetCode(), status.GetDescription().c_str());
+      return status.GetCode();
+    }
+    printf("%s: Server returned.\n", prefix.c_str());
 
     return 0;
   }
@@ -113,26 +132,30 @@ class TestMultithreadClient
 {
 public:
   std::string pipe_name;
-  Thread * thread_;
+  Thread * thread;
+  Status status;
 
-  TestMultithreadClient() :
-    thread_(NULL)
+  TestMultithreadClient()
   {
-    thread_ = new ThreadBuilder<TestMultithreadClient>(this, &TestMultithreadClient::Run);
+    thread = new ThreadBuilder<TestMultithreadClient>(this, &TestMultithreadClient::Run);
   }
   ~TestMultithreadClient()
   {
-    delete thread_;
+    thread->SetInterrupt();
+    thread->Join();
+    delete thread;
   }
 
   DWORD Run()
   {
+    std::string prefix = GetThreadPrintPrefix();
+
     //Create connection to the server
     pbop::PipeConnection * connection = new pbop::PipeConnection();
-    pbop::Status status = connection->Connect(pipe_name.c_str());
+    status = connection->Connect(pipe_name.c_str());
     if (!status.Success())
     {
-      printf("Error in %s(): %d, %s\n", __FUNCTION__, status.GetCode(), status.GetDescription().c_str());
+      printf("%s: Error in %s(): %d, %s\n", prefix.c_str(), __FUNCTION__, status.GetCode(), status.GetDescription().c_str());
       return status.GetCode();
     }
 
@@ -141,18 +164,23 @@ public:
     multithreaded::SlowRequest request;
     multithreaded::SlowResponse response;
 
-    status = client.CallSlow(request, response);
-    if (!status.Success())
+    // Make 10 calls to CallSlow(). This should take ~10 seconds.
+    // Stop making calls if we are ask to stop.
+    for(size_t i=0; i<10 && !thread->IsInterrupted(); i++)
     {
-      printf("Error in %s(): %d, %s\n", __FUNCTION__, status.GetCode(), status.GetDescription().c_str());
-      return status.GetCode();
+      status = client.CallSlow(request, response);
+      if (!status.Success())
+      {
+        printf("%s: Error in %s(): %d, %s\n", prefix.c_str(), __FUNCTION__, status.GetCode(), status.GetDescription().c_str());
+        return status.GetCode();
+      }
     }
 
     return 0;
   }
 };
 
-TEST_F(TestMultithreadedCalls, DISABLED_testBase)
+TEST_F(TestMultithreadedCalls, testBase)
 {
   TestMultithreadServer server_object;
 
@@ -163,10 +191,8 @@ TEST_F(TestMultithreadedCalls, DISABLED_testBase)
 
   server_object.pipe_name = GetPipeNameFromTestName();
 
-  ThreadBuilder<TestMultithreadServer> server_thread(&server_object, &TestMultithreadServer::Run);
-
   // Start the server thread
-  Status s = server_thread.Start();
+  Status s = server_object.thread->Start();
   ASSERT_TRUE( s.Success() ) << s.GetDescription();
 
   // Allow time for the server to start listening for connections
@@ -180,10 +206,8 @@ TEST_F(TestMultithreadedCalls, DISABLED_testBase)
   TestMultithreadClient client_object;
   client_object.pipe_name = server_object.pipe_name;
 
-  ThreadBuilder<TestMultithreadClient> client_thread(&client_object, &TestMultithreadClient::Run);
-
   // Start the client thread
-  s = client_thread.Start();
+  s = client_object.thread->Start();
   ASSERT_TRUE( s.Success() ) << s.GetDescription();
 
   // Create a pipe connection to the server
@@ -191,38 +215,60 @@ TEST_F(TestMultithreadedCalls, DISABLED_testBase)
   s = connection->Connect(server_object.pipe_name.c_str());
   ASSERT_TRUE( s.Success() ) << s.GetDescription();
 
-  // Create a client for making calls to the server
+  // Create a second client for making calls to the server
+  // while client_object is also making calls to the server
   multithreaded::FastSlow::Client client(connection);
 
-  bool multithread_success = false;
+  bool multithread_proof = false;
+
+  double start_time_seconds = ra::timing::GetMillisecondsTimer();
+  double end_time_seconds = ra::timing::GetMillisecondsTimer();
+  double elapsed_time_seconds = end_time_seconds - start_time_seconds;
 
   // Make calls for 1 seconds at 100ms intervals
-  for(size_t i=0; i<10; i++)
+  // Stop making calls if we found our concurrent call proof
+  int count = 0;
+  while(elapsed_time_seconds <= 1.0 && multithread_proof == false)
   {
+    count++;
+
     multithreaded::FastRequest request;
     multithreaded::FastResponse response;
+    printf("CallFast() start count=%d\n", count);
     s = client.CallFast(request, response);
+    printf("CallFast() end   count=%d\n", count);
     ASSERT_TRUE( s.Success() ) << s.GetDescription();
 
     // Did we make our call while the server was processing a call to CallSlow()?
     bool slow_call_in_process = response.slow_call_in_process();
     if (slow_call_in_process)
-      multithread_success = true;
+      multithread_proof = true;
 
     // Wait before trying again
-    Sleep(100);
+    Sleep(50);
+
+    // Compute elapsed time
+    end_time_seconds = ra::timing::GetMillisecondsTimer();
+    elapsed_time_seconds = end_time_seconds - start_time_seconds;
   }
 
   // Wait for the multithread client to complete
-  client_thread.Join();
+  client_object.thread->SetInterrupt();
+  client_object.thread->Join();
+
+  // Assert no error found in the client thread
+  ASSERT_TRUE( client_object.status.Success() ) << client_object.status.GetDescription();
 
   // Ready to shutdown the server
   printf("Shutting down server.\n");
   s = server_object.server.Shutdown();
   ASSERT_TRUE( s.Success() ) << s.GetDescription();
 
-  // Wait for the shutdown thread to complete
-  server_thread.Join();
+  // Wait for the Server::Run call to exit
+  server_object.thread->Join();
 
-  ASSERT_TRUE( multithread_success );
+  // Assert no error found in the server thread
+  ASSERT_TRUE( server_object.status.Success() ) << server_object.status.GetDescription();
+
+  ASSERT_TRUE( multithread_proof );
 }
