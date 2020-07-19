@@ -22,6 +22,15 @@ message SayGoodbyeResponse {
   string message = 1;
 }
 
+// The TakeNap request message
+message TakeNapRequest {
+  int32 duration = 1;
+}
+
+// The TakeNap response message
+message TakeNapResponse {
+}
+
 // The greeting service definition.
 service Greeter {
   // Sends a greeting
@@ -29,4 +38,7 @@ service Greeter {
   
   // Sends a goodbye
   rpc SayGoodbye (SayGoodbyeRequest) returns (SayGoodbyeResponse);
+  
+  // Ask to take a nap
+  rpc TakeNap (TakeNapRequest) returns (TakeNapResponse);
 }

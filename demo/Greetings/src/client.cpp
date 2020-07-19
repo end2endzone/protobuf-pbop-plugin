@@ -32,7 +32,39 @@ std::string GetFilename(const std::string & path)
   return filename;
 }
 
-int main(int argc, char* argv[])
+int main_take_nap(int argc, char* argv[])
+{
+  const char * sSleepTime = argv[1];
+  int iSleepTime = atoi(sSleepTime);
+
+  printf("Running %s...\n", GetFilename(argv[0]).c_str());
+
+  pbop::PipeConnection * connection = new pbop::PipeConnection();
+  pbop::Status status = connection->Connect(kPipeName);
+  if (!status.Success())
+  {
+    printf("Error in main(): %d, %s\n", status.GetCode(), status.GetDescription().c_str());
+    return status.GetCode();
+  }
+
+  greetings::Greeter::Client client(connection);
+
+  greetings::TakeNapRequest request;
+  greetings::TakeNapResponse response;
+
+  request.set_duration(iSleepTime);
+
+  printf("Asking greeter to sleep for %d ms.\n", request.duration());
+  status = client.TakeNap(request, response);
+  if (!status.Success())
+  {
+    printf("Error in main(): %d, %s\n", status.GetCode(), status.GetDescription().c_str());
+    return status.GetCode();
+  }
+  printf("Greeter has done sleeping, what do we do now?\n");
+}
+
+int main_say_hello(int argc, char* argv[])
 {
   printf("Running %s...\n", GetFilename(argv[0]).c_str());
 
@@ -60,6 +92,16 @@ int main(int argc, char* argv[])
   }
 
   printf("Message from server: %s\n", response.message().c_str());
-
+  
   return 0;
+}
+
+int main(int argc, char* argv[])
+{
+  if (argc == 1) //if no argument was specified
+    // Say hello to server
+    return main_say_hello(argc, argv);
+  else
+    // Ask to take a nap
+    return main_take_nap(argc, argv);
 }

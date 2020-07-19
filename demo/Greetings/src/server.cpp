@@ -18,6 +18,8 @@ __pragma( warning(disable: 4146))
 __pragma( warning(pop) )
 #endif //_WIN32
 
+#include <Windows.h>
+
 static const char * kPipeName = "\\\\.\\pipe\\greetings.pipe";
 
 class GreeterServiceImpl : public greetings::Greeter::Service
@@ -37,6 +39,16 @@ public:
     response.set_message("Farewell " + request.name());
     return pbop::Status::OK;
   }
+
+  pbop::Status TakeNap(const greetings::TakeNapRequest & request, greetings::TakeNapResponse & response)
+  {
+    DWORD dwSleepTime = request.duration();
+    printf("Greeter is sleeping for %d ms\n", dwSleepTime);
+    Sleep(dwSleepTime);
+    printf("Greeter is done sleeping for %d ms\n", dwSleepTime);
+    return pbop::Status::OK;
+  }
+
 };
 
 std::string GetFilename(const std::string & path)
