@@ -31,6 +31,8 @@ add_executable(protobuf-pbop-plugin_unittest
   TestPluginRun.h
   TestBufferedConnection.cpp
   TestBufferedConnection.h
+  TestClient.cpp
+  TestClient.h
   TestErrorPropragation.cpp
   TestErrorPropragation.h
   TestMultithreadedCalls.cpp
