@@ -38,6 +38,10 @@ For local inter-process communication, in situations where low latency is a requ
 
 protobuf-pbop-plugin was created for this purpose. It provides a simple solution for implementing low-latency, fast inter-process communication (IPC) solution over Named Pipes on Windows.
 
+gRPC do not support Windows Named Pipes but a [feature request](https://github.com/grpc/grpc/issues/13447) is currently open.
+
+Other developer have created a [similar project](https://github.com/hvardhanx/ProtoIPC) but they don't seem to support [protobuf services](https://developers.google.com/protocol-buffers/docs/proto3#services). 
+
 
 
 
