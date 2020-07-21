@@ -1,6 +1,6 @@
 @LICENSE@
-#ifndef PBOP_CONFIG_H
-#define PBOP_CONFIG_H
+#ifndef LIB_PBOP_CONFIG_H
+#define LIB_PBOP_CONFIG_H
 
 @PBOP_BUILD_TYPE_CPP_DEFINE@
 
@@ -12,4 +12,4 @@
 #   define PBOP_EXPORT
 #endif
 
-#endif //PBOP_CONFIG_H
+#endif //LIB_PBOP_CONFIG_H

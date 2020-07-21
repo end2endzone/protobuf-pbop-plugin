@@ -22,8 +22,8 @@
  * SOFTWARE.
  *********************************************************************************/
 
-#ifndef LIB_PBOP_PIPE_CONNECTION
-#define LIB_PBOP_PIPE_CONNECTION
+#ifndef LIB_PBOP_BUFFERED_CONNECTION
+#define LIB_PBOP_BUFFERED_CONNECTION
 
 #include "pbop/Status.h"
 #include "pbop/Connection.h"
@@ -54,4 +54,4 @@ namespace pbop
 
 }; //namespace pbop
 
-#endif //LIB_PBOP_PIPE_CONNECTION
+#endif //LIB_PBOP_BUFFERED_CONNECTION
