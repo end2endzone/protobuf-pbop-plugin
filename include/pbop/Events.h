@@ -31,12 +31,18 @@
 namespace pbop
 {
 
+  /// <summary>
+  /// Generic base class for all events.
+  /// </summary>
   class Event
   {
   protected:
 	  virtual ~Event() {};
   };
 
+  /// <summary>
+  /// Identify an event that is published when the server starting up.
+  /// </summary>
   class EventStartup : public Event
   {
   public:
@@ -44,6 +50,9 @@ namespace pbop
     virtual ~EventStartup() {}
   };
 
+  /// <summary>
+  /// Identify an event that is published when the server is shutting down.
+  /// </summary>
   class EventShutdown : public Event
   {
   public:
@@ -51,6 +60,9 @@ namespace pbop
     virtual ~EventShutdown() {}
   };
 
+  /// <summary>
+  /// Identify an event that is published when the server starts listening for incomming connections.
+  /// </summary>
   class EventListening : public Event
   {
   public:
@@ -58,18 +70,34 @@ namespace pbop
     virtual ~EventListening() {}
   };
 
+  /// <summary>
+  /// Base class for all events related to a connection.
+  /// </summary>
   class EventConnectionBase : public Event
   {
   public:
     EventConnectionBase() {}
     virtual ~EventConnectionBase() {}
 
+    /// <summary>
+    /// Set the connection id related to this event.
+    /// </summary>
+    /// <param name="connection_id">The connection id associated to a connection.</param>
     void SetConnectionId(connection_id_t connection_id);
+
+    /// <summary>
+    /// Get the connection id related to this event.
+    /// </summary>
+    /// <returns>Returns the connection id related to this event.</returns>
     connection_id_t GetConnectionId() const;
+
   protected:
     connection_id_t connection_id_;
   };
 
+  /// <summary>
+  /// Identify an event that is published when a client has connected.
+  /// </summary>
   class EventConnection : public EventConnectionBase
   {
   public:
@@ -77,6 +105,9 @@ namespace pbop
     virtual ~EventConnection() {}
   };
 
+  /// <summary>
+  /// Identify an event that is published when a client session is created.
+  /// </summary>
   class EventClientCreate : public EventConnectionBase
   {
   public:
@@ -84,6 +115,9 @@ namespace pbop
     virtual ~EventClientCreate() {}
   };
 
+  /// <summary>
+  /// Identify an event that is published when a client session is disconnected.
+  /// </summary>
   class EventClientDisconnected : public EventConnectionBase
   {
   public:
@@ -91,6 +125,9 @@ namespace pbop
     virtual ~EventClientDisconnected() {}
   };
 
+  /// <summary>
+  /// Identify an event that is published when a client session is destroyed.
+  /// </summary>
   class EventClientDestroy : public EventConnectionBase
   {
   public:
@@ -98,13 +135,26 @@ namespace pbop
     virtual ~EventClientDestroy() {}
   };
 
+  /// <summary>
+  /// Identify an event that is published when a client session has encountered an error.
+  /// The error status is stored in the event.
+  /// </summary>
   class EventClientError : public EventConnectionBase
   {
   public:
     EventClientError() {}
     virtual ~EventClientError() {}
 
+    /// <summary>
+    /// Set the status result related to this event.
+    /// </summary>
+    /// <param name="status">The status associated to this event.</param>
     void SetStatus(const Status & status);
+
+    /// <summary>
+    /// Get the status result related to this event.
+    /// </summary>
+    /// <returns>Returns the status result related to this event.</returns>
     const Status & GetStatus() const;
   protected:
     Status status_;

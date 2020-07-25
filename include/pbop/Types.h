@@ -27,7 +27,10 @@
 
 namespace pbop
 {
+
+  ///<summary>Base type to uniquely identify each connection object.</summary>
   typedef unsigned int connection_id_t;
+
 }; //namespace pbop
 
 #endif //LIB_PBOP_TYPES

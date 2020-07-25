@@ -33,6 +33,9 @@
 namespace pbop
 {
 
+  /// <summary>
+  /// A connection class that keeps the written data in a private buffer.
+  /// </summary>
   class BufferedConnection : public Connection
   {
   public:

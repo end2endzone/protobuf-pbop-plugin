@@ -32,9 +32,11 @@
 namespace pbop
 {
 
+  /// <summary>
+  /// A protobuf service implementation
+  /// </summary>
   class Service
   {
-
   public:
     Service() {}
     virtual ~Service() {}

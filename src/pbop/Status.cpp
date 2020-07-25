@@ -48,9 +48,9 @@ namespace pbop
   {
   }
 
-  void Status::SetCode(const StatusCode & c)
+  void Status::SetCode(const StatusCode & code)
   {
-    code_ = c;
+    code_ = code;
   }
 
   const StatusCode & Status::GetCode() const
@@ -58,9 +58,9 @@ namespace pbop
     return code_;
   }
 
-  void Status::SetDescription(const std::string & m)
+  void Status::SetDescription(const std::string & description)
   {
-    description_ = m;
+    description_ = description;
   }
 
   const std::string & Status::GetDescription() const
@@ -176,7 +176,7 @@ namespace pbop
     error_message += "' in '";
     error_message += message.GetTypeName();
     error_message += "' message.";
-    return Status(STATUS_CODE_SERIALIZE_ERROR, error_message);
+    return Status(STATUS_CODE_DESERIALIZE_ERROR, error_message);
   }
 
   Status Status::Factory::NotImplemented(const char * function)

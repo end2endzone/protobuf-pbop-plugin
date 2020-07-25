@@ -32,9 +32,12 @@
 namespace pbop
 {
 
+  /// <summary>
+  /// A generic base class that provides input and output methods.
+  /// Used for writing or reading to abstract connection.
+  /// </summary>
   class Connection
   {
-
   public:
     Connection() {}
     virtual ~Connection() {}

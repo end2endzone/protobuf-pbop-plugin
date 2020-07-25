@@ -32,6 +32,13 @@
 namespace pbop
 {
 
+  /// <summary>
+  /// Protect a section of code against concurrent access in a given scope.
+  /// An instance of this class must be created on the stack.
+  /// An instance of a lockable class must be given to this class.
+  /// The given lock is maintained until the scope of the object is exit
+  /// (until the object on the stack is destroyed)
+  /// </summary>
   class ScopeLock
   {
   public:

@@ -47,10 +47,26 @@ __pragma( warning(pop) )
 namespace pbop
 {
 
+  ///<summary>Replace a string token by another in a string.</summary>
+  ///<param name="iString">The target string that will be modified.</param>
+  ///<param name="iOldValue">The old value token to replace in iString.</param>
+  ///<param name="iNewValue">The new value token to replace by in iString.</param>
+  ///<return>The a number that represents how many times we replaced the old value.</return>
   int Replace(std::string & iString, const std::string & iOldValue, const std::string & iNewValue);
+
+  ///<summary>Returns the filename (without the extension) from a path.</summary>
+  ///<param name="iPath">The full path to a file.</param>
+  ///<return>Returns the filename (without the extension).</return>
   std::string GetFilenameWithoutExtension(const char * iPath);
+
+  ///<summary>Uppercase the given string</summary>
+  ///<param name="iPath">The string input to uppercase.</param>
+  ///<return>Returns an uppercase matching the input string.</return>
   std::string Uppercase(const std::string & iValue);
 
+  ///<summary>Returns a value c++ namespace name from the protobuf package name.</summary>
+  ///<param name="iPath">The string input to uppercase.</param>
+  ///<return>Returns a value c++ namespace name from the protobuf package name.</return>
   std::string ToCppNamespace(const std::string & iPackage);
 
   ///<summary>Add the given FileDescriptor (including its dependencies) to the given DescriptorPool.</summary>

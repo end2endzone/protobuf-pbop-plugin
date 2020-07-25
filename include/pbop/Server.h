@@ -39,9 +39,11 @@
 namespace pbop
 {
 
+  /// <summary>
+  /// A pipe server that handles communication from clients.
+  /// </summary>
   class Server
   {
-
   public:
     Server();
     virtual ~Server();
@@ -56,12 +58,37 @@ namespace pbop
     /// <summary>The default reading timeout time in milliseconds.</summary>
     static const unsigned long & DEFAULT_TIMEOUT_TIME;
 
+    /// <summary>
+    /// Set the send and receive buffers size of the connection
+    /// </summary>
+    /// <param name="buffer_size">The size of the buffers in bytes.</param>
     virtual void SetBufferSize(unsigned int buffer_size);
+
+    /// <summary>
+    /// Get the send and receive buffers size of the connection
+    /// </summary>
+    /// <returns>Returns the send and receive buffers size of the connection.</returns>
     virtual unsigned int GetBufferSize() const;
 
+    /// <summary>
+    /// Get the pipe name use with the Run() command.
+    /// </summary>
+    /// <returns>Returns the pipe name use with the Run() command.</returns>
     virtual const char * GetPipeName() const;
 
+    /// <summary>
+    /// Run the server and monitors incomming connections.
+    /// The function is blocking until Shutdown() function is called.
+    /// </summary>
+    /// <param name="pipe_name">The pipe name used for listening for incomming connection.</param>
+    /// <returns>Returns a Status instance which code is set to STATUS_CODE_SUCCESS when the operation is successful.</returns>
     virtual Status Run(const char * pipe_name);
+
+    /// <summary>
+    /// Register a service implementation to the server.
+    /// The server takes ownership of the service instance.
+    /// </summary>
+    /// <param name="service">A valid service instance.</param>
     virtual void RegisterService(Service * service);
 
     // Threads support for client connections
@@ -72,17 +99,41 @@ namespace pbop
     virtual Status RouteMessageToServiceMethod(const std::string & input, std::string & output);
   public:
 
+    /// <summary>
+    /// Returns true if the server is running the Run() method.
+    /// </summary>
+    /// <returns>Returns true if the server is running the Run() method. Returns false otherwise.</returns>
     virtual bool IsRunning() const;
 
+    /// <summary>
+    /// Shut down the server. This forces the Run() method to exit gracefully.
+    /// The shutdown process may fail if Client Session are still active after the shut down signal is sent to the server.
+    /// </summary>
+    /// <returns>Returns a Status instance which code is set to STATUS_CODE_SUCCESS when the operation is successful.</returns>
     virtual Status Shutdown();
 
+    /// <summary>Callback function for the event that is published when the server starting up.</summary>
     virtual void OnEvent(EventStartup * e) {};
+
+    /// <summary>Callback function for the event that is published when the server is shutting down.</summary>
     virtual void OnEvent(EventShutdown * e) {};
+
+    /// <summary>Callback function for the event that is published when the server starts listening for incomming connections.</summary>
     virtual void OnEvent(EventListening * e) {};
+
+    /// <summary>Callback function for the event that is published when a client has connected.</summary>
     virtual void OnEvent(EventConnection * e) {};
+
+    /// <summary>Callback function for the event that is published when a client session is created.</summary>
     virtual void OnEvent(EventClientCreate * e) {};
+
+    /// <summary>Callback function for the event that is published when a client session is destroyed.</summary>
     virtual void OnEvent(EventClientDestroy * e) {};
+
+    /// <summary>Callback function for the event that is published when a client session is disconnected.</summary>
     virtual void OnEvent(EventClientDisconnected * e) {};
+
+    /// <summary>Callback function for the event that is published when a client session has encountered an error.</summary>
     virtual void OnEvent(EventClientError * e) {};
 
   private:

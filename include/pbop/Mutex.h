@@ -28,6 +28,9 @@
 namespace pbop
 {
 
+  /// <summary>
+  /// Protect a section of code against concurrent access.
+  /// </summary>
   class Mutex
   {
   private:

@@ -31,6 +31,10 @@
 namespace pbop
 {
 
+  /// <summary>
+  /// A connection class that wraps a pipe connection.
+  /// Used for writing or reading to a named pipe.
+  /// </summary>
   class PipeConnection : public Connection
   {
   private:

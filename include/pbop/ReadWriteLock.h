@@ -28,6 +28,14 @@
 namespace pbop
 {
 
+  /// <summary>
+  /// Protect a section of code against concurrent access.
+  /// This class is used in situations where there are multiple readers but few writers.
+  /// It allows locking for read or write access.
+  /// All readers do not block each others. Multiple readers can use the same sections of code.
+  /// When a write lock is requested, the class blocks the process until all readers unlocks then
+  /// the writer lock is granted. In other words, writer locks have priority over read locks.
+  /// </summary>
   class ReadWriteLock
   {
   private:
